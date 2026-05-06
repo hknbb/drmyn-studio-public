@@ -11,16 +11,16 @@ source_refs:
   - C01
   aesthetic_refs:
   - VALE_DOMESTIC_RESTRAINT
-prompt_text: 'Character identity reference: Nadia. early to mid 30s Controlled, observant,
+prompt_text: 'Character identity reference: Nadia. Early to mid 30s. Controlled, observant,
   and physically exact; reads as contained until the pressure reveals how active the
   containment is. Lean, upright, economical silhouette with no wasted motion. Muted
   neutrals and controlled domestic tones; avoid decorative saturation. World consistency:
   composed elite presentation, restrained posture, muted domestic neutrals, no ornament.
   Avoid: Do not soften her into generalized maternal warmth; she is specific, observant,
-  and physically exact.; Do not erase the compliance wound or the pulse-check habit.;
-  Do not style her as action-invulnerable or fashion-forward.; Neon cyberpunk color
-  design.; Teal-orange blockbuster simplification.; Golden sentimental domestic warmth
-  as a default treatment.. Use for consistent identity generation across scenes.'
+  and physically exact. Do not erase the compliance wound or the pulse-check habit.
+  Do not style her as action-invulnerable or fashion-forward. Neon cyberpunk color
+  design. Teal-orange blockbuster simplification. Golden sentimental domestic warmth
+  as a default treatment. Use for consistent identity generation across scenes.'
 generation_params:
   model_guidance_mode: locked_guide
   model_guidance_ref: docs/model_guides/nano_banana.yaml

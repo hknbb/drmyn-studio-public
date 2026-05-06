@@ -11,15 +11,15 @@ source_refs:
   - C01
   aesthetic_refs:
   - VALE_DOMESTIC_RESTRAINT
-prompt_text: 'Generate a character reference image of Nadia. early to mid 30s Controlled,
+prompt_text: 'Generate a character reference image of Nadia. Early to mid 30s. Controlled,
   observant, and physically exact; reads as contained until the pressure reveals how
   active the containment is. Lean, upright, economical silhouette with no wasted motion.
   Muted neutrals and controlled domestic tones; avoid decorative saturation. Visual
   world: composed elite presentation, restrained posture; muted domestic neutrals,
   no ornament. Avoid: Do not soften her into generalized maternal warmth; she is specific,
-  observant, and physically exact.; Do not erase the compliance wound or the pulse-check
-  habit.; Do not style her as action-invulnerable or fashion-forward.; Neon cyberpunk
-  color design..'
+  observant, and physically exact. Do not erase the compliance wound or the pulse-check
+  habit. Do not style her as action-invulnerable or fashion-forward. Neon cyberpunk
+  color design.'
 generation_params:
   model_guidance_mode: locked_guide
   model_guidance_ref: docs/model_guides/chatgpt_image.yaml

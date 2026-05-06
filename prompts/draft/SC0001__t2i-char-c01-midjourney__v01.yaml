@@ -33,9 +33,8 @@ expected_output:
   variation_count: 4
 status: active
 canon_lock: false
-negative_prompt: do-not-soften-her, do-not-erase-the, do-not-style-her, neon-cyberpunk-color-design,
-  teal-orange-blockbuster-simplification, golden-sentimental-domestic-warmth, do-not-aestheticize-blood,
-  do-not-let-broadcast, no-glossy-near-future-luxury, no-comic-book-violence, no-beauty-light-default-on,
-  no-abstract-drone-language, no-omniscient-spectacle-camera, no-sentimental-mother-and-child-glow,
-  do-not-drift-from, do-not-drift-from, do-not-drift-from, do-not-drift-from, do-not-drift-from,
-  do-not-drift-from
+negative_prompt: do-not-soften-into-maternal-warmth, do-not-erase-compliance-wound,
+  do-not-style-as-action-invulnerable, neon-cyberpunk-color-design, teal-orange-blockbuster-simplification,
+  golden-sentimental-domestic-warmth, do-not-aestheticize-blood, no-glossy-near-future-luxury,
+  no-comic-book-violence, no-beauty-light-default-on, no-abstract-drone-language,
+  no-omniscient-spectacle-camera, no-sentimental-mother-and-child-glow
