@@ -389,7 +389,8 @@ def _storyboard_selection_step(repo_root: Path) -> OperatorNextStep | None:
 
 
 def _prompt_review_or_generation_step(repo_root: Path) -> OperatorNextStep | None:
-    for draft in _load_prompt_drafts(repo_root):
+    all_drafts = _load_prompt_drafts(repo_root)
+    for draft in all_drafts:
         refresh_step = _placeholder_snapshot_refresh_step(repo_root, draft)
         if refresh_step is not None:
             return refresh_step
@@ -403,7 +404,19 @@ def _prompt_review_or_generation_step(repo_root: Path) -> OperatorNextStep | Non
 
         candidates = _candidate_images(element_dir)
         notes_path = _review_notes_path(repo_root, draft.prompt_id)
-        open_file_paths = [draft.path, notes_path]
+        sibling_drafts = [
+            d for d in all_drafts
+            if d.path != draft.path
+            and d.scene_id == draft.scene_id
+            and d.element_dir_name == draft.element_dir_name
+            and d.element_id == draft.element_id
+        ]
+        for sibling in sibling_drafts:
+            sibling_refresh = _placeholder_snapshot_refresh_step(repo_root, sibling)
+            if sibling_refresh is not None:
+                return sibling_refresh
+        sibling_paths = [d.path for d in sibling_drafts]
+        open_file_paths = [draft.path, *sibling_paths, notes_path]
         if element_dir is not None:
             open_file_paths.append(element_dir)
         open_files = _existing_rels(open_file_paths, repo_root)
