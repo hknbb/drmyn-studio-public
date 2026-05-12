@@ -1,5 +1,6 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it using the metadata below. A new Zenodo DOI will be assigned after minting for this release checkpoint."
+message: "If you use this software, please cite it using the metadata below."
+doi: "10.5281/zenodo.20143693"
 title: "DRMYN Studio: Repository-Native Continuity and Look-Specific Alias Governance for AI-Assisted Film Production"
 type: software
 version: "0.14.0-continuity-alias-checkpoint"

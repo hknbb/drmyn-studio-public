@@ -1,6 +1,6 @@
 # DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
-[![DOI](https://zenodo.org/badge/1227492409.svg)](https://doi.org/10.5281/zenodo.19987410)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20143693.svg)](https://doi.org/10.5281/zenodo.20143693)
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -171,17 +171,18 @@ python scripts/validate_prompt_records.py --repo-root .
 
 ## Citation
 
-For publication citation, use the current public archived release. A Zenodo DOI
-will be assigned after minting for this checkpoint.
+For publication citation, use the current public archived release.
 
 **Current release (v0.14.0-continuity-alias-checkpoint):**
 
 ```
 Babacan, H. (2026). DRMYN Studio: Repository-Native Continuity and Look-Specific
 Alias Governance for AI-Assisted Film Production
-(Version 0.14.0-continuity-alias-checkpoint) [Computer software].
-https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.14.0-continuity-alias-checkpoint
+(Version 0.14.0-continuity-alias-checkpoint) [Computer software]. Zenodo.
+https://doi.org/10.5281/zenodo.20143693
 ```
+
+Zenodo DOI: https://doi.org/10.5281/zenodo.20143693
 
 Public release repository:
 https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.14.0-continuity-alias-checkpoint
