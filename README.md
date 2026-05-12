@@ -171,19 +171,20 @@ python scripts/validate_prompt_records.py --repo-root .
 
 ## Citation
 
-This private repository is the active development/production repository and is
-not the archival citation target.
-
-For publication citation, use the public archived release:
+Use this public checkpoint release for citation:
 
 ```
-Babacan, H. (2026). DRMYN Studio: Metadata-Only AI-Assisted Movie Development and
-Production Workflow (Version 0.4.6) [Computer software]. Zenodo.
-https://doi.org/10.5281/zenodo.20121045
+Babacan, H. (2026). DRMYN Studio: Character Visual Prompt Kit Doctrine for AI-Assisted Film Production
+(Version 0.15.0-character-visual-prompt-kit-checkpoint) [Computer software].
+GitHub release: https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.0-character-visual-prompt-kit-checkpoint
 ```
 
-Public release repository:
-https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.4.6
+DOI note:
+- Zenodo DOI for v0.15.0 is minted after archive publish and then synchronized in `CITATION.cff` and `.zenodo.json`.
+
+Previous releases:
+- v0.14.0 continuity+alias checkpoint
+- v0.4.6 earlier scientific clean release
 
 For machine-readable citation metadata, see [CITATION.cff](CITATION.cff).
 For authorship and contribution details, see [AUTHORS.md](AUTHORS.md), [CONTRIBUTORS.md](CONTRIBUTORS.md),
@@ -196,3 +197,4 @@ Tagged releases are archived via Zenodo. Metadata is stored in [.zenodo.json](.z
 ## License
 
 See [LICENSE](LICENSE).
+
