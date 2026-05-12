@@ -176,10 +176,12 @@ Use this public checkpoint release for citation:
 ```
 Babacan, H. (2026). DRMYN Studio: Character Visual Prompt Kit Doctrine for AI-Assisted Film Production
 (Version 0.15.0-character-visual-prompt-kit-checkpoint) [Computer software].
-GitHub release: https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.0-character-visual-prompt-kit-checkpoint\nDOI: https://doi.org/10.5281/zenodo.20146628
+GitHub release: https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.0-character-visual-prompt-kit-checkpoint
+DOI: https://doi.org/10.5281/zenodo.20146628
 ```
 
-DOI:\n- Zenodo v0.15.0: https://doi.org/10.5281/zenodo.20146628
+DOI:
+- Zenodo v0.15.0: https://doi.org/10.5281/zenodo.20146628
 
 Previous releases:
 - v0.14.0 continuity+alias checkpoint
@@ -196,5 +198,6 @@ Tagged releases are archived via Zenodo. Metadata is stored in [.zenodo.json](.z
 ## License
 
 See [LICENSE](LICENSE).
+
 
 
