@@ -2,6 +2,7 @@
   "title": "DRMYN Studio: Character Visual Prompt Kit Doctrine for AI-Assisted Film Production",
   "upload_type": "software",
   "version": "0.15.0-character-visual-prompt-kit-checkpoint",
+  "doi": "10.5281/zenodo.20146628",
   "description": "DRMYN Studio is a metadata-only, schema-validated, human-gated research software framework for AI-assisted movie development and movie production process design, documentation, validation, and reproducibility. This checkpoint (v0.15.0-character-visual-prompt-kit-checkpoint) captures the operator-facing character visual prompt governance layer: PROD-LINE-15A-0 and PROD-LINE-15A-1 completion, character visual prompt kit doctrine, C01-C05 prompt kits, and a five-stage identity-to-look prompt workflow. It is a metadata-only scientific software checkpoint before PROD-LINE-15A real GPT Images 2 external-ref registration write-pass. Generated media outputs remain external and are referenced through metadata-only records.",
   "creators": [
     {

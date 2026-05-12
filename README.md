@@ -1,6 +1,6 @@
 # DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
-[![DOI](https://zenodo.org/badge/1227492409.svg)](https://doi.org/10.5281/zenodo.19987410)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20146628.svg)](https://doi.org/10.5281/zenodo.20146628)
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -176,11 +176,10 @@ Use this public checkpoint release for citation:
 ```
 Babacan, H. (2026). DRMYN Studio: Character Visual Prompt Kit Doctrine for AI-Assisted Film Production
 (Version 0.15.0-character-visual-prompt-kit-checkpoint) [Computer software].
-GitHub release: https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.0-character-visual-prompt-kit-checkpoint
+GitHub release: https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.0-character-visual-prompt-kit-checkpoint\nDOI: https://doi.org/10.5281/zenodo.20146628
 ```
 
-DOI note:
-- Zenodo DOI for v0.15.0 is minted after archive publish and then synchronized in `CITATION.cff` and `.zenodo.json`.
+DOI:\n- Zenodo v0.15.0: https://doi.org/10.5281/zenodo.20146628
 
 Previous releases:
 - v0.14.0 continuity+alias checkpoint
@@ -197,4 +196,5 @@ Tagged releases are archived via Zenodo. Metadata is stored in [.zenodo.json](.z
 ## License
 
 See [LICENSE](LICENSE).
+
 

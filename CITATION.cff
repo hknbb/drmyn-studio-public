@@ -1,5 +1,6 @@
 cff-version: 1.2.0
-message: "This repository is the active public checkpoint record. DOI will be synchronized after Zenodo minting for v0.15.0."
+message: "If you use this software, please cite the Zenodo DOI for v0.15.0."
+doi: 10.5281/zenodo.20146628
 title: "DRMYN Studio: Character Visual Prompt Kit Doctrine for AI-Assisted Film Production"
 type: software
 version: "0.15.0-character-visual-prompt-kit-checkpoint"
