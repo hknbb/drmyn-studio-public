@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/omni_qc_report.schema.json",
+  "title": "Omni QC Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "scene_id",
+    "clip_id",
+    "prompt_id",
+    "variant_mode",
+    "render_pass",
+    "checks",
+    "retry_rule",
+    "selected_for_next_pass",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.x-draft"},
+    "record_type": {"const": "omni_qc_report"},
+    "scene_id": {"type": "string", "pattern": "^SC\\d{4}$"},
+    "clip_id": {"type": "string", "pattern": "^CLIP_[A-Z0-9_]+$"},
+    "prompt_id": {"type": "string", "pattern": "^SC\\d{4}__[a-z0-9\\-]+__v\\d{2}$"},
+    "variant_mode": {"type": "string", "enum": ["safe", "creative", "aggressive"]},
+    "render_pass": {"type": "string", "enum": ["visual_test", "performance_test", "final_candidate", "final_locked"]},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity_consistency",
+        "location_continuity",
+        "camera_stability",
+        "motion_artifacts",
+        "hand_face_artifacts",
+        "audio_sync",
+        "unwanted_speech",
+        "narrative_beat"
+      ],
+      "properties": {
+        "identity_consistency": {"$ref": "#/$defs/check_status"},
+        "location_continuity": {"$ref": "#/$defs/check_status"},
+        "camera_stability": {"$ref": "#/$defs/check_status"},
+        "motion_artifacts": {"$ref": "#/$defs/check_status"},
+        "hand_face_artifacts": {"$ref": "#/$defs/check_status"},
+        "audio_sync": {"$ref": "#/$defs/audio_check_status"},
+        "unwanted_speech": {"$ref": "#/$defs/audio_check_status"},
+        "narrative_beat": {"$ref": "#/$defs/check_status"}
+      }
+    },
+    "failure_risks": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "lip_sync_drift",
+          "identity_drift",
+          "camera_jump",
+          "unwanted_speech",
+          "hand_artifact"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "retry_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "note"],
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "reduce_dialogue",
+            "audio_off",
+            "shorten_duration",
+            "reduce_camera_motion",
+            "increase_constraints"
+          ]
+        },
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "selected_for_next_pass": {"type": "boolean"},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewed_by", "reviewed_at"],
+      "properties": {
+        "reviewed_by": {"type": "string", "minLength": 1},
+        "reviewed_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "external_storage_ref": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "check_status": {"type": "string", "enum": ["pass", "warn", "fail"]},
+    "audio_check_status": {"type": "string", "enum": ["pass", "warn", "fail", "not_applicable"]}
+  }
+}

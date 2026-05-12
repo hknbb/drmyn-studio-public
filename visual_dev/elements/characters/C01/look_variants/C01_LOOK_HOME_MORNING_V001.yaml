@@ -1,0 +1,22 @@
+schema_version: "0.x-draft"
+record_type: character_look_variant
+look_id: C01_LOOK_HOME_MORNING_V001
+character_id: C01
+inherits_identity_anchor: C01_IDENTITY_ANCHOR_V001
+status: draft
+look_role: domestic_morning
+wardrobe_refs:
+  primary_wardrobe_id: WD001
+  supplementary_wardrobe_ids: []
+appearance_state:
+  fatigue_level: nominal
+  damage_level: none
+  hair_state_within_anchor: controlled morning restraint
+continuity_scope:
+  start_scene: SC0001
+  end_scene: SC0003
+change_reason: opening domestic morning continuity
+notes: Draft seed look variant for early home continuity.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

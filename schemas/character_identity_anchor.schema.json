@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/character_identity_anchor.schema.json",
+  "title": "Character Identity Anchor Record",
+  "description": "Defines stable character identity anchors and hero-lock sourcing doctrine.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "identity_anchor_id",
+    "character_id",
+    "status",
+    "source_reference_strategy",
+    "source_reference_sheet_ref",
+    "front_hero_lock_ref",
+    "fixed_identity_anchors",
+    "mutable_appearance_allowed",
+    "forbidden_drift",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.x-draft" },
+    "record_type": { "type": "string", "const": "character_identity_anchor" },
+    "identity_anchor_id": {
+      "type": "string",
+      "pattern": "^C\\d{2}_IDENTITY_ANCHOR_V\\d{3}$"
+    },
+    "character_id": { "type": "string", "pattern": "^C\\d{2}$" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "locked", "blocked", "rejected"]
+    },
+    "source_reference_strategy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_sheet_allowed_as_identity_source",
+        "final_hero_lock_requires_single_clean_image",
+        "contact_sheet_layout_forbidden_as_lock"
+      ],
+      "properties": {
+        "reference_sheet_allowed_as_identity_source": { "type": "boolean" },
+        "final_hero_lock_requires_single_clean_image": { "type": "boolean" },
+        "contact_sheet_layout_forbidden_as_lock": { "type": "boolean" }
+      }
+    },
+    "source_reference_sheet_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500
+    },
+    "front_hero_lock_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pending", "external_ref"],
+      "properties": {
+        "pending": { "type": "boolean" },
+        "external_ref": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "fixed_identity_anchors": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+    },
+    "mutable_appearance_allowed": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+    },
+    "forbidden_drift": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+    },
+    "notes": { "type": "string", "maxLength": 2000 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by", "created_at"],
+      "properties": {
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "git_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": { "const": "locked" }
+        },
+        "required": ["status"]
+      },
+      "then": {
+        "properties": {
+          "front_hero_lock_ref": {
+            "properties": {
+              "pending": { "const": false }
+            },
+            "required": ["pending"]
+          }
+        }
+      }
+    }
+  ]
+}

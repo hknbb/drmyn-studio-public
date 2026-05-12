@@ -1,0 +1,57 @@
+schema_version: "0.x-draft"
+record_type: gpt_images_perspective_pack
+prompt_pack_id: GPTIMG2_C01_PERSPECTIVE_PACK_V001
+status: draft
+source_reference_id: MJ_ELEMENT_C01_HERO_LOCKED_V001
+target_model: gpt_images_2
+target_role: multi_perspective_element_expander
+element_id: C01
+element_type: character
+shared_preservation_instruction: Preserve exact identity, silhouette, wardrobe/material palette, and change only perspective.
+prompts:
+  - prompt_id: GPTIMG2_C01_P01_FRONT_V001
+    perspective: front_hero
+    prompt_text: Front hero perspective of C01; preserve identity anchors and wardrobe geometry.
+    constraints:
+      - preserve facial topology
+      - preserve muted domestic palette
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_C01_P02_LEFT_V001
+    perspective: three_quarter_left
+    prompt_text: Three-quarter left perspective of C01; preserve exact identity and silhouette.
+    constraints:
+      - preserve facial topology
+      - preserve muted domestic palette
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_C01_P03_RIGHT_V001
+    perspective: three_quarter_right
+    prompt_text: Three-quarter right perspective of C01; preserve exact identity and silhouette.
+    constraints:
+      - preserve facial topology
+      - preserve muted domestic palette
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_C01_P04_REAR_V001
+    perspective: rear_or_side
+    prompt_text: Rear or side perspective of C01; preserve hair shape, silhouette, and wardrobe material logic.
+    constraints:
+      - preserve silhouette continuity
+      - preserve accessory continuity
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+qc_gate:
+  minimum_score: 85
+  all_perspectives_required: true
+  failed_perspective_revision_only: true
+downstream_use:
+  - kling_omni_3_shot_prompt

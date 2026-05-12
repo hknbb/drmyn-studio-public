@@ -1,0 +1,50 @@
+﻿schema_version: "0.x-draft"
+record_type: perspective_qc_report
+perspective_qc_id: PQC_C01_PERSPECTIVE_PACK_V001
+status: draft
+scene_id: SC0001
+element_id: C01
+prompt_pack_id: GPTIMG2_C01_PERSPECTIVE_PACK_V001
+operator_session_ref: OP-PROD-LINE-6-SC0001-PERSPECTIVE-REVIEW
+perspective_scores:
+  - prompt_id: GPTIMG2_C01_P01_FRONT_V001
+    perspective: front_hero
+    identity_preservation: null
+    perspective_usefulness: null
+    material_palette_continuity: null
+    production_reference_cleanliness: null
+    hallucination_absence: null
+    total_score: null
+    decision: pending
+  - prompt_id: GPTIMG2_C01_P02_LEFT_V001
+    perspective: three_quarter_left
+    identity_preservation: null
+    perspective_usefulness: null
+    material_palette_continuity: null
+    production_reference_cleanliness: null
+    hallucination_absence: null
+    total_score: null
+    decision: pending
+  - prompt_id: GPTIMG2_C01_P03_RIGHT_V001
+    perspective: three_quarter_right
+    identity_preservation: null
+    perspective_usefulness: null
+    material_palette_continuity: null
+    production_reference_cleanliness: null
+    hallucination_absence: null
+    total_score: null
+    decision: pending
+  - prompt_id: GPTIMG2_C01_P04_REAR_V001
+    perspective: rear_or_side
+    identity_preservation: null
+    perspective_usefulness: null
+    material_palette_continuity: null
+    production_reference_cleanliness: null
+    hallucination_absence: null
+    total_score: null
+    decision: pending
+gate:
+  minimum_score: 85
+  all_four_required: true
+  can_advance_to_kling_reference: false
+notes: QC scaffold only; generated images do not exist yet.

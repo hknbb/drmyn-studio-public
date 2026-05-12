@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/perspective_qc_report.schema.json",
+  "title": "Perspective QC Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "perspective_qc_id",
+    "status",
+    "scene_id",
+    "element_id",
+    "prompt_pack_id",
+    "operator_session_ref",
+    "perspective_scores",
+    "gate",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.x-draft"},
+    "record_type": {"const": "perspective_qc_report"},
+    "perspective_qc_id": {"type": "string", "minLength": 1},
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "locked", "materialized", "blocked", "rejected"]
+    },
+    "scene_id": {"type": "string", "pattern": "^SC\\d{4}$"},
+    "element_id": {"type": "string", "minLength": 1},
+    "prompt_pack_id": {"type": "string", "minLength": 1},
+    "operator_session_ref": {"type": "string", "minLength": 1},
+    "perspective_scores": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "prompt_id",
+          "perspective",
+          "identity_preservation",
+          "perspective_usefulness",
+          "material_palette_continuity",
+          "production_reference_cleanliness",
+          "hallucination_absence",
+          "total_score",
+          "decision"
+        ],
+        "properties": {
+          "prompt_id": {"type": "string", "minLength": 1},
+          "perspective": {
+            "type": "string",
+            "enum": ["front_hero", "three_quarter_left", "three_quarter_right", "rear_or_side"]
+          },
+          "identity_preservation": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+          "perspective_usefulness": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+          "material_palette_continuity": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+          "production_reference_cleanliness": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+          "hallucination_absence": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+          "total_score": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+          "decision": {"type": "string", "enum": ["pending", "pass", "revise", "fail"]}
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minimum_score", "all_four_required", "can_advance_to_kling_reference"],
+      "properties": {
+        "minimum_score": {"type": "integer", "minimum": 0, "maximum": 100},
+        "all_four_required": {"type": "boolean"},
+        "can_advance_to_kling_reference": {"type": "boolean"}
+      }
+    },
+    "notes": {"type": "string", "minLength": 1}
+  }
+}

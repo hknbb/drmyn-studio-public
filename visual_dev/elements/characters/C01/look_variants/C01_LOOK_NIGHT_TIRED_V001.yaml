@@ -1,0 +1,22 @@
+schema_version: "0.x-draft"
+record_type: character_look_variant
+look_id: C01_LOOK_NIGHT_TIRED_V001
+character_id: C01
+inherits_identity_anchor: C01_IDENTITY_ANCHOR_V001
+status: draft
+look_role: night_tired
+wardrobe_refs:
+  primary_wardrobe_id: WD001
+  supplementary_wardrobe_ids: []
+appearance_state:
+  fatigue_level: tired
+  damage_level: none
+  hair_state_within_anchor: loosened but still within short wavy bob identity anchor
+continuity_scope:
+  start_scene: SC0004
+  end_scene: SC0009
+change_reason: night continuity draft after opening domestic morning block, bounded by KNOWN canon window
+notes: Draft planning look only; does not assign exact scene usage or change external references. continuity_scope bounded to SC0009 because SC0010+ canon is UNRESOLVED.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

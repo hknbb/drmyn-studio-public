@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/review_decision_record.schema.json",
+  "title": "Review Decision Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "review_decision_id",
+    "status",
+    "scene_id",
+    "target_record_type",
+    "target_record_id",
+    "target_path",
+    "operator_session_ref",
+    "decision",
+    "rationale",
+    "required_followup",
+    "applied",
+    "resulting_status",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.x-draft"},
+    "record_type": {"const": "review_decision_record"},
+    "review_decision_id": {"type": "string", "pattern": "^RD_[A-Z0-9_]+$"},
+    "status": {"type": "string", "enum": ["draft", "review", "blocked", "skipped"]},
+    "scene_id": {
+      "anyOf": [
+        {"type": "string", "pattern": "^SC\\d{4}$"},
+        {"type": "null"}
+      ]
+    },
+    "target_record_type": {
+      "type": "string",
+      "enum": [
+        "gpt_images_perspective_pack",
+        "kling_element_reference_record",
+        "dialogue_extract_record",
+        "performance_intent_record",
+        "voice_binding_record",
+        "native_audio_compatibility_record",
+        "kling_shot_prompt_record",
+        "perspective_qc_report",
+        "dialogue_qc_report",
+        "omni_qc_report",
+        "production_batch"
+      ]
+    },
+    "target_record_id": {"type": "string", "minLength": 1},
+    "target_path": {"type": "string", "minLength": 1},
+    "operator_session_ref": {"type": "string", "pattern": "^OP-[A-Za-z0-9_.-]+$"},
+    "decision": {"type": "string", "enum": ["revise", "no", "blocked"]},
+    "rationale": {"type": "string", "minLength": 1},
+    "required_followup": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "applied": {"const": false},
+    "resulting_status": {"type": "null"},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by", "created_at"],
+      "properties": {
+        "created_by": {"type": "string", "minLength": 1},
+        "created_at": {"type": "string", "format": "date-time"}
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+wardrobe_id: WD006
+name: "Marcus private operational attire"
+character_id: C05
+visual_description: "Plain operational-private wardrobe for rented-room and anonymous-room memory scenes; exact piece-level breakdown remains unresolved."
+semiotic_function: "Keeps Marcus emotionally legible without romanticized styling; supports secrecy and mobility."
+color_profile: "Muted dark neutrals."
+texture_notes: "Practical understated fabrics; no visual flourish."
+associated_character: "Marcus Chen"
+narrative_phase: "setup catalyst memory/intimacy presentation"
+silhouette: "Quietly watchful and contained."
+palette_bias: "Subdued neutral range."
+material_notes: "Grounded realism over polish."
+wear_state: "Night-memory pilot baseline."
+continuity_constraints:
+  - "Should remain understated across SC0004, SC0008, and SC0009 carry-over context."
+  - "Do not stylize into heroic or editorial look language."
+scene_anchors:
+  - SC0004
+  - SC0008
+  - SC0009
+movement_notes: "Supports deliberate low-amplitude movement and stillness."
+weather_logic: "Interior/night contexts in current canon window."
+layering_notes: "UNRESOLVED - whether one base layer or subtle variation is needed."
+continuity_state:
+  initial_state: "Marcus baseline private-operational look."
+  state_changes: []
+scene_refs:
+  - SC0004
+  - SC0008
+  - SC0009
+unresolved_questions:
+  - "TODO_REVIEW: lock exact garment continuity once later scene hydration matures."
+status: review
+review_status: pending
+canon_lock: false

@@ -1,10 +1,10 @@
-﻿# Scientific Clean Release Manifest
+# Scientific Clean Release Manifest
 
 **Project:** DRMYN Studio  
 **Case study:** *Closing Price* AI-assisted film project  
-**Release state:** v0.4.6 - Scientific clean sync release  
-**Verified date:** 2026-05-11  
-**Tests:** 1247 passed  
+**Release state:** v0.4.0 — Three-agent orchestration + movie development and production process scope  
+**Verified date:** 2026-05-06  
+**Tests:** 505 passed  
 **Validators:** clean  
 
 This document is the authoritative reference for what is and is not included in
@@ -46,7 +46,7 @@ The repository is not limited to screenplay generation. Screenplay-related files
 when present, are treated as one source component within the broader movie
 development process.
 
-The software citation author is Hakan Babacan. Ra. Dr. Serra Ã‡elik and
+The software citation author is Hakan Babacan. Ra. Dr. Serra Çelik and
 Assoc. Prof. Dr. Gizem Parlayandemir Sayan are recorded as software contributors
 in `.zenodo.json` and in [docs/publication/contributor_roles.md](contributor_roles.md).
 The related article is authored by all three researchers.
@@ -59,7 +59,7 @@ The related article is authored by all three researchers.
 |---|---|---|
 | Development source package | `source/` | Canonical source records for the movie development process; screenplay files are one source component |
 | Planning records | `planning/` | Scene, character, location, continuity, aesthetic, and production-planning metadata |
-| Prompt governance records | `prompts/` | Prompt lifecycle: draft â†’ review â†’ approved â†’ locked |
+| Prompt governance records | `prompts/` | Prompt lifecycle: draft → review → approved → locked |
 | JSON Schemas | `schemas/` | 20+ schemas, all `additionalProperties: false`, draft 2020-12 |
 | Validators | `scripts/validate_*.py` | Production, prompt, phase1, referential integrity |
 | Three-agent copilot layer | `scripts/agents/` | `operator_next_step.py`, `copilot_command.py`, `pr_helper.py`; auto-handoff + pickup mode |
@@ -94,7 +94,7 @@ The following are intentionally absent from this repository:
 | Local absolute media paths (canonical) | `local://` URI convention used for canonical refs; absolute paths are operator-local only |
 | Auto-merge logic | All lifecycle promotion requires human PR review |
 | `.claude/settings.local.json` | Local agent configuration; not part of reproducible pipeline |
-| Generated pilot production outputs | Not yet present; pilot run is postâ€“scientific clean release |
+| Generated pilot production outputs | Not yet present; pilot run is post–scientific clean release |
 
 ---
 
@@ -106,7 +106,7 @@ Run from the repository root to verify reproducibility:
 # Python environment
 pip install -r requirements.txt           # or: pip install pyyaml jsonschema
 
-# 1. Full test suite (548 tests, all tmp_path only)
+# 1. Full test suite (328 tests, all tmp_path only)
 python -m pytest -q
 
 # 2. Production records validator
@@ -132,9 +132,9 @@ python -m streamlit run tools/copilot_dashboard/app.py
 Expected results for a clean release state:
 
 ```text
-python -m pytest -q               â†’ N passed (no failures)
-validate_production_records.py    â†’ valid: N, invalid: 0
-validate_prompt_records.py        â†’ 0 files or N passed
+python -m pytest -q               → N passed (no failures)
+validate_production_records.py    → valid: N, invalid: 0
+validate_prompt_records.py        → 0 files or N passed
 ```
 
 ---
@@ -143,23 +143,23 @@ validate_prompt_records.py        â†’ 0 files or N passed
 
 | Item | Status |
 |---|---|
-| HA-0 doctrine docs (AGENTS.md, human_agent_copilot.md) | âœ… merged PR #9 |
-| HA-1 agent_handoff schema + validator | âœ… merged PR #9 |
-| HA-2 storage URI vocabulary | âœ… merged PR #10 |
-| HA-2.5 model guidance refresh gate | âœ… merged PR #11 |
-| HA-3a/3b/3c copilot commands (switch/yes/no/revise) + pr_helper | âœ… merged PR #9, #12, #13 |
-| HA-4a/b-1/b-2/c Streamlit dashboard (read + command + review + PR panel) | âœ… merged PR #14â€“#18 |
-| HA-5 local media index schema + validator | âœ… merged PR #19 |
-| HA-6 end-to-end operator loop dry-run test | âœ… merged PR #20 |
-| B8-3 recommended_next_agent routing | âœ… merged PR #51 |
-| B8-4 auto-handoff + pickup mode | âœ… merged PR #53 |
-| B8-5 storage_policy clarification + intake_slot schema | âœ… merged PR #54 |
-| v0.4.0 publication metadata (authorship, scope, contributors) | âœ… this batch |
-| Full test suite | âœ… 548 passed |
-| Production records validator | âœ… valid: 18, invalid: 0 |
-| Prompt records validator | âœ… clean |
-| No binaries committed | âœ… confirmed |
-| No tokens or credentials in repo | âœ… confirmed |
+| HA-0 doctrine docs (AGENTS.md, human_agent_copilot.md) | ✅ merged PR #9 |
+| HA-1 agent_handoff schema + validator | ✅ merged PR #9 |
+| HA-2 storage URI vocabulary | ✅ merged PR #10 |
+| HA-2.5 model guidance refresh gate | ✅ merged PR #11 |
+| HA-3a/3b/3c copilot commands (switch/yes/no/revise) + pr_helper | ✅ merged PR #9, #12, #13 |
+| HA-4a/b-1/b-2/c Streamlit dashboard (read + command + review + PR panel) | ✅ merged PR #14–#18 |
+| HA-5 local media index schema + validator | ✅ merged PR #19 |
+| HA-6 end-to-end operator loop dry-run test | ✅ merged PR #20 |
+| B8-3 recommended_next_agent routing | ✅ merged PR #51 |
+| B8-4 auto-handoff + pickup mode | ✅ merged PR #53 |
+| B8-5 storage_policy clarification + intake_slot schema | ✅ merged PR #54 |
+| v0.4.0 publication metadata (authorship, scope, contributors) | ✅ this batch |
+| Full test suite | ✅ 505 passed |
+| Production records validator | ✅ valid: 18, invalid: 0 |
+| Prompt records validator | ✅ clean |
+| No binaries committed | ✅ confirmed |
+| No tokens or credentials in repo | ✅ confirmed |
 
 ---
 
@@ -187,12 +187,12 @@ commands in Section 4.
 ## 7. Storage Doctrine
 
 ```text
-Canonical metadata (YAML, CSV, Markdown)    â†’ this repository (git, text)
-Locked canonical images (â‰¤ 20/element)      â†’ repository + Git LFS
-Generated candidate images (bulk)           â†’ external storage; local:// or gdrive:// URI refs
-Video takes (Kling Omni outputs)            â†’ external storage; platform_asset_ref + external_storage_ref
-Post-production proxies / audio             â†’ external storage
-Model output binaries                       â†’ external storage; never committed
+Canonical metadata (YAML, CSV, Markdown)    → this repository (git, text)
+Locked canonical images (≤ 20/element)      → repository + Git LFS
+Generated candidate images (bulk)           → external storage; local:// or gdrive:// URI refs
+Video takes (Kling Omni outputs)            → external storage; platform_asset_ref + external_storage_ref
+Post-production proxies / audio             → external storage
+Model output binaries                       → external storage; never committed
 ```
 
 External storage references appear in repository metadata as URI strings
@@ -276,11 +276,10 @@ for machine-readable citation metadata.
 
 The software citation author is **Hakan Babacan**.
 
-Ra. Dr. Serra Ã‡elik and Assoc. Prof. Dr. Gizem Parlayandemir Sayan are
+Ra. Dr. Serra Çelik and Assoc. Prof. Dr. Gizem Parlayandemir Sayan are
 recorded as software contributors in `.zenodo.json` and in
 [docs/publication/contributor_roles.md](contributor_roles.md).
 The related article is authored by all three researchers.
 
 For full authorship details, see [AUTHORS.md](../../AUTHORS.md) and
 [CONTRIBUTORS.md](../../CONTRIBUTORS.md).
-

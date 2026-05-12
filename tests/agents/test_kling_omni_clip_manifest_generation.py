@@ -256,7 +256,193 @@ class TestGenerateFromClipManifest:
         result = adapter.generate_from_clip_manifest(str(manifest_path))
 
         prompt_id = result.prompt_record["prompt_id"]
-        assert prompt_id.startswith("SC0001__omni-kling-omni-clip-clip-sc0001-03__v01")
+        assert prompt_id.startswith("SC0001__omni-kling-omni-clip-clip-sc0001-03-safe__v01")
+
+    def test_variant_mode_written_to_generation_params(self, tmp_path):
+        manifest_path = _create_manifest(tmp_path)
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(
+            str(manifest_path),
+            variant_mode="creative",
+            render_pass="performance_test",
+            quality_tier="final_1080p",
+        )
+        params = result.prompt_record["generation_params"]
+        assert params["variant_mode"] == "creative"
+        assert params["render_pass"] == "performance_test"
+        assert params["quality_tier"] == "final_1080p"
+        assert params["prompt_component_model"].endswith(
+            "docs/methodology/omni_prompt_component_model.md"
+        )
+
+    def test_prompt_id_slug_includes_variant_mode(self, tmp_path):
+        manifest_path = _create_manifest(tmp_path, clip_id="CLIP_SC0001_05")
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(
+            str(manifest_path), variant_mode="aggressive"
+        )
+        assert "-aggressive__v01" in result.prompt_record["prompt_id"]
+
+    def test_invalid_variant_mode_fails(self, tmp_path):
+        manifest_path = _create_manifest(tmp_path)
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+        with pytest.raises(KlingOmniAdapterError, match="Invalid variant_mode"):
+            adapter.generate_from_clip_manifest(str(manifest_path), variant_mode="wild")
+
+    def test_visual_test_allows_audio_off_with_blocked_voice(self, tmp_path):
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=[{
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 5,
+                "source_beat_ids": ["B1"],
+                "required_element_ids": ["C01"],
+                "prompt_action": "NADIA speaks briefly.",
+                "duration_reason": "test 5s",
+            }],
+            kling_native_audio={"enabled": False, "provider_policy": "kling_native_only"},
+            total_duration=5,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[{
+            "schema_version": "0.x-draft",
+            "record_type": "element_binding",
+            "element_id": "C01",
+            "element_type": "character",
+            "kling_alias": "@Nadia",
+            "binding_status": "created",
+            "native_audio_readiness": "blocked",
+        }])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path), render_pass="visual_test")
+        params = result.prompt_record["generation_params"]
+        assert params["audio_gate_status"] == "allowed_audio_off"
+        assert params["audio_gate_reason"] == "visual_test_default_audio_off"
+
+    def test_performance_pass_blocks_when_speaker_not_ready(self, tmp_path):
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=[{
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 5,
+                "source_beat_ids": ["B1"],
+                "required_element_ids": ["C01"],
+                "prompt_action": "NADIA speaks briefly.",
+                "duration_reason": "test 5s",
+            }],
+            kling_native_audio={"enabled": True, "provider_policy": "kling_native_only"},
+            total_duration=5,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[{
+            "schema_version": "0.x-draft",
+            "record_type": "element_binding",
+            "element_id": "C01",
+            "element_type": "character",
+            "kling_alias": "@Nadia",
+            "binding_status": "created",
+            "native_audio_readiness": "blocked",
+        }])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path), render_pass="performance_test")
+        params = result.prompt_record["generation_params"]
+        assert params["audio_gate_status"] == "blocked"
+        assert "speaker_not_ready" in params["audio_gate_reason"]
+        assert "kling_native_audio" not in params
+
+    def test_performance_pass_blocks_when_speaker_binding_is_planned(self, tmp_path):
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=[{
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 5,
+                "source_beat_ids": ["B1"],
+                "required_element_ids": ["C01"],
+                "prompt_action": "NADIA speaks briefly.",
+                "duration_reason": "test 5s",
+            }],
+            kling_native_audio={"enabled": True, "provider_policy": "kling_native_only"},
+            total_duration=5,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[{
+            "schema_version": "0.x-draft",
+            "record_type": "element_binding",
+            "element_id": "C01",
+            "element_type": "character",
+            "kling_alias": "@Nadia",
+            "binding_status": "planned",
+            "native_audio_readiness": "blocked",
+        }])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path), render_pass="performance_test")
+        params = result.prompt_record["generation_params"]
+        assert params["audio_gate_status"] == "blocked"
+        assert "speaker_not_ready:C01" in params["audio_gate_reason"]
+
+    def test_performance_pass_blocks_when_speaker_binding_missing(self, tmp_path):
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=[{
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 5,
+                "source_beat_ids": ["B1"],
+                "required_element_ids": ["C01"],
+                "prompt_action": "NADIA speaks briefly.",
+                "duration_reason": "test 5s",
+            }],
+            kling_native_audio={"enabled": True, "provider_policy": "kling_native_only"},
+            total_duration=5,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        # No element_bindings file at all -> missing readiness must block.
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path), render_pass="performance_test")
+        params = result.prompt_record["generation_params"]
+        assert params["audio_gate_status"] == "blocked"
+        assert "speaker_not_ready:C01" in params["audio_gate_reason"]
+
+    def test_final_candidate_requires_ready_speaker_bindings(self, tmp_path):
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=[{
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 5,
+                "source_beat_ids": ["B1"],
+                "required_element_ids": ["C01"],
+                "prompt_action": "NADIA speaks briefly.",
+                "duration_reason": "test 5s",
+            }],
+            kling_native_audio={"enabled": True, "provider_policy": "kling_native_only"},
+            total_duration=5,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[{
+            "schema_version": "0.x-draft",
+            "record_type": "element_binding",
+            "element_id": "C01",
+            "element_type": "character",
+            "kling_alias": "@Nadia",
+            "binding_status": "created",
+            "native_audio_readiness": "ready",
+        }])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path), render_pass="final_candidate")
+        params = result.prompt_record["generation_params"]
+        assert params["audio_gate_status"] == "allowed"
+        assert params["audio_gate_reason"] == "speakers_ready"
+        assert params["kling_native_audio"]["enabled"] is True
 
     def test_manifest_source_refs_includes_required_fields(self, tmp_path):
         """source_refs must include scene_card and scene_excerpt."""
@@ -306,6 +492,35 @@ class TestGenerateFromClipManifest:
         assert "Shot 2" in prompt_text
         assert "Shot 3" in prompt_text
         assert "(5s)" in prompt_text
+
+    @pytest.mark.parametrize("mode", ["safe", "creative", "aggressive"])
+    def test_variant_modes_keep_source_actions(self, tmp_path, mode):
+        manifest_path = _create_manifest(tmp_path)
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path), variant_mode=mode)
+        prompt_text = result.prompt_record["prompt_text"]
+        assert "maps rooms" in prompt_text.lower()
+
+    def test_variant_specific_prompt_phrasing(self, tmp_path):
+        manifest_path = _create_manifest(tmp_path)
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+        safe_text = adapter.generate_from_clip_manifest(
+            str(manifest_path), variant_mode="safe"
+        ).prompt_record["prompt_text"].lower()
+        creative_text = adapter.generate_from_clip_manifest(
+            str(manifest_path), variant_mode="creative"
+        ).prompt_record["prompt_text"].lower()
+        aggressive_text = adapter.generate_from_clip_manifest(
+            str(manifest_path), variant_mode="aggressive"
+        ).prompt_record["prompt_text"].lower()
+
+        assert "variant safe" in safe_text and "restrained" in safe_text
+        assert "variant creative" in creative_text and "atmospheric enrichment" in creative_text
+        assert "variant aggressive" in aggressive_text and "stronger cinematic expression" in aggressive_text
 
     def test_manifest_expected_output_duration(self, tmp_path):
         """expected_output.duration_seconds must equal manifest total_duration_seconds."""

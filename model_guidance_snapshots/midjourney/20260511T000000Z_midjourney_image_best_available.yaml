@@ -1,0 +1,46 @@
+﻿record_type: model_guidance_snapshot
+schema_version: "0.x-draft"
+snapshot_id: "20260511T000000Z_midjourney_image_best_available"
+internal_model_target: midjourney_image_best_available
+provider: midjourney
+model_family: image_generation
+provider_surface: web_ui
+observed_at: "2026-05-11T00:00:00Z"
+expires_at: "2026-05-25T00:00:00Z"
+human_verified: true
+current_default_model: "V7"
+latest_available_model: "V8.1"
+best_for_this_task: "V8.1"
+feature_required_model:
+  consistency_reference: "V7"
+  style_raw: "V8.1"
+version_policy:
+  hardcode_in_adapter: false
+  adapter_must_read_snapshot: true
+  prompt_generation_blocks_if_expired: true
+  prompt_generation_blocks_if_unverified: true
+sources:
+  - source_type: official_docs
+    title: "Midjourney Version Documentation"
+    retrieved_at: "2026-05-11T00:00:00Z"
+    url: "https://docs.midjourney.com/hc/en-us/articles/32199405667853-Version"
+  - source_type: official_release_notes
+    title: "Midjourney V8.1 release notes"
+    retrieved_at: "2026-05-11T00:00:00Z"
+    url: "https://updates.midjourney.com/v8-1-alpha/"
+capabilities:
+  output_type: image
+  supports_negative_prompt_via_flag: true
+  supports_seed: true
+  supports_image_reference: true
+constraints:
+  default_version: "V7"
+  current_full_release: "V8.1"
+  prompt_length_guidance: "Target 40-50 meaningful words."
+prompting_rules:
+  - "Pin explicit version (--v 7, --v 8, or --v 8.1); do not rely on defaults."
+  - "Use subject-first structure with specific visual and material details."
+  - "Use --no at prompt end for exclusions; keep exclusions concise."
+provenance:
+  created_by: codex
+  created_at: "2026-05-11T00:00:00Z"

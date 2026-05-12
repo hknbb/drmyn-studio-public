@@ -1,0 +1,22 @@
+schema_version: "0.x-draft"
+record_type: character_look_variant
+look_id: C02_LOOK_CORPORATE_CONTROL_V001
+character_id: C02
+inherits_identity_anchor: C02_IDENTITY_ANCHOR_V001
+status: draft
+look_role: corporate_control
+wardrobe_refs:
+  primary_wardrobe_id: WD003
+  supplementary_wardrobe_ids: []
+appearance_state:
+  fatigue_level: nominal
+  damage_level: none
+  hair_state_within_anchor: controlled antagonist presentation within identity anchor
+continuity_scope:
+  start_scene: SC0002
+  end_scene: SC0007
+change_reason: known canon corporate-control continuity block before domestic authority look
+notes: Draft role-based look variant for C02 inside SC0001-SC0009 only; no scene assignment in this PR.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

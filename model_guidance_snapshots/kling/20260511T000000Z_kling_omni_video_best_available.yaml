@@ -1,0 +1,47 @@
+﻿record_type: model_guidance_snapshot
+schema_version: "0.x-draft"
+snapshot_id: "20260511T000000Z_kling_omni_video_best_available"
+internal_model_target: kling_omni_video_best_available
+provider: kling
+model_family: video_generation
+provider_surface: manual_external
+observed_at: "2026-05-11T00:00:00Z"
+expires_at: "2026-05-18T00:00:00Z"
+human_verified: true
+current_default_model: "Kling 3.0 Omni"
+latest_available_model: "Kling 3.0 Omni"
+best_for_this_task: "Kling 3.0 Omni"
+feature_required_model:
+  native_audio: "Kling 3.0 Omni"
+  multi_shot: "Kling 3.0 Omni"
+  element_reference: "Kling 3.0 Omni"
+version_policy:
+  hardcode_in_adapter: false
+  adapter_must_read_snapshot: true
+  prompt_generation_blocks_if_expired: true
+  prompt_generation_blocks_if_unverified: true
+sources:
+  - source_type: official_docs
+    title: "Magnific Kling v3 Omni API reference"
+    retrieved_at: "2026-05-11T00:00:00Z"
+    url: "https://docs.magnific.com/api-reference/video/kling-v3-omni/generate-std-video-reference"
+  - source_type: verified_platform_blog
+    title: "FAL.ai Kling 3.0 prompting guide"
+    retrieved_at: "2026-05-11T00:00:00Z"
+    url: "https://blog.fal.ai/kling-3-0-prompting-guide/"
+capabilities:
+  output_type: video
+  supports_native_audio: true
+  supports_multi_shot: true
+  supports_camera_motion: true
+constraints:
+  max_duration_seconds: 15
+  prompt_text_max_chars: 2500
+  negative_prompt_max_chars: 2500
+prompting_rules:
+  - "Write cinematic direction prompts with explicit shot movement and end-state."
+  - "For multi-shot generations, label shots explicitly and keep continuity anchors stable."
+  - "Use native audio only with explicit speech constraints and compatibility checks."
+provenance:
+  created_by: codex
+  created_at: "2026-05-11T00:00:00Z"

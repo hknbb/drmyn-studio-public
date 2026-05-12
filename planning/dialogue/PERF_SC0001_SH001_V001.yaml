@@ -1,0 +1,17 @@
+schema_version: "0.x-draft"
+record_type: performance_intent_record
+performance_intent_id: PERF_SC0001_SH001_V001
+status: draft
+scene_id: SC0001
+shot_id: SH001
+speaker: C01
+spoken_line: "Something is wrong."
+language: English
+delivery:
+  volume: low
+  pace: slow
+  tone: controlled
+  emotional_state: restrained alarm
+subtext: she notices a small disturbance before anyone else does
+face_direction: toward the corridor threshold
+mouth_behavior: natural speech, no exaggeration

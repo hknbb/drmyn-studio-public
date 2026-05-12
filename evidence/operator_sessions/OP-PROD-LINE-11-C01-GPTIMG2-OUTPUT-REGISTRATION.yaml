@@ -1,0 +1,19 @@
+session_id: OP-PROD-LINE-11-C01-GPTIMG2-OUTPUT-REGISTRATION
+created_at: "2026-05-12T00:00:00Z"
+scene_id: SC0001
+current_task: Register external GPT Images 2 C01 perspective outputs
+recommended_files:
+  - visual_dev/elements/characters/C01/gpt_images_perspective_pack.yaml
+  - evidence/local_media_indices/LOCAL_MEDIA_INDEX_C01_GPTIMG2_PERSPECTIVES_V001.yaml
+  - visual_dev/elements/characters/C01/gptimg2_perspectives/image_selection.yaml
+  - evidence/perspective_qc/PQC_C01_PERSPECTIVE_PACK_V001.yaml
+  - docs/operator_guides/gpt_images_perspective_output_registration.md
+recommended_steps:
+  - Generate the four GPT Images 2 perspective outputs outside the repository.
+  - Store image binaries outside the repository.
+  - Record only external refs and metadata in the local media index.
+  - Add candidates to image_selection with repo_binary_committed false.
+  - Keep perspective QC scores null until human image review is complete.
+  - Do not approve, lock, select, or mark can_advance_to_kling_reference true in this session.
+status: planned
+notes: metadata-only operator checklist for external GPT Images 2 output registration.

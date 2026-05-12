@@ -1,0 +1,22 @@
+schema_version: "0.x-draft"
+record_type: character_look_variant
+look_id: C04_LOOK_OPERATIONAL_V001
+character_id: C04
+inherits_identity_anchor: C04_IDENTITY_ANCHOR_V001
+status: draft
+look_role: operational
+wardrobe_refs:
+  primary_wardrobe_id: WD005
+  supplementary_wardrobe_ids: []
+appearance_state:
+  fatigue_level: nominal
+  damage_level: none
+  hair_state_within_anchor: operational presentation within identity anchor
+continuity_scope:
+  start_scene: SC0002
+  end_scene: SC0009
+change_reason: known canon operational continuity across pilot-window obstacle appearances
+notes: Draft role-based look variant for C04 inside SC0001-SC0009 only; no scene assignment in this PR.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

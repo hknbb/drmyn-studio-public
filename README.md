@@ -1,6 +1,6 @@
 # DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
-[![DOI](https://zenodo.org/badge/1227492409.svg)](https://doi.org/10.5281/zenodo.20121045)
+[![DOI](https://zenodo.org/badge/1227492409.svg)](https://doi.org/10.5281/zenodo.19987410)
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -171,7 +171,10 @@ python scripts/validate_prompt_records.py --repo-root .
 
 ## Citation
 
-If you use this repository in a publication, please cite the archived Zenodo software release:
+This private repository is the active development/production repository and is
+not the archival citation target.
+
+For publication citation, use the public archived release:
 
 ```
 Babacan, H. (2026). DRMYN Studio: Metadata-Only AI-Assisted Movie Development and
@@ -179,8 +182,8 @@ Production Workflow (Version 0.4.6) [Computer software]. Zenodo.
 https://doi.org/10.5281/zenodo.20121045
 ```
 
-If you are working in a private development mirror/repository, do not cite the
-private repository state. Cite the public archived release above.
+Public release repository:
+https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.4.6
 
 For machine-readable citation metadata, see [CITATION.cff](CITATION.cff).
 For authorship and contribution details, see [AUTHORS.md](AUTHORS.md), [CONTRIBUTORS.md](CONTRIBUTORS.md),

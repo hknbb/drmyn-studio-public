@@ -1,0 +1,24 @@
+scene_id: SC0004
+work_order_id: SC0004_ASSET_02_C05
+element_id: C05
+element_type: character
+group_id: wd006
+group_type: wardrobe_reference_set
+context: memory/intimacy catalyst wardrobe placeholder (SC0004, SC0008, SC0009)
+required_views:
+  - front_reference
+  - three_quarter_reference
+  - context_reference
+notes: Draft intake placeholder only; quiet operational-private silhouette, no binary assets committed.
+source_status: not_collected
+copyright_review: pending
+provenance_review: pending
+intake_ready_to_proceed: false
+canonical_assets_committed: []
+storage_policy: no_binary_commits
+forbidden_actions:
+  - Do not add placeholder binaries.
+  - Do not mark copyright_review complete without reviewed evidence.
+  - Do not mark provenance_review complete without reviewed evidence.
+  - Do not change pack_status from this intake slot.
+  - Do not run external generation from this metadata scaffold.

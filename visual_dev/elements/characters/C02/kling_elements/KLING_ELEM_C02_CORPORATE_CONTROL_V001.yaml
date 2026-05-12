@@ -1,0 +1,26 @@
+schema_version: 0.x-draft
+record_type: kling_character_look_element
+kling_character_look_element_id: KLING_ELEM_C02_CORPORATE_CONTROL_V001
+character_id: C02
+identity_anchor_id: C02_IDENTITY_ANCHOR_V001
+look_id: C02_LOOK_CORPORATE_CONTROL_V001
+kling_element_alias: '@C02_CORPORATE_CONTROL'
+display_name: C02 Corporate Control
+status: draft
+element_role: character_look_composite
+source_reference_chain:
+  identity_source_ref: pending_external://C02_MJ_SHEET_PENDING
+  front_hero_lock_ref: pending_external://C02_FRONT_HERO_LOCK_V001
+  perspective_pack_id: null
+  wardrobe_ids:
+  - WD003
+omni_usage_policy:
+  use_as_primary_character_element: true
+  do_not_mix_with_other_same_character_look_aliases_in_same_shot: true
+  wardrobe_is_baked_into_element: true
+  separate_wardrobe_element_optional: false
+notes: Draft Omni look-specific character element alias for C02 CORPORATE_CONTROL.
+  Wardrobe is baked into the character-look composite element.
+provenance:
+  created_by: codex
+  created_at: '2026-05-12T00:00:00Z'

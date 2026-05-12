@@ -1,0 +1,19 @@
+﻿session_id: OP-PROD-LINE-6-SC0001-KLING-SHOT-REVIEW
+created_at: "2026-05-11T00:00:00Z"
+scene_id: SC0001
+current_task: Review SC0001 Kling shot prompt and batch readiness
+recommended_files:
+  - visual_dev/elements/characters/C01/kling_element_reference.yaml
+  - visual_dev/omni_sets/SC0001/kling_shot_prompt_SC0001_SH001_V001.yaml
+  - evidence/batch_jobs/production_batch_SEQ01_PILOT_V001.yaml
+  - model_guidance_snapshots/midjourney/20260511T000000Z_midjourney_image_best_available.yaml
+  - model_guidance_snapshots/openai/20260511T000000Z_chatgpt_image_best_available.yaml
+  - model_guidance_snapshots/kling/20260511T000000Z_kling_omni_video_best_available.yaml
+recommended_steps:
+  - Confirm linked_element_refs resolve to the C01 Kling element reference.
+  - Confirm duration, aspect ratio, render pass, quality tier, camera plan, action timeline, constraints, and materialized_output fields are production-safe.
+  - Confirm model guidance snapshots for Midjourney, ChatGPT Image, and Kling pass the batch gate.
+  - Keep materialized_output external refs null until an external Kling run actually exists.
+  - Do not approve, lock, or materialize the shot or production batch in this session.
+status: planned
+notes: metadata-only review planning record; pilot remains draft/review only.

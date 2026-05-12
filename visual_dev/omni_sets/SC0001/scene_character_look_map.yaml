@@ -1,0 +1,19 @@
+schema_version: "0.x-draft"
+record_type: scene_character_look_map
+scene_id: SC0001
+status: draft
+characters:
+  - character_id: C01
+    identity_anchor_id: C01_IDENTITY_ANCHOR_V001
+    look_id: C01_LOOK_HOME_MORNING_V001
+    required: true
+    continuity_note: opening sequence uses home morning look continuity
+  - character_id: C03
+    identity_anchor_id: C03_IDENTITY_ANCHOR_V001
+    look_id: C03_LOOK_DOMESTIC_STAFF_V001
+    required: true
+    continuity_note: C03 domestic staff look assigned from SC0001 scene_card authority; scope SC0001-SC0001.
+notes: Draft seed map only. No promotion or locking.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

@@ -1,0 +1,24 @@
+schema_version: "0.x-draft"
+record_type: scene_character_look_map
+scene_id: SC0008
+status: draft
+characters:
+  - character_id: C01
+    identity_anchor_id: C01_IDENTITY_ANCHOR_V001
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    required: true
+    continuity_note: night anonymous-room sequence keeps C01 night-tired continuity assignment within known canon window
+  - character_id: C02
+    identity_anchor_id: C02_IDENTITY_ANCHOR_V001
+    look_id: C02_LOOK_DOMESTIC_AUTHORITY_V001
+    required: true
+    continuity_note: C02 domestic authority look assigned from SC0008 scene_card authority; scope SC0008-SC0009.
+  - character_id: C05
+    identity_anchor_id: C05_IDENTITY_ANCHOR_V001
+    look_id: C05_LOOK_MEMORY_INTIMATE_V001
+    required: true
+    continuity_note: C05 memory intimate look assigned from SC0008 scene_card authority; scope SC0004-SC0009.
+notes: C01-only draft scene look assignment for KNOWN canon window; C02-C05 deferred.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

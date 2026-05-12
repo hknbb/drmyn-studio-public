@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/dialogue_qc_report.schema.json",
+  "title": "Dialogue QC Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "dialogue_qc_id",
+    "status",
+    "scene_id",
+    "shot_id",
+    "linked_dialogue_extract",
+    "linked_performance_intent",
+    "linked_voice_binding",
+    "linked_native_audio_compatibility",
+    "operator_session_ref",
+    "checks",
+    "gate",
+    "notes"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.x-draft"},
+    "record_type": {"const": "dialogue_qc_report"},
+    "dialogue_qc_id": {"type": "string", "minLength": 1},
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "locked", "materialized", "blocked", "rejected"]
+    },
+    "scene_id": {"type": "string", "pattern": "^SC\\d{4}$"},
+    "shot_id": {"type": "string", "minLength": 1},
+    "linked_dialogue_extract": {"type": "string", "minLength": 1},
+    "linked_performance_intent": {"type": "string", "minLength": 1},
+    "linked_voice_binding": {"type": "string", "minLength": 1},
+    "linked_native_audio_compatibility": {"type": "string", "minLength": 1},
+    "operator_session_ref": {"type": "string", "minLength": 1},
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "speaker_identity_correctness",
+        "line_accuracy",
+        "lip_sync_stability",
+        "performance_tone_match",
+        "unwanted_speech_or_subtitles",
+        "voice_binding_respected",
+        "language_accent_followed",
+        "unsupported_input_mode_combination"
+      ],
+      "properties": {
+        "speaker_identity_correctness": {"$ref": "#/$defs/check_status"},
+        "line_accuracy": {"$ref": "#/$defs/check_status"},
+        "lip_sync_stability": {"$ref": "#/$defs/check_status"},
+        "performance_tone_match": {"$ref": "#/$defs/check_status"},
+        "unwanted_speech_or_subtitles": {"$ref": "#/$defs/check_status"},
+        "voice_binding_respected": {"$ref": "#/$defs/check_status"},
+        "language_accent_followed": {"$ref": "#/$defs/check_status"},
+        "unsupported_input_mode_combination": {"$ref": "#/$defs/check_status"}
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approve_candidate_threshold", "revise_threshold_min", "can_advance_to_candidate"],
+      "properties": {
+        "approve_candidate_threshold": {"type": "integer", "minimum": 0, "maximum": 100},
+        "revise_threshold_min": {"type": "integer", "minimum": 0, "maximum": 100},
+        "can_advance_to_candidate": {"type": "boolean"}
+      }
+    },
+    "notes": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "check_status": {
+      "type": "string",
+      "enum": ["pending", "pass", "warn", "fail", "not_applicable"]
+    }
+  }
+}

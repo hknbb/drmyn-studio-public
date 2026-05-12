@@ -1,0 +1,30 @@
+﻿schema_version: "0.x-draft"
+record_type: omni_qc_report
+scene_id: SC0001
+clip_id: CLIP_SC0001_01
+prompt_id: SC0001__omni-kling-omni-clip-clip-sc0001-01-safe__v01
+variant_mode: safe
+render_pass: visual_test
+
+checks:
+  identity_consistency: pass
+  location_continuity: pass
+  camera_stability: warn
+  motion_artifacts: warn
+  hand_face_artifacts: pass
+  audio_sync: not_applicable
+  unwanted_speech: not_applicable
+  narrative_beat: pass
+
+failure_risks:
+  - camera_jump
+
+retry_rule:
+  action: reduce_camera_motion
+  note: "Change only one variable in next pass; keep dialogue and duration unchanged."
+
+selected_for_next_pass: false
+
+provenance:
+  reviewed_by: hknbb
+  reviewed_at: "2026-05-11T18:00:00Z"

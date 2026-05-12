@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/kling_element_reference_record.schema.json",
+  "title": "Kling Element Reference Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "kling_element_reference_id",
+    "status",
+    "element_id",
+    "element_type",
+    "source_midjourney_reference",
+    "gpt_images_2_perspectives",
+    "continuity_anchors",
+    "approval_gate",
+    "downstream_use"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "kling_element_reference_record"
+    },
+    "kling_element_reference_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "element_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "element_type": {
+      "type": "string",
+      "enum": [
+        "character",
+        "location",
+        "prop",
+        "wardrobe",
+        "style",
+        "other"
+      ]
+    },
+    "source_midjourney_reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reference_id",
+        "prompt_id"
+      ],
+      "properties": {
+        "reference_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operator_session_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "gpt_images_2_perspectives": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "front_hero",
+        "three_quarter_left",
+        "three_quarter_right",
+        "rear_or_side"
+      ],
+      "properties": {
+        "front_hero": {
+          "type": "string",
+          "minLength": 1
+        },
+        "three_quarter_left": {
+          "type": "string",
+          "minLength": 1
+        },
+        "three_quarter_right": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rear_or_side": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "continuity_anchors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "approval_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "all_perspectives_score_85_plus",
+        "operator_approved",
+        "operator_session_ref"
+      ],
+      "properties": {
+        "all_perspectives_score_85_plus": {
+          "type": "boolean"
+        },
+        "operator_approved": {
+          "type": "boolean"
+        },
+        "operator_session_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "downstream_use": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "kling_omni_3_shot_prompt"
+        ]
+      }
+    },
+    "source_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gpt_images_pack_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "element_sheet_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

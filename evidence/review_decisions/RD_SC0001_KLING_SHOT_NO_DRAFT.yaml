@@ -1,0 +1,20 @@
+﻿schema_version: "0.x-draft"
+record_type: review_decision_record
+review_decision_id: RD_SC0001_KLING_SHOT_NO_DRAFT
+status: draft
+scene_id: SC0001
+target_record_type: kling_shot_prompt_record
+target_record_id: KLING_SC0001_SH001_V001
+target_path: visual_dev/omni_sets/SC0001/kling_shot_prompt_SC0001_SH001_V001.yaml
+operator_session_ref: OP-PROD-LINE-6-SC0001-KLING-SHOT-REVIEW
+decision: "no"
+rationale: The shot prompt is structurally valid, but production should not proceed before QC fields are populated and operator review is complete.
+required_followup:
+  - Complete perspective QC before claiming element readiness.
+  - Complete dialogue QC before Native Audio candidate advancement.
+  - Keep materialized_output refs null until an external Kling run exists.
+applied: false
+resulting_status: null
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

@@ -73,7 +73,8 @@ unresolved_questions:
   - "TODO_REVIEW: compact planning set does not yet track a dedicated Dimitri wardrobe record."
   - "UNRESOLVED: whether later visual planning should split his public-office look from field-command presentation."
 continuity_refs:
-  wardrobe_ids: []
+  wardrobe_ids:
+    - WD005
   prop_ids: []
   key_scene_ids:
     - SC0002

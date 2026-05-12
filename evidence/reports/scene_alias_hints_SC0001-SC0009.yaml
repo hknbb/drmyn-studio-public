@@ -1,0 +1,123 @@
+report_id: SCENE_ALIAS_HINTS_SC0001_SC0009_V001
+scope:
+  scene_start: SC0001
+  scene_end: SC0009
+generated_by: codex
+generated_at: '2026-05-12T00:00:00Z'
+scenes:
+- scene_id: SC0001
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_HOME_MORNING_V001
+    kling_element_alias: '@C01_HOME_MORNING'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_HOME_MORNING_V001.yaml
+    prompt_hint: Use element @C01_HOME_MORNING as C01.
+    constraint_hint: Do not switch C01 away from HOME_MORNING wardrobe state in this
+      shot.
+  - character_id: C03
+    look_id: C03_LOOK_DOMESTIC_STAFF_V001
+    kling_element_alias: '@C03_DOMESTIC_STAFF'
+    element_record_path: visual_dev/elements/characters/C03/kling_elements/KLING_ELEM_C03_DOMESTIC_STAFF_V001.yaml
+    prompt_hint: Use element @C03_DOMESTIC_STAFF as C03.
+    constraint_hint: Do not switch C03 away from DOMESTIC_STAFF wardrobe state in
+      this shot.
+- scene_id: SC0002
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_HOME_MORNING_V001
+    kling_element_alias: '@C01_HOME_MORNING'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_HOME_MORNING_V001.yaml
+    prompt_hint: Use element @C01_HOME_MORNING as C01.
+    constraint_hint: Do not switch C01 away from HOME_MORNING wardrobe state in this
+      shot.
+- scene_id: SC0003
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_HOME_MORNING_V001
+    kling_element_alias: '@C01_HOME_MORNING'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_HOME_MORNING_V001.yaml
+    prompt_hint: Use element @C01_HOME_MORNING as C01.
+    constraint_hint: Do not switch C01 away from HOME_MORNING wardrobe state in this
+      shot.
+- scene_id: SC0004
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    kling_element_alias: '@C01_NIGHT_TIRED'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_NIGHT_TIRED_V001.yaml
+    prompt_hint: Use element @C01_NIGHT_TIRED as C01.
+    constraint_hint: Do not switch C01 away from NIGHT_TIRED wardrobe state in this
+      shot.
+- scene_id: SC0005
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    kling_element_alias: '@C01_NIGHT_TIRED'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_NIGHT_TIRED_V001.yaml
+    prompt_hint: Use element @C01_NIGHT_TIRED as C01.
+    constraint_hint: Do not switch C01 away from NIGHT_TIRED wardrobe state in this
+      shot.
+- scene_id: SC0006
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    kling_element_alias: '@C01_NIGHT_TIRED'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_NIGHT_TIRED_V001.yaml
+    prompt_hint: Use element @C01_NIGHT_TIRED as C01.
+    constraint_hint: Do not switch C01 away from NIGHT_TIRED wardrobe state in this
+      shot.
+- scene_id: SC0007
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    kling_element_alias: '@C01_NIGHT_TIRED'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_NIGHT_TIRED_V001.yaml
+    prompt_hint: Use element @C01_NIGHT_TIRED as C01.
+    constraint_hint: Do not switch C01 away from NIGHT_TIRED wardrobe state in this
+      shot.
+- scene_id: SC0008
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    kling_element_alias: '@C01_NIGHT_TIRED'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_NIGHT_TIRED_V001.yaml
+    prompt_hint: Use element @C01_NIGHT_TIRED as C01.
+    constraint_hint: Do not switch C01 away from NIGHT_TIRED wardrobe state in this
+      shot.
+  - character_id: C02
+    look_id: C02_LOOK_DOMESTIC_AUTHORITY_V001
+    kling_element_alias: '@C02_DOMESTIC_AUTHORITY'
+    element_record_path: visual_dev/elements/characters/C02/kling_elements/KLING_ELEM_C02_DOMESTIC_AUTHORITY_V001.yaml
+    prompt_hint: Use element @C02_DOMESTIC_AUTHORITY as C02.
+    constraint_hint: Do not switch C02 away from DOMESTIC_AUTHORITY wardrobe state
+      in this shot.
+  - character_id: C05
+    look_id: C05_LOOK_MEMORY_INTIMATE_V001
+    kling_element_alias: '@C05_MEMORY_INTIMATE'
+    element_record_path: visual_dev/elements/characters/C05/kling_elements/KLING_ELEM_C05_MEMORY_INTIMATE_V001.yaml
+    prompt_hint: Use element @C05_MEMORY_INTIMATE as C05.
+    constraint_hint: Do not switch C05 away from MEMORY_INTIMATE wardrobe state in
+      this shot.
+- scene_id: SC0009
+  aliases:
+  - character_id: C01
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    kling_element_alias: '@C01_NIGHT_TIRED'
+    element_record_path: visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_NIGHT_TIRED_V001.yaml
+    prompt_hint: Use element @C01_NIGHT_TIRED as C01.
+    constraint_hint: Do not switch C01 away from NIGHT_TIRED wardrobe state in this
+      shot.
+  - character_id: C02
+    look_id: C02_LOOK_DOMESTIC_AUTHORITY_V001
+    kling_element_alias: '@C02_DOMESTIC_AUTHORITY'
+    element_record_path: visual_dev/elements/characters/C02/kling_elements/KLING_ELEM_C02_DOMESTIC_AUTHORITY_V001.yaml
+    prompt_hint: Use element @C02_DOMESTIC_AUTHORITY as C02.
+    constraint_hint: Do not switch C02 away from DOMESTIC_AUTHORITY wardrobe state
+      in this shot.
+  - character_id: C05
+    look_id: C05_LOOK_MEMORY_INTIMATE_V001
+    kling_element_alias: '@C05_MEMORY_INTIMATE'
+    element_record_path: visual_dev/elements/characters/C05/kling_elements/KLING_ELEM_C05_MEMORY_INTIMATE_V001.yaml
+    prompt_hint: Use element @C05_MEMORY_INTIMATE as C05.
+    constraint_hint: Do not switch C05 away from MEMORY_INTIMATE wardrobe state in
+      this shot.

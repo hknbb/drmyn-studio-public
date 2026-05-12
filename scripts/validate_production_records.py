@@ -26,10 +26,12 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib.util
 import json
 import re
 import sys
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +48,7 @@ SHOT_LIST_OMNI_SUGGESTION_PATTERN = (
     "visual_dev/storyboards/SC*/shot_list_omni_suggestion.yaml"
 )
 BATCH_JOB_PATTERN = "evidence/batch_jobs/*.yaml"
+PRODUCTION_BATCH_PATTERN = "evidence/batch_jobs/production_batch_*.yaml"
 OPERATOR_SESSION_PATTERN = "evidence/operator_sessions/*.yaml"
 AGENT_HANDOFF_PATTERN = "evidence/agent_handoffs/*.yaml"
 LOCAL_MEDIA_INDEX_PATTERN = "evidence/local_media_indices/*.yaml"
@@ -64,6 +67,29 @@ CANONICAL_ASSET_INTAKE_INSTRUCTION_PATTERN = (
 CANONICAL_ASSET_INTAKE_SLOT_PATTERN = "visual_dev/elements/**/intake_slot.yaml"
 CLEAN_START_AUDIT_PATTERN = "evidence/clean_start_audits/*.yaml"
 PRE_B8A_CLEAN_RESET_PATTERN = "evidence/pre_b8a_clean_resets/*.yaml"
+OMNI_QC_REPORT_PATTERN = "evidence/omni_qc/*.yaml"
+PERSPECTIVE_QC_REPORT_PATTERN = "evidence/perspective_qc/*.yaml"
+DIALOGUE_QC_REPORT_PATTERN = "evidence/dialogue_qc/*.yaml"
+REVIEW_DECISION_PATTERN = "evidence/review_decisions/*.yaml"
+GPT_IMAGES_PERSPECTIVE_PACK_PATTERN = (
+    "visual_dev/elements/**/gpt_images_perspective_pack.yaml"
+)
+KLING_ELEMENT_REFERENCE_PATTERN = "visual_dev/elements/**/kling_element_reference.yaml"
+KLING_CHARACTER_LOOK_ELEMENT_PATTERN = (
+    "visual_dev/elements/characters/*/kling_elements/*.yaml"
+)
+KLING_SHOT_PROMPT_PATTERN = "visual_dev/omni_sets/SC*/kling_shot_prompt_*.yaml"
+DIALOGUE_EXTRACT_PATTERN = "planning/dialogue/DLG_*.yaml"
+PERFORMANCE_INTENT_PATTERN = "planning/dialogue/PERF_*.yaml"
+VOICE_BINDING_PATTERN = "planning/dialogue/VOICE_*.yaml"
+NATIVE_AUDIO_COMPATIBILITY_PATTERN = "evidence/native_audio_compatibility/*.yaml"
+CHARACTER_IDENTITY_ANCHOR_PATTERN = (
+    "visual_dev/elements/characters/*/character_identity_anchor.yaml"
+)
+CHARACTER_LOOK_VARIANT_PATTERN = (
+    "visual_dev/elements/characters/*/look_variants/*.yaml"
+)
+SCENE_CHARACTER_LOOK_MAP_PATTERN = "visual_dev/omni_sets/SC*/scene_character_look_map.yaml"
 AESTHETIC_BIBLE_PATH = "planning/aesthetic_bible.yaml"
 SCENE_CLIP_MAP_PATH = "evidence/scene_clip_map.csv"
 
@@ -92,6 +118,11 @@ PROMPT_REVIEW_REQUIRED_KEYS = {"source_prompt_id", "corrected_brief"}
 AGENT_HANDOFF_BRANCH_RE = re.compile(r"^(main$|feat/|fix/|docs/|chore/|review/)")
 AGENT_HANDOFF_HEAD_SHA_RE = re.compile(r"^[A-Fa-f0-9]{7,40}$")
 WINDOWS_ABSOLUTE_PATH_RE = re.compile(r"^[A-Za-z]:[/\\]")
+PRODUCTION_BATCH_MODEL_GUIDANCE_TARGETS: dict[str, str] = {
+    "midjourney_v8_1": "midjourney_image_best_available",
+    "gpt_images_2": "chatgpt_image_best_available",
+    "kling_omni_3": "kling_omni_video_best_available",
+}
 
 
 @dataclass
@@ -134,6 +165,25 @@ def _relative(path: Path, repo_root: Path) -> str:
 
 def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
     """Return production metadata YAML files grouped by validation target."""
+    all_batch_job_files = sorted(repo_root.glob(BATCH_JOB_PATTERN))
+    production_batch_files: list[Path] = []
+    batch_job_files: list[Path] = []
+    for path in all_batch_job_files:
+        # Keep legacy batch_job coverage but prevent double-validation of
+        # production_batch records against the batch_job schema. Prefer explicit
+        # filename convention first, then fall back to record_type detection.
+        if path.match(PRODUCTION_BATCH_PATTERN):
+            production_batch_files.append(path)
+            continue
+        try:
+            data = load_yaml_file(path)
+        except Exception:
+            data = None
+        if isinstance(data, dict) and data.get("record_type") == "production_batch":
+            production_batch_files.append(path)
+        else:
+            batch_job_files.append(path)
+
     return {
         "image_selection": sorted(repo_root.glob(IMAGE_SELECTION_PATTERN)),
         "asset_clearance": sorted(repo_root.glob(ASSET_CLEARANCE_PATTERN)),
@@ -143,7 +193,8 @@ def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
         "shot_list_omni_suggestion": sorted(
             repo_root.glob(SHOT_LIST_OMNI_SUGGESTION_PATTERN)
         ),
-        "batch_job": sorted(repo_root.glob(BATCH_JOB_PATTERN)),
+        "batch_job": batch_job_files,
+        "production_batch": production_batch_files,
         "operator_session": sorted(repo_root.glob(OPERATOR_SESSION_PATTERN)),
         "agent_handoff": sorted(repo_root.glob(AGENT_HANDOFF_PATTERN)),
         "local_media_index": sorted(repo_root.glob(LOCAL_MEDIA_INDEX_PATTERN)),
@@ -166,6 +217,31 @@ def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
         ),
         "clean_start_audit": sorted(repo_root.glob(CLEAN_START_AUDIT_PATTERN)),
         "pre_b8a_clean_reset": sorted(repo_root.glob(PRE_B8A_CLEAN_RESET_PATTERN)),
+        "omni_qc_report": sorted(repo_root.glob(OMNI_QC_REPORT_PATTERN)),
+        "perspective_qc_report": sorted(repo_root.glob(PERSPECTIVE_QC_REPORT_PATTERN)),
+        "dialogue_qc_report": sorted(repo_root.glob(DIALOGUE_QC_REPORT_PATTERN)),
+        "review_decision_record": sorted(repo_root.glob(REVIEW_DECISION_PATTERN)),
+        "gpt_images_perspective_pack": sorted(
+            repo_root.glob(GPT_IMAGES_PERSPECTIVE_PACK_PATTERN)
+        ),
+        "kling_element_reference_record": sorted(
+            repo_root.glob(KLING_ELEMENT_REFERENCE_PATTERN)
+        ),
+        "kling_character_look_element": sorted(
+            repo_root.glob(KLING_CHARACTER_LOOK_ELEMENT_PATTERN)
+        ),
+        "kling_shot_prompt_record": sorted(repo_root.glob(KLING_SHOT_PROMPT_PATTERN)),
+        "dialogue_extract_record": sorted(repo_root.glob(DIALOGUE_EXTRACT_PATTERN)),
+        "performance_intent_record": sorted(repo_root.glob(PERFORMANCE_INTENT_PATTERN)),
+        "voice_binding_record": sorted(repo_root.glob(VOICE_BINDING_PATTERN)),
+        "native_audio_compatibility_record": sorted(
+            repo_root.glob(NATIVE_AUDIO_COMPATIBILITY_PATTERN)
+        ),
+        "character_identity_anchor": sorted(
+            repo_root.glob(CHARACTER_IDENTITY_ANCHOR_PATTERN)
+        ),
+        "character_look_variant": sorted(repo_root.glob(CHARACTER_LOOK_VARIANT_PATTERN)),
+        "scene_character_look_map": sorted(repo_root.glob(SCENE_CHARACTER_LOOK_MAP_PATTERN)),
         "aesthetic_bible": (
             [repo_root / AESTHETIC_BIBLE_PATH]
             if (repo_root / AESTHETIC_BIBLE_PATH).is_file()
@@ -232,6 +308,956 @@ def _schema_issues(
                 )
             )
 
+    return issues
+
+
+def _load_yaml_mapping(path: Path) -> dict[str, Any] | None:
+    """Best-effort mapping loader for cross-record checks."""
+    try:
+        data = load_yaml_file(path)
+    except Exception:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def validate_prod_line_cross_references(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    """Lightweight cross-record consistency checks for PROD-LINE records."""
+    issues: list[ProductionValidationIssue] = []
+
+    # Index perspective prompt IDs from GPT Images perspective packs.
+    gpt_prompt_ids: set[str] = set()
+    for path in grouped_files.get("gpt_images_perspective_pack", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        prompts = data.get("prompts")
+        if not isinstance(prompts, list):
+            continue
+        for item in prompts:
+            if isinstance(item, dict):
+                pid = item.get("prompt_id")
+                if isinstance(pid, str) and pid:
+                    gpt_prompt_ids.add(pid)
+
+    # Index Kling element references by ID.
+    kling_element_refs: set[str] = set()
+    for path in grouped_files.get("kling_element_reference_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        ref_id = data.get("kling_element_reference_id")
+        if isinstance(ref_id, str) and ref_id:
+            kling_element_refs.add(ref_id)
+
+        perspectives = data.get("gpt_images_2_perspectives")
+        if isinstance(perspectives, dict):
+            for key in (
+                "front_hero",
+                "three_quarter_left",
+                "three_quarter_right",
+                "rear_or_side",
+            ):
+                ref = perspectives.get(key)
+                if isinstance(ref, str) and ref and ref not in gpt_prompt_ids:
+                    issues.append(
+                        ProductionValidationIssue(
+                            file=_relative(path, repo_root),
+                            record_type="kling_element_reference_record",
+                            field_path="gpt_images_2_perspectives",
+                            message=f"missing GPT Images 2 perspective prompt: {ref}",
+                        )
+                    )
+        # TODO(PROD-LINE): When Midjourney hero reference schema/path is introduced,
+        # enforce strict source_midjourney_reference existence checks here.
+
+    # Index dialogue/performance/voice/native-audio records.
+    dialogue_extract_ids: set[str] = set()
+    for path in grouped_files.get("dialogue_extract_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        rec_id = data.get("dialogue_extract_id")
+        if isinstance(rec_id, str) and rec_id:
+            dialogue_extract_ids.add(rec_id)
+
+    performance_intent_ids: set[str] = set()
+    for path in grouped_files.get("performance_intent_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        rec_id = data.get("performance_intent_id")
+        if isinstance(rec_id, str) and rec_id:
+            performance_intent_ids.add(rec_id)
+
+    voice_binding_by_id: dict[str, dict[str, Any]] = {}
+    for path in grouped_files.get("voice_binding_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        rec_id = data.get("voice_binding_id")
+        if isinstance(rec_id, str) and rec_id:
+            voice_binding_by_id[rec_id] = data
+
+    native_audio_compat_by_id: dict[str, dict[str, Any]] = {}
+    for path in grouped_files.get("native_audio_compatibility_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        rec_id = data.get("native_audio_compatibility_id")
+        if isinstance(rec_id, str) and rec_id:
+            native_audio_compat_by_id[rec_id] = data
+        if data.get("native_audio") is True and data.get("compatible") is False:
+            if data.get("status") != "blocked":
+                issues.append(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type="native_audio_compatibility_record",
+                        field_path="status",
+                        message="incompatible native audio record must use blocked status",
+                    )
+                )
+
+    # Validate Kling shot prompt cross-links.
+    for path in grouped_files.get("kling_shot_prompt_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+
+        linked_refs = data.get("linked_element_refs")
+        if isinstance(linked_refs, list):
+            for ref_id in linked_refs:
+                if isinstance(ref_id, str) and ref_id and ref_id not in kling_element_refs:
+                    issues.append(
+                        ProductionValidationIssue(
+                            file=_relative(path, repo_root),
+                            record_type="kling_shot_prompt_record",
+                            field_path="linked_element_refs",
+                            message=f"missing linked Kling element reference: {ref_id}",
+                        )
+                    )
+
+        status = data.get("status")
+        materialized_output = data.get("materialized_output")
+        if status == "materialized" and isinstance(materialized_output, dict):
+            ext_ref = materialized_output.get("external_storage_ref")
+            platform_job_id = materialized_output.get("platform_job_id")
+            repo_binary_committed = materialized_output.get("repo_binary_committed")
+            if not isinstance(ext_ref, str) or not ext_ref.strip():
+                issues.append(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type="kling_shot_prompt_record",
+                        field_path="materialized_output.external_storage_ref",
+                        message="materialized shot output requires external_storage_ref",
+                    )
+                )
+            if not isinstance(platform_job_id, str) or not platform_job_id.strip():
+                issues.append(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type="kling_shot_prompt_record",
+                        field_path="materialized_output.platform_job_id",
+                        message="materialized shot output requires platform_job_id",
+                    )
+                )
+            if repo_binary_committed is not False:
+                issues.append(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type="kling_shot_prompt_record",
+                        field_path="materialized_output.repo_binary_committed",
+                        message="materialized shot output must keep repo_binary_committed=false",
+                    )
+                )
+
+        if data.get("native_audio") is True:
+            dialogue_items = data.get("dialogue")
+            dialogue_refs: set[str] = set()
+            performance_refs: set[str] = set()
+            if isinstance(dialogue_items, list):
+                for item in dialogue_items:
+                    if isinstance(item, str):
+                        if item.startswith("DLG_"):
+                            dialogue_refs.add(item)
+                        if item.startswith("PERF_"):
+                            performance_refs.add(item)
+            missing_dialogue = sorted(ref for ref in dialogue_refs if ref not in dialogue_extract_ids)
+            missing_performance = sorted(
+                ref for ref in performance_refs if ref not in performance_intent_ids
+            )
+            if not dialogue_refs or not performance_refs or missing_dialogue or missing_performance:
+                missing_id = (
+                    (missing_dialogue + missing_performance)[0]
+                    if (missing_dialogue + missing_performance)
+                    else "DLG_/PERF_ reference"
+                )
+                issues.append(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type="kling_shot_prompt_record",
+                        field_path="dialogue",
+                        message=(
+                            "missing dialogue extract/performance intent reference: "
+                            f"{missing_id}"
+                        ),
+                    )
+                )
+
+            voice_binding_id = data.get("voice_binding")
+            if isinstance(voice_binding_id, str) and voice_binding_id:
+                voice_record = voice_binding_by_id.get(voice_binding_id)
+                if voice_record is None:
+                    issues.append(
+                        ProductionValidationIssue(
+                            file=_relative(path, repo_root),
+                            record_type="kling_shot_prompt_record",
+                            field_path="voice_binding",
+                            message=f"missing voice binding record: {voice_binding_id}",
+                        )
+                    )
+                elif voice_record.get("binding_status") == "pending":
+                    issues.append(
+                        ProductionValidationIssue(
+                            file=_relative(path, repo_root),
+                            record_type="kling_shot_prompt_record",
+                            field_path="voice_binding",
+                            message=(
+                                "voice binding is pending and blocks dialogue shot production: "
+                                f"{voice_binding_id}"
+                            ),
+                        )
+                    )
+
+            native_audio_compat_ref = data.get("native_audio_compatibility")
+            if isinstance(native_audio_compat_ref, str) and native_audio_compat_ref:
+                if native_audio_compat_ref not in native_audio_compat_by_id:
+                    issues.append(
+                        ProductionValidationIssue(
+                            file=_relative(path, repo_root),
+                            record_type="kling_shot_prompt_record",
+                            field_path="dialogue",
+                            message=(
+                                "missing dialogue extract/performance intent reference: "
+                                f"{native_audio_compat_ref}"
+                            ),
+                        )
+                    )
+
+    return issues
+
+
+def validate_production_batch_model_guidance_gate(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    """Require fresh model guidance snapshots for each production batch model."""
+    issues: list[ProductionValidationIssue] = []
+    batch_targets: dict[str, set[str]] = {}
+
+    for path in grouped_files.get("production_batch", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        models = data.get("models")
+        if not isinstance(models, list):
+            continue
+        required_targets = {
+            PRODUCTION_BATCH_MODEL_GUIDANCE_TARGETS[model]
+            for model in models
+            if isinstance(model, str)
+            and model in PRODUCTION_BATCH_MODEL_GUIDANCE_TARGETS
+        }
+        if required_targets:
+            batch_targets[_relative(path, repo_root)] = required_targets
+
+    if not batch_targets:
+        return issues
+
+    required_targets = sorted({t for targets in batch_targets.values() for t in targets})
+    gate_func = None
+    import_error: Exception | None = None
+    try:
+        from scripts.validators.validate_model_research_gate import (
+            validate_model_research_gate as imported_gate_func,
+        )
+        gate_func = imported_gate_func
+    except Exception as exc:
+        import_error = exc
+        module_path = repo_root / "scripts" / "validators" / "validate_model_research_gate.py"
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "validate_model_research_gate_module",
+                module_path,
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[spec.name] = module
+                spec.loader.exec_module(module)
+                gate_func = getattr(module, "validate_model_research_gate", None)
+        except Exception as fallback_exc:
+            import_error = fallback_exc
+
+    if gate_func is None:
+        for file in sorted(batch_targets):
+            issues.append(
+                ProductionValidationIssue(
+                    file=file,
+                    record_type="production_batch",
+                    field_path="models",
+                    message=f"model guidance gate unavailable: {import_error}",
+                )
+            )
+        return issues
+
+    results = gate_func(
+        repo_root=repo_root,
+        required_targets=required_targets,
+        reference_time=datetime.now(timezone.utc),
+    )
+    failures = {result.target for result in results if not result.passed}
+    for file, targets in batch_targets.items():
+        for target in sorted(targets):
+            if target in failures:
+                issues.append(
+                    ProductionValidationIssue(
+                        file=file,
+                        record_type="production_batch",
+                        field_path="models",
+                        message=f"model guidance gate failed for target: {target}",
+                    )
+                )
+
+    return issues
+
+
+def _is_int_score(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def validate_perspective_qc_readiness(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    issues: list[ProductionValidationIssue] = []
+    score_fields = (
+        "identity_preservation",
+        "perspective_usefulness",
+        "material_palette_continuity",
+        "production_reference_cleanliness",
+        "hallucination_absence",
+        "total_score",
+    )
+    blocked_decisions = {"pending", "fail", "revise"}
+
+    for path in grouped_files.get("perspective_qc_report", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        gate = data.get("gate")
+        if not isinstance(gate, dict) or gate.get("can_advance_to_kling_reference") is not True:
+            continue
+
+        scores = data.get("perspective_scores")
+        minimum_score = gate.get("minimum_score")
+        can_advance = True
+        if not isinstance(scores, list) or len(scores) != 4:
+            can_advance = False
+        if not _is_int_score(minimum_score):
+            can_advance = False
+
+        if can_advance:
+            for score_entry in scores:
+                if not isinstance(score_entry, dict):
+                    can_advance = False
+                    break
+                for field in score_fields:
+                    if not _is_int_score(score_entry.get(field)):
+                        can_advance = False
+                        break
+                decision = score_entry.get("decision")
+                if not isinstance(decision, str) or decision in blocked_decisions:
+                    can_advance = False
+                total_score = score_entry.get("total_score")
+                if _is_int_score(total_score) and _is_int_score(minimum_score):
+                    if total_score < minimum_score:
+                        can_advance = False
+                if not can_advance:
+                    break
+
+        if not can_advance:
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="perspective_qc_report",
+                    field_path="gate.can_advance_to_kling_reference",
+                    message="perspective QC cannot advance before all scores meet threshold",
+                )
+            )
+    return issues
+
+
+def validate_dialogue_qc_readiness(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    issues: list[ProductionValidationIssue] = []
+    blocking_checks = (
+        "speaker_identity_correctness",
+        "line_accuracy",
+        "lip_sync_stability",
+        "performance_tone_match",
+        "unwanted_speech_or_subtitles",
+        "unsupported_input_mode_combination",
+    )
+    for path in grouped_files.get("dialogue_qc_report", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        gate = data.get("gate")
+        if not isinstance(gate, dict) or gate.get("can_advance_to_candidate") is not True:
+            continue
+        checks = data.get("checks")
+        valid = isinstance(checks, dict)
+        if valid:
+            for name in blocking_checks:
+                value = checks.get(name)
+                if value in {"pending", "fail"}:
+                    valid = False
+                    break
+        if not valid:
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="dialogue_qc_report",
+                    field_path="gate.can_advance_to_candidate",
+                    message="dialogue QC cannot advance while checks are pending or failing",
+                )
+            )
+    return issues
+
+
+def validate_omni_qc_readiness(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    issues: list[ProductionValidationIssue] = []
+    for path in grouped_files.get("omni_qc_report", []):
+        data = _load_yaml_mapping(path)
+        if not data or data.get("selected_for_next_pass") is not True:
+            continue
+        checks = data.get("checks")
+        retry_rule = data.get("retry_rule")
+        provenance = data.get("provenance")
+        valid = isinstance(checks, dict) and isinstance(provenance, dict)
+        if valid:
+            if checks.get("identity_consistency") != "pass":
+                valid = False
+            if checks.get("camera_stability") != "pass":
+                valid = False
+            if checks.get("narrative_beat") != "pass":
+                valid = False
+            if checks.get("audio_sync") not in {"pass", "not_applicable"}:
+                valid = False
+            if checks.get("unwanted_speech") not in {"pass", "not_applicable"}:
+                valid = False
+            motion = checks.get("motion_artifacts")
+            hand_face = checks.get("hand_face_artifacts")
+            if motion == "warn" and not isinstance(retry_rule, dict):
+                valid = False
+            if hand_face == "warn" and not isinstance(retry_rule, dict):
+                valid = False
+            if motion not in {"pass", "warn"}:
+                valid = False
+            if hand_face not in {"pass", "warn"}:
+                valid = False
+            if provenance.get("reviewed_by") == "human_operator_pending":
+                valid = False
+        if not valid:
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="omni_qc_report",
+                    field_path="selected_for_next_pass",
+                    message="selected_for_next_pass requires completed passing Omni QC",
+                )
+            )
+    return issues
+
+
+def validate_qc_cross_record_gates(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    issues: list[ProductionValidationIssue] = []
+    issues.extend(
+        validate_perspective_qc_readiness(repo_root=repo_root, grouped_files=grouped_files)
+    )
+    issues.extend(
+        validate_dialogue_qc_readiness(repo_root=repo_root, grouped_files=grouped_files)
+    )
+    issues.extend(validate_omni_qc_readiness(repo_root=repo_root, grouped_files=grouped_files))
+
+    perspective_qc_records: list[dict[str, Any]] = []
+    for path in grouped_files.get("perspective_qc_report", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        perspective_qc_records.append(data)
+
+    dialogue_qc_by_scene_shot: dict[tuple[str, str], dict[str, Any]] = {}
+    for path in grouped_files.get("dialogue_qc_report", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        scene_id = data.get("scene_id")
+        shot_id = data.get("shot_id")
+        if isinstance(scene_id, str) and isinstance(shot_id, str):
+            dialogue_qc_by_scene_shot[(scene_id, shot_id)] = data
+
+    for path in grouped_files.get("kling_element_reference_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        approval_gate = data.get("approval_gate")
+        if not isinstance(approval_gate, dict):
+            continue
+        if approval_gate.get("all_perspectives_score_85_plus") is not True:
+            continue
+        element_id = data.get("element_id")
+        has_passing = False
+        for pqc in perspective_qc_records:
+            if pqc.get("element_id") != element_id:
+                continue
+            gate = pqc.get("gate")
+            if isinstance(gate, dict) and gate.get("can_advance_to_kling_reference") is True:
+                has_passing = True
+                break
+        if not has_passing:
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="kling_element_reference_record",
+                    field_path="approval_gate.all_perspectives_score_85_plus",
+                    message="all_perspectives_score_85_plus requires completed perspective QC report",
+                )
+            )
+
+    advanced_statuses = {"final_candidate", "final_locked", "materialized"}
+    for path in grouped_files.get("kling_shot_prompt_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        if data.get("native_audio") is not True:
+            continue
+        status = data.get("status")
+        if status not in advanced_statuses:
+            continue
+        scene_id = data.get("scene_id")
+        shot_id = data.get("shot_id")
+        dialogue_qc = dialogue_qc_by_scene_shot.get((scene_id, shot_id))
+        gate = dialogue_qc.get("gate") if isinstance(dialogue_qc, dict) else None
+        if not isinstance(gate, dict) or gate.get("can_advance_to_candidate") is not True:
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="kling_shot_prompt_record",
+                    field_path="native_audio",
+                    message="native audio shot cannot advance without completed dialogue QC",
+                )
+            )
+    return issues
+
+
+def build_gptimg2_prompt_index(
+    *,
+    grouped_files: dict[str, list[Path]],
+) -> dict[str, dict[str, Any]]:
+    index: dict[str, dict[str, Any]] = {}
+    for path in grouped_files.get("gpt_images_perspective_pack", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        prompt_pack_id = data.get("prompt_pack_id")
+        element_id = data.get("element_id")
+        prompts = data.get("prompts")
+        if not isinstance(prompts, list):
+            continue
+        for prompt in prompts:
+            if not isinstance(prompt, dict):
+                continue
+            prompt_id = prompt.get("prompt_id")
+            if not isinstance(prompt_id, str) or not prompt_id:
+                continue
+            index[prompt_id] = {
+                "prompt_pack_id": prompt_pack_id,
+                "element_id": element_id,
+                "perspective": prompt.get("perspective"),
+            }
+    return index
+
+
+def build_image_selection_candidate_index(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> dict[str, list[dict[str, Any]]]:
+    index: dict[str, list[dict[str, Any]]] = {}
+    for path in grouped_files.get("image_selection", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        candidates = data.get("candidate_images")
+        if not isinstance(candidates, list):
+            continue
+        rel_file = _relative(path, repo_root)
+        for candidate in candidates:
+            if not isinstance(candidate, dict):
+                continue
+            asset_id = candidate.get("asset_id")
+            if not isinstance(asset_id, str) or not asset_id:
+                continue
+            index.setdefault(asset_id, []).append(
+                {
+                    "file": rel_file,
+                    "asset_id": asset_id,
+                    "external_storage_ref": candidate.get("external_storage_ref"),
+                    "repo_binary_committed": candidate.get("repo_binary_committed"),
+                    "status": candidate.get("status"),
+                    "path": candidate.get("path"),
+                }
+            )
+    return index
+
+
+def build_local_media_index_entry_index(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> dict[str, list[dict[str, Any]]]:
+    index: dict[str, list[dict[str, Any]]] = {}
+    for path in grouped_files.get("local_media_index", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        entries = data.get("entries")
+        if not isinstance(entries, list):
+            continue
+        rel_file = _relative(path, repo_root)
+        for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+            entry_id = entry.get("element_id_or_take_id")
+            if not isinstance(entry_id, str) or not entry_id:
+                continue
+            index.setdefault(entry_id, []).append(
+                {
+                    "file": rel_file,
+                    "element_id_or_take_id": entry_id,
+                    "external_storage_ref": entry.get("external_storage_ref"),
+                    "repo_binary_committed": entry.get("repo_binary_committed"),
+                    "storage_backend": entry.get("storage_backend"),
+                    "kind": entry.get("kind"),
+                    "local_path": entry.get("local_path"),
+                }
+            )
+    return index
+
+
+def _has_non_pending_registration_ref(value: Any) -> bool:
+    return (
+        isinstance(value, str)
+        and bool(value.strip())
+        and not value.startswith("pending_external://")
+    )
+
+
+def _is_perspective_qc_populated(entry: dict[str, Any]) -> bool:
+    if entry.get("decision") != "pending":
+        return True
+    for field in (
+        "identity_preservation",
+        "perspective_usefulness",
+        "material_palette_continuity",
+        "production_reference_cleanliness",
+        "hallucination_absence",
+        "total_score",
+    ):
+        if entry.get(field) is not None:
+            return True
+    return False
+
+
+def validate_gptimg2_registration_gates(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    issues: list[ProductionValidationIssue] = []
+    prompt_index = build_gptimg2_prompt_index(grouped_files=grouped_files)
+    image_selection_index = build_image_selection_candidate_index(
+        repo_root=repo_root,
+        grouped_files=grouped_files,
+    )
+    local_media_index = build_local_media_index_entry_index(
+        repo_root=repo_root,
+        grouped_files=grouped_files,
+    )
+
+    for path in grouped_files.get("perspective_qc_report", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        scores = data.get("perspective_scores")
+        if not isinstance(scores, list):
+            continue
+        prompt_ids: list[str] = []
+        populated = False
+        for score in scores:
+            if not isinstance(score, dict):
+                continue
+            prompt_id = score.get("prompt_id")
+            if isinstance(prompt_id, str) and prompt_id:
+                prompt_ids.append(prompt_id)
+            if _is_perspective_qc_populated(score):
+                populated = True
+
+        for prompt_id in prompt_ids:
+            if prompt_id not in prompt_index:
+                continue
+            selection_entries = image_selection_index.get(prompt_id, [])
+            media_entries = local_media_index.get(prompt_id, [])
+            has_valid_selection = any(
+                entry.get("repo_binary_committed") is False
+                and isinstance(entry.get("external_storage_ref"), str)
+                and bool(str(entry.get("external_storage_ref")).strip())
+                for entry in selection_entries
+            )
+            has_valid_media = any(
+                entry.get("repo_binary_committed") is False
+                and isinstance(entry.get("external_storage_ref"), str)
+                and bool(str(entry.get("external_storage_ref")).strip())
+                for entry in media_entries
+            )
+            if populated and (not has_valid_selection or not has_valid_media):
+                issues.append(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type="perspective_qc_report",
+                        field_path="perspective_scores",
+                        message=(
+                            "perspective QC cannot be populated before GPT Images 2 output "
+                            f"registration metadata exists: {prompt_id}"
+                        ),
+                    )
+                )
+
+        gate = data.get("gate")
+        if not isinstance(gate, dict) or gate.get("can_advance_to_kling_reference") is not True:
+            continue
+
+        for prompt_id in prompt_ids:
+            if prompt_id not in prompt_index:
+                continue
+            selection_entries = image_selection_index.get(prompt_id, [])
+            media_entries = local_media_index.get(prompt_id, [])
+            has_ready_selection = any(
+                entry.get("repo_binary_committed") is False
+                and _has_non_pending_registration_ref(entry.get("external_storage_ref"))
+                and entry.get("status") in {"candidate", "selected"}
+                for entry in selection_entries
+            )
+            has_ready_media = any(
+                entry.get("repo_binary_committed") is False
+                and _has_non_pending_registration_ref(entry.get("external_storage_ref"))
+                for entry in media_entries
+            )
+            if not has_ready_selection or not has_ready_media:
+                issues.append(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type="perspective_qc_report",
+                        field_path="gate.can_advance_to_kling_reference",
+                        message=(
+                            "perspective QC cannot advance while GPT Images 2 external refs "
+                            f"are pending: {prompt_id}"
+                        ),
+                    )
+                )
+
+    return issues
+
+
+def validate_review_decision_records(
+    *,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    issues: list[ProductionValidationIssue] = []
+    id_field_by_record_type: dict[str, str] = {
+        "gpt_images_perspective_pack": "prompt_pack_id",
+        "kling_element_reference_record": "kling_element_reference_id",
+        "kling_character_look_element": "kling_character_look_element_id",
+        "dialogue_extract_record": "dialogue_extract_id",
+        "performance_intent_record": "performance_intent_id",
+        "voice_binding_record": "voice_binding_id",
+        "native_audio_compatibility_record": "native_audio_compatibility_id",
+        "kling_shot_prompt_record": "kling_shot_prompt_id",
+        "perspective_qc_report": "perspective_qc_id",
+        "dialogue_qc_report": "dialogue_qc_id",
+        "omni_qc_report": "clip_id",
+        "production_batch": "production_batch_id",
+    }
+    operator_session_ids: set[str] = set()
+    for path in grouped_files.get("operator_session", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        session_id = data.get("session_id")
+        if isinstance(session_id, str) and session_id:
+            operator_session_ids.add(session_id)
+
+    for path in grouped_files.get("review_decision_record", []):
+        data = _load_yaml_mapping(path)
+        if not data:
+            continue
+        session_ref = data.get("operator_session_ref")
+        if not isinstance(session_ref, str) or session_ref not in operator_session_ids:
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="review_decision_record",
+                    field_path="operator_session_ref",
+                    message="operator_session_ref must reference an existing operator_session record",
+                )
+            )
+        target_path = data.get("target_path")
+        invalid_path = False
+        if not isinstance(target_path, str) or not target_path.strip():
+            invalid_path = True
+        else:
+            normalized = target_path.replace("\\", "/")
+            if normalized.startswith("/") or WINDOWS_ABSOLUTE_PATH_RE.match(target_path):
+                invalid_path = True
+            if ".." in normalized.split("/"):
+                invalid_path = True
+        if invalid_path:
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="review_decision_record",
+                    field_path="target_path",
+                    message="target_path must be a safe repo-relative path",
+                )
+            )
+        elif not (repo_root / target_path).exists():
+            issues.append(
+                ProductionValidationIssue(
+                    file=_relative(path, repo_root),
+                    record_type="review_decision_record",
+                    field_path="target_path",
+                    message="target_path must exist in repository",
+                )
+            )
+        else:
+            target_record_type = data.get("target_record_type")
+            expected_id = data.get("target_record_id")
+            if isinstance(target_record_type, str) and isinstance(expected_id, str):
+                target_data = _load_yaml_mapping(repo_root / target_path)
+                if not isinstance(target_data, dict):
+                    issues.append(
+                        ProductionValidationIssue(
+                            file=_relative(path, repo_root),
+                            record_type="review_decision_record",
+                            field_path="target_path",
+                            message="target_path must point to a YAML mapping record",
+                        )
+                    )
+                else:
+                    actual_type = target_data.get("record_type")
+                    if actual_type != target_record_type:
+                        issues.append(
+                            ProductionValidationIssue(
+                                file=_relative(path, repo_root),
+                                record_type="review_decision_record",
+                                field_path="target_record_type",
+                                message="target_record_type must match record_type at target_path",
+                            )
+                        )
+                    id_field = id_field_by_record_type.get(target_record_type)
+                    if id_field:
+                        actual_id = target_data.get(id_field)
+                        if actual_id != expected_id:
+                            issues.append(
+                                ProductionValidationIssue(
+                                    file=_relative(path, repo_root),
+                                    record_type="review_decision_record",
+                                    field_path="target_record_id",
+                                    message="target_record_id must match record id at target_path",
+                                )
+                            )
+    return issues
+
+
+def validate_character_continuity_records(
+    *,
+    repo_root: Path,
+) -> list[ProductionValidationIssue]:
+    issues: list[ProductionValidationIssue] = []
+    gate_func = None
+    import_error: Exception | None = None
+    try:
+        from scripts.validators.validate_character_continuity import (
+            validate_character_continuity,
+        )
+        gate_func = validate_character_continuity
+    except Exception as exc:
+        import_error = exc
+        module_path = repo_root / "scripts" / "validators" / "validate_character_continuity.py"
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "validate_character_continuity_module",
+                module_path,
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[spec.name] = module
+                spec.loader.exec_module(module)
+                gate_func = getattr(module, "validate_character_continuity", None)
+        except Exception as fallback_exc:
+            import_error = fallback_exc
+
+    if gate_func is None:
+        issues.append(
+            ProductionValidationIssue(
+                file="scripts/validate_production_records.py",
+                record_type="character_continuity_gate",
+                field_path="validate_character_continuity import",
+                message=f"character continuity gate unavailable: {import_error}",
+            )
+        )
+        return issues
+
+    for item in gate_func(repo_root):
+        if getattr(item, "severity", "error") != "error":
+            # Soft-gate: ignore warnings as non-failing informational checks.
+            continue
+        issues.append(
+            ProductionValidationIssue(
+                file=item.file,
+                record_type=item.record_type,
+                field_path=item.field_path,
+                message=item.message,
+            )
+        )
     return issues
 
 
@@ -595,6 +1621,7 @@ def validate_video_take_consistency(
 
 
 _VIDEO_BINARY_EXTENSIONS = {".mp4", ".mov", ".mkv", ".wav"}
+_IMAGE_BINARY_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".psd", ".tiff", ".tif"}
 
 
 def _looks_like_repo_video_binary(value: object) -> bool:
@@ -604,6 +1631,92 @@ def _looks_like_repo_video_binary(value: object) -> bool:
     if "://" in text:
         return False
     return Path(text).suffix.lower() in _VIDEO_BINARY_EXTENSIONS
+
+
+def _looks_like_repo_image_binary(value: object) -> bool:
+    if not value:
+        return False
+    text = str(value)
+    if "://" in text:
+        return False
+    return Path(text).suffix.lower() in _IMAGE_BINARY_EXTENSIONS
+
+
+def validate_image_selection_extra(
+    path: Path,
+    repo_root: Path,
+) -> list[ProductionValidationIssue]:
+    """Cross-field checks for image_selection beyond JSON Schema."""
+    record_type = "image_selection"
+    data, issues = _load_structural_record(
+        path=path,
+        repo_root=repo_root,
+        record_type=record_type,
+    )
+    if issues:
+        return issues
+
+    rel_path = _relative(path, repo_root)
+    is_gptimg2_registration = "/gptimg2_perspectives/image_selection.yaml" in rel_path
+
+    candidates = data.get("candidate_images")
+    if not isinstance(candidates, list):
+        return issues
+
+    for index, candidate in enumerate(candidates):
+        if not isinstance(candidate, dict):
+            continue
+        field_prefix = f"candidate_images.{index}"
+        if is_gptimg2_registration and candidate.get("repo_binary_committed") is not False:
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path=f"{field_prefix}.repo_binary_committed",
+                    message="repo_binary_committed must be false for every image selection candidate.",
+                )
+            )
+        if is_gptimg2_registration and candidate.get("status") == "canonical":
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path=f"{field_prefix}.status",
+                    message=(
+                        "GPT Images 2 registration checklist must not select or canonicalize candidates"
+                    ),
+                )
+            )
+
+    if is_gptimg2_registration:
+        if data.get("canonical_images") not in ([],):
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path="canonical_images",
+                    message=(
+                        "GPT Images 2 registration checklist must not select or canonicalize candidates"
+                    ),
+                )
+            )
+        if data.get("pack_manifest_sync") != "pending":
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path="pack_manifest_sync",
+                    message=(
+                        "GPT Images 2 registration checklist must not select or canonicalize candidates"
+                    ),
+                )
+            )
+
+    return issues
 
 
 def validate_selected_take_extra(
@@ -668,6 +1781,16 @@ def validate_local_media_index_extra(
                     message="repo_binary_committed must be false for every media index entry.",
                 )
             )
+            if entry.get("kind") == "gpt_images_2_perspective_output":
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.repo_binary_committed",
+                        message="GPT Images 2 output registration must remain external metadata only",
+                    )
+                )
 
         local_path = entry.get("local_path")
         if _looks_like_repo_video_binary(local_path) and not entry.get("external_storage_ref"):
@@ -681,6 +1804,47 @@ def validate_local_media_index_extra(
                         "Video-like local_path must also have external_storage_ref "
                         "to ensure the master copy is tracked in external storage."
                     ),
+                )
+            )
+        if (
+            entry.get("kind") == "gpt_images_2_perspective_output"
+            and _looks_like_repo_image_binary(local_path)
+            and not entry.get("external_storage_ref")
+        ):
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path=f"{field_prefix}.external_storage_ref",
+                    message="GPT Images 2 output registration must remain external metadata only",
+                )
+            )
+        if entry.get("kind") == "gpt_images_2_perspective_output":
+            if not entry.get("external_storage_ref"):
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.external_storage_ref",
+                        message="GPT Images 2 output registration must remain external metadata only",
+                    )
+                )
+
+    if any(
+        isinstance(entry, dict) and entry.get("kind") == "gpt_images_2_perspective_output"
+        for entry in entries
+    ):
+        storage_policy = data.get("storage_policy")
+        if storage_policy not in {"external_image_only", "mixed_external"}:
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path="storage_policy",
+                    message="GPT Images 2 output registration must remain external metadata only",
                 )
             )
 
@@ -852,6 +2016,22 @@ def run_validation(
     canonical_asset_intake_slot_validator: Draft202012Validator | None = None
     clean_start_audit_validator: Draft202012Validator | None = None
     pre_b8a_clean_reset_validator: Draft202012Validator | None = None
+    omni_qc_report_validator: Draft202012Validator | None = None
+    perspective_qc_report_validator: Draft202012Validator | None = None
+    dialogue_qc_report_validator: Draft202012Validator | None = None
+    review_decision_record_validator: Draft202012Validator | None = None
+    gpt_images_perspective_pack_validator: Draft202012Validator | None = None
+    kling_element_reference_validator: Draft202012Validator | None = None
+    kling_character_look_element_validator: Draft202012Validator | None = None
+    kling_shot_prompt_record_validator: Draft202012Validator | None = None
+    dialogue_extract_record_validator: Draft202012Validator | None = None
+    performance_intent_record_validator: Draft202012Validator | None = None
+    voice_binding_record_validator: Draft202012Validator | None = None
+    native_audio_compatibility_record_validator: Draft202012Validator | None = None
+    character_identity_anchor_validator: Draft202012Validator | None = None
+    character_look_variant_validator: Draft202012Validator | None = None
+    scene_character_look_map_validator: Draft202012Validator | None = None
+    production_batch_validator: Draft202012Validator | None = None
     aesthetic_bible_validator: Draft202012Validator | None = None
 
     grouped_files = collect_production_files(repo_root)
@@ -859,7 +2039,7 @@ def run_validation(
     by_record_type = {record_type: len(files) for record_type, files in grouped_files.items()}
 
     all_issues: list[ProductionValidationIssue] = []
-    invalid_count = 0
+    invalid_files: set[str] = set()
 
     for record_type, files in grouped_files.items():
         for path in files:
@@ -870,6 +2050,7 @@ def run_validation(
                     record_type=record_type,
                     validator=image_selection_validator,
                 )
+                file_issues.extend(validate_image_selection_extra(path, repo_root))
             elif record_type == "asset_clearance":
                 file_issues = _schema_issues(
                     path=path,
@@ -915,6 +2096,20 @@ def run_validation(
                     repo_root=repo_root,
                     record_type=record_type,
                     validator=operator_session_validator,
+                )
+            elif record_type == "production_batch":
+                if production_batch_validator is None:
+                    production_batch_schema = load_schema(
+                        repo_root / "schemas" / "production_batch.schema.json"
+                    )
+                    production_batch_validator = Draft202012Validator(
+                        production_batch_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=production_batch_validator,
                 )
             elif record_type == "agent_handoff":
                 if agent_handoff_validator is None:
@@ -1104,6 +2299,226 @@ def run_validation(
                     record_type=record_type,
                     validator=pre_b8a_clean_reset_validator,
                 )
+            elif record_type == "omni_qc_report":
+                if omni_qc_report_validator is None:
+                    omni_qc_report_schema = load_schema(
+                        repo_root / "schemas" / "omni_qc_report.schema.json"
+                    )
+                    omni_qc_report_validator = Draft202012Validator(
+                        omni_qc_report_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=omni_qc_report_validator,
+                )
+            elif record_type == "perspective_qc_report":
+                if perspective_qc_report_validator is None:
+                    perspective_qc_report_schema = load_schema(
+                        repo_root / "schemas" / "perspective_qc_report.schema.json"
+                    )
+                    perspective_qc_report_validator = Draft202012Validator(
+                        perspective_qc_report_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=perspective_qc_report_validator,
+                )
+            elif record_type == "dialogue_qc_report":
+                if dialogue_qc_report_validator is None:
+                    dialogue_qc_report_schema = load_schema(
+                        repo_root / "schemas" / "dialogue_qc_report.schema.json"
+                    )
+                    dialogue_qc_report_validator = Draft202012Validator(
+                        dialogue_qc_report_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=dialogue_qc_report_validator,
+                )
+            elif record_type == "review_decision_record":
+                if review_decision_record_validator is None:
+                    review_decision_record_schema = load_schema(
+                        repo_root / "schemas" / "review_decision_record.schema.json"
+                    )
+                    review_decision_record_validator = Draft202012Validator(
+                        review_decision_record_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=review_decision_record_validator,
+                )
+            elif record_type == "gpt_images_perspective_pack":
+                if gpt_images_perspective_pack_validator is None:
+                    gpt_images_perspective_pack_schema = load_schema(
+                        repo_root
+                        / "schemas"
+                        / "gpt_images_perspective_pack.schema.json"
+                    )
+                    gpt_images_perspective_pack_validator = Draft202012Validator(
+                        gpt_images_perspective_pack_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=gpt_images_perspective_pack_validator,
+                )
+            elif record_type == "kling_element_reference_record":
+                if kling_element_reference_validator is None:
+                    kling_element_reference_schema = load_schema(
+                        repo_root
+                        / "schemas"
+                        / "kling_element_reference_record.schema.json"
+                    )
+                    kling_element_reference_validator = Draft202012Validator(
+                        kling_element_reference_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=kling_element_reference_validator,
+                )
+            elif record_type == "kling_character_look_element":
+                if kling_character_look_element_validator is None:
+                    kling_character_look_element_schema = load_schema(
+                        repo_root
+                        / "schemas"
+                        / "kling_character_look_element.schema.json"
+                    )
+                    kling_character_look_element_validator = Draft202012Validator(
+                        kling_character_look_element_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=kling_character_look_element_validator,
+                )
+            elif record_type == "kling_shot_prompt_record":
+                if kling_shot_prompt_record_validator is None:
+                    kling_shot_prompt_record_schema = load_schema(
+                        repo_root / "schemas" / "kling_shot_prompt_record.schema.json"
+                    )
+                    kling_shot_prompt_record_validator = Draft202012Validator(
+                        kling_shot_prompt_record_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=kling_shot_prompt_record_validator,
+                )
+            elif record_type == "dialogue_extract_record":
+                if dialogue_extract_record_validator is None:
+                    dialogue_extract_record_schema = load_schema(
+                        repo_root / "schemas" / "dialogue_extract_record.schema.json"
+                    )
+                    dialogue_extract_record_validator = Draft202012Validator(
+                        dialogue_extract_record_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=dialogue_extract_record_validator,
+                )
+            elif record_type == "performance_intent_record":
+                if performance_intent_record_validator is None:
+                    performance_intent_record_schema = load_schema(
+                        repo_root
+                        / "schemas"
+                        / "performance_intent_record.schema.json"
+                    )
+                    performance_intent_record_validator = Draft202012Validator(
+                        performance_intent_record_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=performance_intent_record_validator,
+                )
+            elif record_type == "voice_binding_record":
+                if voice_binding_record_validator is None:
+                    voice_binding_record_schema = load_schema(
+                        repo_root / "schemas" / "voice_binding_record.schema.json"
+                    )
+                    voice_binding_record_validator = Draft202012Validator(
+                        voice_binding_record_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=voice_binding_record_validator,
+                )
+            elif record_type == "native_audio_compatibility_record":
+                if native_audio_compatibility_record_validator is None:
+                    native_audio_compatibility_record_schema = load_schema(
+                        repo_root
+                        / "schemas"
+                        / "native_audio_compatibility_record.schema.json"
+                    )
+                    native_audio_compatibility_record_validator = Draft202012Validator(
+                        native_audio_compatibility_record_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=native_audio_compatibility_record_validator,
+                )
+            elif record_type == "character_identity_anchor":
+                if character_identity_anchor_validator is None:
+                    character_identity_anchor_schema = load_schema(
+                        repo_root / "schemas" / "character_identity_anchor.schema.json"
+                    )
+                    character_identity_anchor_validator = Draft202012Validator(
+                        character_identity_anchor_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=character_identity_anchor_validator,
+                )
+            elif record_type == "character_look_variant":
+                if character_look_variant_validator is None:
+                    character_look_variant_schema = load_schema(
+                        repo_root / "schemas" / "character_look_variant.schema.json"
+                    )
+                    character_look_variant_validator = Draft202012Validator(
+                        character_look_variant_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=character_look_variant_validator,
+                )
+            elif record_type == "scene_character_look_map":
+                if scene_character_look_map_validator is None:
+                    scene_character_look_map_schema = load_schema(
+                        repo_root / "schemas" / "scene_character_look_map.schema.json"
+                    )
+                    scene_character_look_map_validator = Draft202012Validator(
+                        scene_character_look_map_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=scene_character_look_map_validator,
+                )
             elif record_type == "aesthetic_bible":
                 if aesthetic_bible_validator is None:
                     aesthetic_bible_schema = load_schema(
@@ -1131,13 +2546,60 @@ def run_validation(
                 ]
 
             if file_issues:
-                invalid_count += 1
+                invalid_files.add(_relative(path, repo_root))
                 all_issues.extend(file_issues)
+
+    cross_record_issues = validate_prod_line_cross_references(
+        repo_root=repo_root,
+        grouped_files=grouped_files,
+    )
+    if cross_record_issues:
+        all_issues.extend(cross_record_issues)
+        invalid_files.update(issue.file for issue in cross_record_issues)
+
+    model_guidance_issues = validate_production_batch_model_guidance_gate(
+        repo_root=repo_root,
+        grouped_files=grouped_files,
+    )
+    if model_guidance_issues:
+        all_issues.extend(model_guidance_issues)
+        invalid_files.update(issue.file for issue in model_guidance_issues)
+
+    qc_readiness_issues = validate_qc_cross_record_gates(
+        repo_root=repo_root,
+        grouped_files=grouped_files,
+    )
+    if qc_readiness_issues:
+        all_issues.extend(qc_readiness_issues)
+        invalid_files.update(issue.file for issue in qc_readiness_issues)
+
+    gptimg2_registration_issues = validate_gptimg2_registration_gates(
+        repo_root=repo_root,
+        grouped_files=grouped_files,
+    )
+    if gptimg2_registration_issues:
+        all_issues.extend(gptimg2_registration_issues)
+        invalid_files.update(issue.file for issue in gptimg2_registration_issues)
+
+    review_decision_issues = validate_review_decision_records(
+        repo_root=repo_root,
+        grouped_files=grouped_files,
+    )
+    if review_decision_issues:
+        all_issues.extend(review_decision_issues)
+        invalid_files.update(issue.file for issue in review_decision_issues)
+
+    character_continuity_issues = validate_character_continuity_records(
+        repo_root=repo_root,
+    )
+    if character_continuity_issues:
+        all_issues.extend(character_continuity_issues)
+        invalid_files.update(issue.file for issue in character_continuity_issues)
 
     report = ProductionValidationReport(
         total_files=total,
-        valid_files=total - invalid_count,
-        invalid_files=invalid_count,
+        valid_files=total - len(invalid_files),
+        invalid_files=len(invalid_files),
         by_record_type=by_record_type,
         issues=all_issues,
     )

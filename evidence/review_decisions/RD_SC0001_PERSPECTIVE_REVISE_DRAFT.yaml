@@ -1,0 +1,20 @@
+﻿schema_version: "0.x-draft"
+record_type: review_decision_record
+review_decision_id: RD_SC0001_PERSPECTIVE_REVISE_DRAFT
+status: draft
+scene_id: SC0001
+target_record_type: perspective_qc_report
+target_record_id: PQC_C01_PERSPECTIVE_PACK_V001
+target_path: evidence/perspective_qc/PQC_C01_PERSPECTIVE_PACK_V001.yaml
+operator_session_ref: OP-PROD-LINE-6-SC0001-PERSPECTIVE-REVIEW
+decision: revise
+rationale: Perspective QC is scaffold-only; generated images and numeric QC scores are not available yet.
+required_followup:
+  - Generate or register GPT Images 2 perspective outputs externally.
+  - Populate all four perspective QC scores.
+  - Keep can_advance_to_kling_reference false until scores meet threshold.
+applied: false
+resulting_status: null
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

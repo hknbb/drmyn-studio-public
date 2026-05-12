@@ -1,1 +1,4 @@
 scene_id,prompt_id,prompt_type,lifecycle_stage,target_model,asset_ref,article3_flag,notes
+SC0001,SC0001__omni-kling-omni-clip-clip-sc0001-01-safe__v01,omni_instruction,draft,kling_omni,pending_generation,,agent-generated draft; no image asset yet
+SC0001,SC0001__omni-kling-omni-clip-clip-sc0001-01-creative__v01,omni_instruction,draft,kling_omni,pending_generation,,agent-generated draft; no image asset yet
+SC0001,SC0001__omni-kling-omni-clip-clip-sc0001-01-aggressive__v01,omni_instruction,draft,kling_omni,pending_generation,,agent-generated draft; no image asset yet

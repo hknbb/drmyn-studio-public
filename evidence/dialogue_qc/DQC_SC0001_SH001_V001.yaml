@@ -1,0 +1,25 @@
+﻿schema_version: "0.x-draft"
+record_type: dialogue_qc_report
+dialogue_qc_id: DQC_SC0001_SH001_V001
+status: draft
+scene_id: SC0001
+shot_id: SH001
+linked_dialogue_extract: DLG_SC0001_V001
+linked_performance_intent: PERF_SC0001_SH001_V001
+linked_voice_binding: VOICE_C01_V001
+linked_native_audio_compatibility: NAC_SC0001_SH001_V001
+operator_session_ref: OP-PROD-LINE-6-SC0001-DIALOGUE-REVIEW
+checks:
+  speaker_identity_correctness: pending
+  line_accuracy: pending
+  lip_sync_stability: pending
+  performance_tone_match: pending
+  unwanted_speech_or_subtitles: pending
+  voice_binding_respected: pending
+  language_accent_followed: pending
+  unsupported_input_mode_combination: pending
+gate:
+  approve_candidate_threshold: 90
+  revise_threshold_min: 80
+  can_advance_to_candidate: false
+notes: QC scaffold only; no generated video/audio take exists yet.

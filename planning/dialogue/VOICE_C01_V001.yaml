@@ -1,0 +1,11 @@
+schema_version: "0.x-draft"
+record_type: voice_binding_record
+voice_binding_id: VOICE_C01_V001
+status: draft
+character_id: C01
+binding_status: none
+binding_method: none
+visual_reference_pack: KLING_REF_C01_V001
+language: English
+operator_approved: false
+asset_clearance_ref: ASSET_CLEARANCE_C01_PENDING

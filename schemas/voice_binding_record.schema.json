@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/voice_binding_record.schema.json",
+  "title": "Voice Binding Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "voice_binding_id",
+    "status",
+    "character_id",
+    "binding_status",
+    "binding_method",
+    "visual_reference_pack",
+    "language",
+    "operator_approved",
+    "asset_clearance_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "voice_binding_record"
+    },
+    "voice_binding_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "character_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "binding_status": {
+      "type": "string",
+      "enum": [
+        "none",
+        "pending",
+        "prebound",
+        "blocked"
+      ]
+    },
+    "binding_method": {
+      "type": "string",
+      "enum": [
+        "none",
+        "prompt_described",
+        "multi_image_plus_audio",
+        "external_voice_reference"
+      ]
+    },
+    "visual_reference_pack": {
+      "type": "string",
+      "minLength": 1
+    },
+    "language": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operator_approved": {
+      "type": "boolean"
+    },
+    "asset_clearance_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operator_session_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "audio_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "duration_seconds",
+        "background_noise",
+        "speech_speed",
+        "emotion_style"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "duration_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "background_noise": {
+          "type": "string",
+          "minLength": 1
+        },
+        "speech_speed": {
+          "type": "string",
+          "minLength": 1
+        },
+        "emotion_style": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

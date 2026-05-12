@@ -1,0 +1,20 @@
+﻿schema_version: "0.x-draft"
+record_type: review_decision_record
+review_decision_id: RD_SC0001_DIALOGUE_BLOCKED_DRAFT
+status: draft
+scene_id: SC0001
+target_record_type: dialogue_qc_report
+target_record_id: DQC_SC0001_SH001_V001
+target_path: evidence/dialogue_qc/DQC_SC0001_SH001_V001.yaml
+operator_session_ref: OP-PROD-LINE-6-SC0001-DIALOGUE-REVIEW
+decision: blocked
+rationale: Dialogue QC checks are pending and no materialized Native Audio take exists.
+required_followup:
+  - Keep voice_binding as none until a real approved voice source exists.
+  - Run an external Kling Native Audio test only after operator review.
+  - Populate dialogue QC after a real take exists.
+applied: false
+resulting_status: null
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

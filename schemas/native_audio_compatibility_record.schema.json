@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/native_audio_compatibility_record.schema.json",
+  "title": "Native Audio Compatibility Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "native_audio_compatibility_id",
+    "status",
+    "scene_id",
+    "shot_id",
+    "native_audio",
+    "uses_video_input",
+    "uses_image_or_element_refs",
+    "compatible",
+    "checked_against_snapshot"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "native_audio_compatibility_record"
+    },
+    "native_audio_compatibility_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "scene_id": {
+      "type": "string",
+      "pattern": "^SC\\d{4}$"
+    },
+    "shot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "native_audio": {
+      "type": "boolean"
+    },
+    "uses_video_input": {
+      "type": "boolean"
+    },
+    "uses_image_or_element_refs": {
+      "type": "boolean"
+    },
+    "compatible": {
+      "type": "boolean"
+    },
+    "checked_against_snapshot": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "type": "string"
+    },
+    "operator_session_ref": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

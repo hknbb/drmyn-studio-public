@@ -1,0 +1,26 @@
+schema_version: 0.x-draft
+record_type: kling_character_look_element
+kling_character_look_element_id: KLING_ELEM_C01_NIGHT_TIRED_V001
+character_id: C01
+identity_anchor_id: C01_IDENTITY_ANCHOR_V001
+look_id: C01_LOOK_NIGHT_TIRED_V001
+kling_element_alias: '@C01_NIGHT_TIRED'
+display_name: C01 Night Tired
+status: draft
+element_role: character_look_composite
+source_reference_chain:
+  identity_source_ref: MJ_ELEMENT_C01_HERO_LOCKED_V001
+  front_hero_lock_ref: pending_external://C01_FRONT_HERO_LOCK_V001
+  perspective_pack_id: null
+  wardrobe_ids:
+  - WD001
+omni_usage_policy:
+  use_as_primary_character_element: true
+  do_not_mix_with_other_same_character_look_aliases_in_same_shot: true
+  wardrobe_is_baked_into_element: true
+  separate_wardrobe_element_optional: false
+notes: Draft Omni look-specific character element alias for C01 NIGHT_TIRED. Wardrobe
+  is baked into the character-look composite element.
+provenance:
+  created_by: codex
+  created_at: '2026-05-12T00:00:00Z'

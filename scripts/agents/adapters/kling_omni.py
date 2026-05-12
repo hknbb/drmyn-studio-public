@@ -26,12 +26,18 @@ from scripts.agents.model_guidance_resolver import (
 
 
 CANONICAL_ID_RE = re.compile(r"\b(SC\d{4}|C\d{2}|LOC\d{3}|PROP\d{3}|WD\d{3})\b")
+CHARACTER_ID_RE = re.compile(r"^C\d{2}$")
 
 # Binding statuses that mean the element is active in Kling Element Library
 ACTIVE_BINDING_STATUSES = frozenset({"created", "voice_capable", "voice_locked"})
 
 # Pronouns that may be rewritten to a character alias when exactly one character is known
 LEADING_PRONOUN_RE = re.compile(r"^(She|He|Her|His)\b")
+VARIANT_MODES = frozenset({"safe", "creative", "aggressive"})
+RENDER_PASSES = frozenset(
+    {"visual_test", "performance_test", "final_candidate", "final_locked"}
+)
+QUALITY_TIERS = frozenset({"test_720p", "final_1080p"})
 
 
 def _allowed_shot_count(total_duration_seconds: int) -> int:
@@ -138,6 +144,30 @@ def _load_element_aliases(scene_id: str, repo_root: Path) -> tuple[dict[str, str
         pass
 
     return alias_map, char_ids
+
+
+def _load_audio_readiness(scene_id: str, repo_root: Path) -> dict[str, str]:
+    """Load native_audio_readiness by element_id from element_bindings."""
+    bindings_path = (
+        repo_root / "visual_dev" / "omni_sets" / scene_id / "element_bindings.yaml"
+    )
+    if not bindings_path.exists():
+        return {}
+    readiness: dict[str, str] = {}
+    try:
+        with bindings_path.open(encoding="utf-8") as fh:
+            for doc in yaml.safe_load_all(fh):
+                if not isinstance(doc, dict):
+                    continue
+                elem_id = doc.get("element_id")
+                if not isinstance(elem_id, str) or not elem_id:
+                    continue
+                native = doc.get("native_audio_readiness")
+                if isinstance(native, str) and native.strip():
+                    readiness[elem_id] = native.strip().lower()
+    except Exception:
+        return {}
+    return readiness
 
 
 def _rewrite_shot_action(
@@ -282,6 +312,9 @@ class KlingOmniAdapter:
         version: int = 1,
         run_counter: int = 1,
         run_at: str | None = None,
+        variant_mode: str = "safe",
+        render_pass: str = "visual_test",
+        quality_tier: str = "test_720p",
     ) -> KlingOmniBuildResult:
         """Generate prompt/run records from a single omni_clip_manifest.yaml.
 
@@ -290,6 +323,9 @@ class KlingOmniAdapter:
             version: Prompt version number (default 1)
             run_counter: Run counter for run_id (default 1)
             run_at: ISO 8601 timestamp for run execution (default now)
+            variant_mode: Prompt variant mode (safe|creative|aggressive)
+            render_pass: Render pass stage
+            quality_tier: Render quality tier
 
         Returns:
             KlingOmniBuildResult with prompt_record and run_record
@@ -297,6 +333,10 @@ class KlingOmniAdapter:
         Raises:
             KlingOmniAdapterError: If manifest is missing, invalid, or constraints violated
         """
+        variant_mode = self._validate_variant_mode(variant_mode)
+        render_pass = self._validate_render_pass(render_pass)
+        quality_tier = self._validate_quality_tier(quality_tier)
+
         manifest_path = Path(manifest_ref)
         if not manifest_path.is_absolute():
             manifest_path = self.repo_root / manifest_path
@@ -348,6 +388,7 @@ class KlingOmniAdapter:
             total_duration=total_duration,
             max_duration=max_duration,
             continuity_mode=continuity_mode,
+            variant_mode=variant_mode,
             alias_map=alias_map,
             char_ids=char_ids,
             required_aliases=required_aliases,
@@ -362,6 +403,7 @@ class KlingOmniAdapter:
                     f"Element {eid!r} is in required_element_ids but has no active "
                     "Kling binding (status may be 'planned'); alias not injected."
                 )
+        all_warnings = alias_warnings + planned_warnings
 
         source_refs: dict[str, Any] = {
             "scene_card": _relative(scene_card_path, self.repo_root),
@@ -370,7 +412,9 @@ class KlingOmniAdapter:
 
         # Use clip_id slug (replace underscores with hyphens) for prompt_id
         clip_slug = clip_id.lower().replace("_", "-")
-        prompt_id = f"{scene_id}__omni-kling-omni-clip-{clip_slug}__v{version:02d}"
+        prompt_id = (
+            f"{scene_id}__omni-kling-omni-clip-{clip_slug}-{variant_mode}__v{version:02d}"
+        )
 
         generation_params: dict[str, Any] = {
             "model_guidance_mode": self.model_guidance_mode,
@@ -385,16 +429,64 @@ class KlingOmniAdapter:
             "external_generation_required": True,
             "recommended_cfg_scale": 0.5,
             "recommended_ar": "16:9",
+            "variant_mode": variant_mode,
+            "render_pass": render_pass,
+            "quality_tier": quality_tier,
+            "prompt_component_model": "docs/methodology/omni_prompt_component_model.md",
         }
 
         if required_aliases:
             generation_params["required_element_aliases"] = required_aliases
 
-        if kling_native_audio.get("enabled"):
+        audio_enabled = bool(kling_native_audio.get("enabled"))
+        gate_status = "allowed_audio_off"
+        gate_reason = "audio_not_requested"
+        audio_passes = {"performance_test", "final_candidate", "final_locked"}
+        if render_pass == "visual_test":
+            gate_reason = "visual_test_default_audio_off"
+            if audio_enabled:
+                gate_status = "blocked"
+                gate_reason = "visual_test_requires_audio_off"
+                all_warnings.append(
+                    "Native Audio blocked: render_pass=visual_test requires audio-off."
+                )
+        elif render_pass in audio_passes and audio_enabled:
+            # Audio-enabled passes require ready speaking character bindings.
+            speaking_ids: set[str] = set()
+            for shot in shots:
+                if not isinstance(shot, dict):
+                    continue
+                for eid in shot.get("required_element_ids") or []:
+                    if isinstance(eid, str) and (
+                        eid in char_ids or bool(CHARACTER_ID_RE.match(eid))
+                    ):
+                        speaking_ids.add(eid)
+            readiness = _load_audio_readiness(scene_id, self.repo_root)
+            not_ready = [eid for eid in sorted(speaking_ids) if readiness.get(eid) != "ready"]
+            if not_ready:
+                gate_status = "blocked"
+                gate_reason = "speaker_not_ready:" + ",".join(not_ready)
+                all_warnings.append(
+                    "Native Audio blocked: speaking character bindings not ready: "
+                    + ", ".join(not_ready)
+                )
+            else:
+                gate_status = "allowed"
+                gate_reason = "speakers_ready"
+                generation_params["kling_native_audio"] = {
+                    "enabled": True,
+                    "provider_policy": kling_native_audio.get("provider_policy"),
+                }
+        elif audio_enabled:
+            gate_status = "allowed"
+            gate_reason = "audio_enabled_non_performance_pass"
             generation_params["kling_native_audio"] = {
                 "enabled": True,
                 "provider_policy": kling_native_audio.get("provider_policy"),
             }
+
+        generation_params["audio_gate_status"] = gate_status
+        generation_params["audio_gate_reason"] = gate_reason
 
         if self.model_guidance_mode == "dynamic_snapshot":
             resolved = resolve_model_guidance(
@@ -441,7 +533,6 @@ class KlingOmniAdapter:
             clip_id=clip_id,
         )
 
-        all_warnings = alias_warnings + planned_warnings
         return KlingOmniBuildResult(
             prompt_record=record,
             run_record=run_record,
@@ -511,12 +602,40 @@ class KlingOmniAdapter:
         if not isinstance(kling_native_audio, dict):
             raise KlingOmniAdapterError("Manifest kling_native_audio must be a mapping")
 
+    @staticmethod
+    def _validate_variant_mode(variant_mode: str) -> str:
+        mode = str(variant_mode or "").strip().lower()
+        if mode not in VARIANT_MODES:
+            raise KlingOmniAdapterError(
+                f"Invalid variant_mode {variant_mode!r}; expected one of {sorted(VARIANT_MODES)}"
+            )
+        return mode
+
+    @staticmethod
+    def _validate_render_pass(render_pass: str) -> str:
+        value = str(render_pass or "").strip().lower()
+        if value not in RENDER_PASSES:
+            raise KlingOmniAdapterError(
+                f"Invalid render_pass {render_pass!r}; expected one of {sorted(RENDER_PASSES)}"
+            )
+        return value
+
+    @staticmethod
+    def _validate_quality_tier(quality_tier: str) -> str:
+        value = str(quality_tier or "").strip().lower()
+        if value not in QUALITY_TIERS:
+            raise KlingOmniAdapterError(
+                f"Invalid quality_tier {quality_tier!r}; expected one of {sorted(QUALITY_TIERS)}"
+            )
+        return value
+
     def _build_prompt_text_with_aliases(
         self,
         shots: list[Any],
         total_duration: int,
         max_duration: int,
         continuity_mode: str,
+        variant_mode: str,
         alias_map: dict[str, str],
         char_ids: set[str],
         required_aliases: list[str],
@@ -533,7 +652,12 @@ class KlingOmniAdapter:
             # No active aliases — fall back to plain text
             return (
                 self._build_prompt_text_from_manifest(
-                    shots, total_duration, max_duration, continuity_mode, beat_content_lookup
+                    shots,
+                    total_duration,
+                    max_duration,
+                    continuity_mode,
+                    variant_mode,
+                    beat_content_lookup,
                 ),
                 [],
             )
@@ -542,6 +666,7 @@ class KlingOmniAdapter:
             "Create one Kling Omni element-based video clip.",
             f"Total duration: {total_duration} seconds.",
             f"Active elements: {', '.join(required_aliases)}.",
+            self._variant_preamble(variant_mode),
         ]
 
         for index, shot in enumerate(shots, start=1):
@@ -628,6 +753,7 @@ class KlingOmniAdapter:
         total_duration: int,
         max_duration: int,
         continuity_mode: str,
+        variant_mode: str,
         beat_content_lookup: dict[str, str] | None = None,
     ) -> str:
         """Build prompt text from manifest shots (not scene_card.shot_list_omni).
@@ -651,6 +777,7 @@ class KlingOmniAdapter:
         parts = [
             "Create one external Kling Omni video instruction.",
             f"Total duration: {total_duration} seconds.",
+            self._variant_preamble(variant_mode),
         ]
 
         parts.extend(shot_lines)
@@ -669,6 +796,23 @@ class KlingOmniAdapter:
             "End with a clear settled state. Do not add new story facts."
         )
         return _sanitize_prompt_text(" ".join(part for part in parts if part))
+
+    @staticmethod
+    def _variant_preamble(variant_mode: str) -> str:
+        if variant_mode == "safe":
+            return (
+                "Variant SAFE: prioritize stable continuity, restrained camera language, "
+                "and conservative execution."
+            )
+        if variant_mode == "creative":
+            return (
+                "Variant CREATIVE: allow controlled atmospheric enrichment while keeping "
+                "all source-grounded facts unchanged."
+            )
+        return (
+            "Variant AGGRESSIVE: use stronger cinematic expression and camera energy "
+            "without adding any new story facts."
+        )
 
     def _prompt_record(
         self,

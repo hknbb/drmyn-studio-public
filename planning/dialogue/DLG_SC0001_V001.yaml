@@ -1,0 +1,18 @@
+schema_version: "0.x-draft"
+record_type: dialogue_extract_record
+dialogue_extract_id: DLG_SC0001_V001
+status: draft
+scene_id: SC0001
+source_screenplay_span:
+  start_line: 1
+  end_line: 1
+speakers:
+  - character_id: C01
+    display_name: Nadia
+raw_lines:
+  - speaker: C01
+    text: "Something is wrong."
+dialogue_function: early anomaly recognition
+emotional_subtext: controlled vigilance under domestic order
+target_language: English
+language_support_status: officially_supported

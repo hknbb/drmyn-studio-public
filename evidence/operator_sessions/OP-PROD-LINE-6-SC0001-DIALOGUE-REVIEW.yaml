@@ -1,0 +1,18 @@
+﻿session_id: OP-PROD-LINE-6-SC0001-DIALOGUE-REVIEW
+created_at: "2026-05-11T00:00:00Z"
+scene_id: SC0001
+current_task: Review SC0001 dialogue and native audio readiness
+recommended_files:
+  - planning/dialogue/DLG_SC0001_V001.yaml
+  - planning/dialogue/PERF_SC0001_SH001_V001.yaml
+  - planning/dialogue/VOICE_C01_V001.yaml
+  - evidence/native_audio_compatibility/NAC_SC0001_SH001_V001.yaml
+  - visual_dev/omni_sets/SC0001/kling_shot_prompt_SC0001_SH001_V001.yaml
+recommended_steps:
+  - Confirm that the spoken line is short enough for the 8 second Kling shot.
+  - Confirm C01 speaker mapping, language, delivery, subtext, and mouth behavior.
+  - Confirm voice_binding remains none until a real approved voice source exists.
+  - Confirm Native Audio compatibility is based on current model guidance snapshot before generation.
+  - Do not approve, lock, or materialize any dialogue/audio record in this session.
+status: planned
+notes: metadata-only review planning record; no voice approval or Native Audio production approval performed.

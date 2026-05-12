@@ -1,0 +1,50 @@
+schema_version: "0.x-draft"
+record_type: kling_shot_prompt_record
+kling_shot_prompt_id: KLING_SC0001_SH001_V001
+status: draft
+scene_id: SC0001
+shot_id: SH001
+linked_element_refs:
+  - KLING_REF_C01_V001
+duration_seconds: 8
+aspect_ratio: "16:9"
+variant_mode: safe
+render_pass: performance_test
+quality_tier: test_720p
+native_audio: true
+camera_plan:
+  framing: medium corridor threshold shot
+  movement: slow stabilized dolly-in
+  lens_feel: cinematic 35mm equivalent
+action_timeline:
+  - "0-2s: Nadia pauses at the kitchen corridor threshold."
+  - "2-5s: she notices a small disturbance in the ordered domestic space."
+  - "5-8s: she says one controlled line and holds the reaction."
+constraints:
+  - preserve element identity from linked references
+  - no wardrobe change
+  - no extra characters
+  - no random speech
+  - no subtitle artifacts
+  - no exaggerated mouth motion
+dialogue:
+  - DLG_SC0001_V001
+  - PERF_SC0001_SH001_V001
+  - C01
+  - "Something is wrong."
+  - English
+  - low, slow, controlled, restrained alarm
+speech_constraints:
+  - one speaker only
+  - no background voices
+  - no narration
+  - no extra dialogue
+  - no subtitles
+  - natural lip movement
+native_audio_compatibility: NAC_SC0001_SH001_V001
+voice_binding: VOICE_C01_V001
+materialized_output:
+  platform: kling
+  external_storage_ref: PENDING_NOT_MATERIALIZED
+  platform_job_id: PENDING_NOT_MATERIALIZED
+  repo_binary_committed: false

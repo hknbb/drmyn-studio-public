@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/kling_shot_prompt_record.schema.json",
+  "title": "Kling Shot Prompt Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "kling_shot_prompt_id",
+    "status",
+    "scene_id",
+    "shot_id",
+    "linked_element_refs",
+    "duration_seconds",
+    "aspect_ratio",
+    "variant_mode",
+    "render_pass",
+    "quality_tier",
+    "native_audio",
+    "camera_plan",
+    "action_timeline",
+    "constraints",
+    "materialized_output"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "kling_shot_prompt_record"
+    },
+    "kling_shot_prompt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "scene_id": {
+      "type": "string",
+      "pattern": "^SC\\d{4}$"
+    },
+    "shot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "linked_element_refs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "duration_seconds": {
+      "type": "integer",
+      "minimum": 3,
+      "maximum": 15
+    },
+    "aspect_ratio": {
+      "type": "string",
+      "enum": [
+        "16:9",
+        "9:16",
+        "1:1",
+        "2.39:1"
+      ]
+    },
+    "variant_mode": {
+      "type": "string",
+      "enum": [
+        "safe",
+        "creative",
+        "aggressive"
+      ]
+    },
+    "render_pass": {
+      "type": "string",
+      "enum": [
+        "visual_test",
+        "performance_test",
+        "final_candidate",
+        "final_locked"
+      ]
+    },
+    "quality_tier": {
+      "type": "string",
+      "enum": [
+        "test_720p",
+        "final_1080p"
+      ]
+    },
+    "native_audio": {
+      "type": "boolean"
+    },
+    "camera_plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "framing",
+        "movement",
+        "lens_feel"
+      ],
+      "properties": {
+        "framing": {
+          "type": "string",
+          "minLength": 1
+        },
+        "movement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lens_feel": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "action_timeline": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "materialized_output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "platform",
+        "external_storage_ref",
+        "platform_job_id",
+        "repo_binary_committed"
+      ],
+      "properties": {
+        "platform": {
+          "type": "string",
+          "minLength": 1
+        },
+        "external_storage_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "platform_job_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repo_binary_committed": {
+          "const": false
+        }
+      }
+    },
+    "source_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operator_session_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_card_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manifest_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "dialogue": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "speech_constraints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "native_audio_compatibility": {
+      "type": "string",
+      "minLength": 1
+    },
+    "voice_binding": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "native_audio": {
+            "const": true
+          }
+        },
+        "required": [
+          "native_audio"
+        ]
+      },
+      "then": {
+        "required": [
+          "dialogue",
+          "speech_constraints",
+          "native_audio_compatibility",
+          "voice_binding"
+        ]
+      }
+    }
+  ]
+}

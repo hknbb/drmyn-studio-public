@@ -1,0 +1,31 @@
+schema_version: "0.x-draft"
+record_type: character_identity_anchor
+identity_anchor_id: C05_IDENTITY_ANCHOR_V001
+character_id: C05
+status: draft
+source_reference_strategy:
+  reference_sheet_allowed_as_identity_source: true
+  final_hero_lock_requires_single_clean_image: true
+  contact_sheet_layout_forbidden_as_lock: true
+source_reference_sheet_ref: pending_external://C05_MJ_SHEET_PENDING
+front_hero_lock_ref:
+  pending: true
+  external_ref: pending_external://C05_FRONT_HERO_LOCK_V001
+fixed_identity_anchors:
+  - late-30s to early-40s age read with quietly watchful silhouette
+  - controlled private-operational posture with deliberate space-yielding
+  - understated expression range that carries emotional load without flourish
+mutable_appearance_allowed:
+  - wardrobe
+  - fatigue level
+  - dirt/wetness/damage
+  - hair looseness within same identity anchor
+forbidden_drift:
+  - new face
+  - new body type
+  - fashion editorial redesign
+  - unrelated wardrobe world
+notes: Draft identity anchor seed derived from planning character profile; hero lock remains pending.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

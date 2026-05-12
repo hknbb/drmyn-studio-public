@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/performance_intent_record.schema.json",
+  "title": "Performance Intent Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "performance_intent_id",
+    "status",
+    "scene_id",
+    "shot_id",
+    "speaker",
+    "spoken_line",
+    "language",
+    "delivery",
+    "subtext",
+    "face_direction",
+    "mouth_behavior"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "performance_intent_record"
+    },
+    "performance_intent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "scene_id": {
+      "type": "string",
+      "pattern": "^SC\\d{4}$"
+    },
+    "shot_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "speaker": {
+      "type": "string",
+      "minLength": 1
+    },
+    "spoken_line": {
+      "type": "string",
+      "minLength": 1
+    },
+    "language": {
+      "type": "string",
+      "minLength": 1
+    },
+    "delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "volume",
+        "pace",
+        "tone",
+        "emotional_state"
+      ],
+      "properties": {
+        "volume": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "emotional_state": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "subtext": {
+      "type": "string",
+      "minLength": 1
+    },
+    "face_direction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mouth_behavior": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dialogue_extract_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "operator_session_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

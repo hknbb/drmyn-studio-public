@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/kling_character_look_element.schema.json",
+  "title": "Kling Character Look Element",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "kling_character_look_element_id",
+    "character_id",
+    "identity_anchor_id",
+    "look_id",
+    "kling_element_alias",
+    "display_name",
+    "status",
+    "element_role",
+    "source_reference_chain",
+    "omni_usage_policy",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "kling_character_look_element"
+    },
+    "kling_character_look_element_id": {
+      "type": "string",
+      "pattern": "^KLING_ELEM_C\\d{2}_[A-Z0-9_]+_V\\d{3}$"
+    },
+    "character_id": {
+      "type": "string",
+      "pattern": "^C\\d{2}$"
+    },
+    "identity_anchor_id": {
+      "type": "string",
+      "pattern": "^C\\d{2}_IDENTITY_ANCHOR_V\\d{3}$"
+    },
+    "look_id": {
+      "type": "string",
+      "pattern": "^C\\d{2}_LOOK_[A-Z0-9_]+_V\\d{3}$"
+    },
+    "kling_element_alias": {
+      "type": "string",
+      "pattern": "^@C\\d{2}_[A-Z0-9_]+$"
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "element_role": {
+      "const": "character_look_composite"
+    },
+    "source_reference_chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity_source_ref",
+        "front_hero_lock_ref",
+        "perspective_pack_id",
+        "wardrobe_ids"
+      ],
+      "properties": {
+        "identity_source_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "front_hero_lock_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "perspective_pack_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "wardrobe_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^WD\\d{3}$"
+          }
+        }
+      }
+    },
+    "omni_usage_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "use_as_primary_character_element",
+        "do_not_mix_with_other_same_character_look_aliases_in_same_shot",
+        "wardrobe_is_baked_into_element",
+        "separate_wardrobe_element_optional"
+      ],
+      "properties": {
+        "use_as_primary_character_element": {
+          "type": "boolean"
+        },
+        "do_not_mix_with_other_same_character_look_aliases_in_same_shot": {
+          "const": true
+        },
+        "wardrobe_is_baked_into_element": {
+          "const": true
+        },
+        "separate_wardrobe_element_optional": {
+          "type": "boolean"
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_by",
+        "created_at"
+      ],
+      "properties": {
+        "created_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "locked"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "source_reference_chain": {
+            "properties": {
+              "front_hero_lock_ref": {
+                "not": {
+                  "pattern": "^pending_external://"
+                }
+              }
+            },
+            "required": [
+              "front_hero_lock_ref"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

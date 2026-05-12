@@ -73,7 +73,8 @@ unresolved_questions:
   - "TODO_REVIEW: exact garment continuity between SC0004 and the inferred late-night scenes is not source-authored."
   - "UNRESOLVED: whether LOC004 should ultimately split into distinct rented-room and anonymous-room records once later planning matures."
 continuity_refs:
-  wardrobe_ids: []
+  wardrobe_ids:
+    - WD006
   prop_ids:
     - PROP004
   key_scene_ids:

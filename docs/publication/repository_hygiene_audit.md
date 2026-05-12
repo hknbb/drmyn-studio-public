@@ -105,7 +105,7 @@ Binary / media commit:    NONE found ✅
 Credential / token leak:  NONE found ✅
 Local machine path leak:  FIXED — settings.local.json removed from tracking ✅
 Temp artifact commit:     NONE found ✅
-Validation:               PASS (548 tests, clean validators) ✅
+Validation:               PASS (328 tests, clean validators) ✅
 ```
 
 Repository is clean for scientific publication submission.

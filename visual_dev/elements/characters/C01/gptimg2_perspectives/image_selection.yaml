@@ -1,0 +1,65 @@
+element_id: C01
+element_type: character
+selection_round: 1
+source_prompt_ids:
+  - SC0001__gptimg2-perspective-pack__v01
+candidate_images:
+  - asset_id: GPTIMG2_C01_P01_FRONT_V001
+    path: pending_external://GPTIMG2_C01_P01_FRONT_V001
+    external_storage_ref: pending_external://GPTIMG2_C01_P01_FRONT_V001
+    repo_binary_committed: false
+    status: candidate
+    reason: Pending external GPT Images 2 front_hero perspective output; no binary committed.
+    quality_scores:
+      identity_consistency: 1
+      source_grounding: 1
+      style_compliance: 1
+      continuity: 1
+      production_usability: 1
+    failure_reason: null
+  - asset_id: GPTIMG2_C01_P02_LEFT_V001
+    path: pending_external://GPTIMG2_C01_P02_LEFT_V001
+    external_storage_ref: pending_external://GPTIMG2_C01_P02_LEFT_V001
+    repo_binary_committed: false
+    status: candidate
+    reason: Pending external GPT Images 2 three_quarter_left perspective output; no binary committed.
+    quality_scores:
+      identity_consistency: 1
+      source_grounding: 1
+      style_compliance: 1
+      continuity: 1
+      production_usability: 1
+    failure_reason: null
+  - asset_id: GPTIMG2_C01_P03_RIGHT_V001
+    path: pending_external://GPTIMG2_C01_P03_RIGHT_V001
+    external_storage_ref: pending_external://GPTIMG2_C01_P03_RIGHT_V001
+    repo_binary_committed: false
+    status: candidate
+    reason: Pending external GPT Images 2 three_quarter_right perspective output; no binary committed.
+    quality_scores:
+      identity_consistency: 1
+      source_grounding: 1
+      style_compliance: 1
+      continuity: 1
+      production_usability: 1
+    failure_reason: null
+  - asset_id: GPTIMG2_C01_P04_REAR_V001
+    path: pending_external://GPTIMG2_C01_P04_REAR_V001
+    external_storage_ref: pending_external://GPTIMG2_C01_P04_REAR_V001
+    repo_binary_committed: false
+    status: candidate
+    reason: Pending external GPT Images 2 rear_or_side perspective output; no binary committed.
+    quality_scores:
+      identity_consistency: 1
+      source_grounding: 1
+      style_compliance: 1
+      continuity: 1
+      production_usability: 1
+    failure_reason: null
+canonical_images: []
+round_status: in_progress
+pack_manifest_sync: pending
+review_notes: Candidate slots only. Quality scores use minimum placeholder values until real external outputs are reviewed. No candidate is selected or canonical.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"

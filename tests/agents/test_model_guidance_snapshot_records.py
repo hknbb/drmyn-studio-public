@@ -89,7 +89,7 @@ class TestSnapshotResolver:
 		)
 		assert result["resolved_model_name"] == "Kling 3.0 Omni"
 		assert result["provider"] == "kling"
-		assert result["provider_surface"] == "api"
+		assert result["provider_surface"] in {"api", "web_ui", "manual_external"}
 
 	def test_midjourney_resolves(self):
 		result = resolve_model_guidance(

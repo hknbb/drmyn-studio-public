@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/scene_character_look_map.schema.json",
+  "title": "Scene Character Look Map Record",
+  "description": "Maps scene character usage to identity anchor and look variant records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "scene_id",
+    "status",
+    "characters",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.x-draft" },
+    "record_type": { "type": "string", "const": "scene_character_look_map" },
+    "scene_id": { "type": "string", "pattern": "^SC\\d{4}$" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "locked"]
+    },
+    "characters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "character_id",
+          "identity_anchor_id",
+          "look_id",
+          "required"
+        ],
+        "properties": {
+          "character_id": { "type": "string", "pattern": "^C\\d{2}$" },
+          "identity_anchor_id": {
+            "type": "string",
+            "pattern": "^C\\d{2}_IDENTITY_ANCHOR_V\\d{3}$"
+          },
+          "look_id": {
+            "type": "string",
+            "pattern": "^C\\d{2}_LOOK_[A-Z0-9_]+_V\\d{3}$"
+          },
+          "required": { "type": "boolean" },
+          "continuity_note": {
+            "type": "string",
+            "maxLength": 1000
+          }
+        }
+      }
+    },
+    "notes": { "type": "string", "maxLength": 2000 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by", "created_at"],
+      "properties": {
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "git_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" }
+      }
+    }
+  }
+}

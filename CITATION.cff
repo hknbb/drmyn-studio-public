@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-message: "Cite the public archived Zenodo release for this software; do not cite private development mirrors."
+message: "This is a private development repository. For citation, use the public archived release DOI 10.5281/zenodo.20121045."
 doi: 10.5281/zenodo.20121045
 title: "DRMYN Studio: Metadata-Only AI-Assisted Movie Development and Production Workflow"
 type: software

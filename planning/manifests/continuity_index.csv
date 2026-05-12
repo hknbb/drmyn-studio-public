@@ -3,6 +3,8 @@ wardrobe,WD001,Nadia domestic control look,SC0001|SC0003,review,False
 wardrobe,WD002,Nadia guarded private-hours look,SC0004|SC0006|SC0008|SC0009,review,False
 wardrobe,WD003,Roman tailored control suit,SC0002|SC0007|SC0008|SC0009,review,False
 wardrobe,WD004,Birta domestic working attire,SC0001,review,False
+wardrobe,WD005,Dimitri operational executive attire,SC0002|SC0007|SC0009,review,False
+wardrobe,WD006,Marcus private operational attire,SC0004|SC0008|SC0009,review,False
 prop,PROP001,Jin's medical bracelet,SC0003|SC0010|SC0011|SC0014|SC0108|SC0109,review,False
 prop,PROP003,Tilted Vardova skyline photo frame,SC0001,review,False
 prop,PROP004,Marcus's burner phone,SC0046|SC0047,review,False

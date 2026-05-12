@@ -1,0 +1,14 @@
+﻿session_id: OP-PROD-LINE-6-SC0001-PERSPECTIVE-REVIEW
+created_at: "2026-05-11T00:00:00Z"
+scene_id: SC0001
+current_task: Review GPT Images 2 C01 perspective pack
+recommended_files:
+  - visual_dev/elements/characters/C01/gpt_images_perspective_pack.yaml
+  - visual_dev/elements/characters/C01/kling_element_reference.yaml
+recommended_steps:
+  - Check that all four GPT Images 2 prompts preserve C01 identity, silhouette, wardrobe/material palette, and change only perspective.
+  - Verify that no prompt redesigns the character or adds text/logos/accessories.
+  - Keep the pack in draft/review until actual generated images and QC evidence exist.
+  - Do not approve or lock the pack in this session.
+status: planned
+notes: metadata-only review planning record; no lifecycle promotion performed.

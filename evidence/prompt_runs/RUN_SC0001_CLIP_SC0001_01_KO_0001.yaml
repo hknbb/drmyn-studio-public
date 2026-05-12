@@ -1,0 +1,9 @@
+run_id: RUN_SC0001_CLIP_SC0001_01_KO_0001
+prompt_id: SC0001__omni-kling-omni-clip-clip-sc0001-01-safe__v01
+model: kling_omni
+run_at: '2026-05-11T17:54:54Z'
+outputs_expected: 1
+cost:
+  unit: unknown
+  value: 0
+status: pending

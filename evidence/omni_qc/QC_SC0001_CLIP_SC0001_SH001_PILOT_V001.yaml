@@ -1,0 +1,27 @@
+﻿schema_version: "0.x-draft"
+record_type: omni_qc_report
+scene_id: SC0001
+clip_id: CLIP_SC0001_SH001_PILOT_V001
+prompt_id: SC0001__kling-shot-pilot__v01
+variant_mode: safe
+render_pass: performance_test
+checks:
+  identity_consistency: warn
+  location_continuity: warn
+  camera_stability: warn
+  motion_artifacts: warn
+  hand_face_artifacts: warn
+  audio_sync: not_applicable
+  unwanted_speech: not_applicable
+  narrative_beat: warn
+failure_risks:
+  - lip_sync_drift
+  - identity_drift
+  - unwanted_speech
+retry_rule:
+  action: increase_constraints
+  note: Placeholder QC scaffold before external Kling materialization; run actual QC after platform output exists.
+selected_for_next_pass: false
+provenance:
+  reviewed_by: human_operator_pending
+  reviewed_at: "2026-05-11T00:00:00Z"

@@ -1,0 +1,25 @@
+schema_version: "0.x-draft"
+record_type: kling_element_reference_record
+kling_element_reference_id: KLING_REF_C01_V001
+status: review
+element_id: C01
+element_type: character
+source_midjourney_reference:
+  reference_id: MJ_ELEMENT_C01_HERO_LOCKED_V001
+  prompt_id: MJ_PROMPT_C01_HERO_LOCKED_V001
+gpt_images_2_perspectives:
+  front_hero: GPTIMG2_C01_P01_FRONT_V001
+  three_quarter_left: GPTIMG2_C01_P02_LEFT_V001
+  three_quarter_right: GPTIMG2_C01_P03_RIGHT_V001
+  rear_or_side: GPTIMG2_C01_P04_REAR_V001
+continuity_anchors:
+  - fixed hair shape
+  - fixed wardrobe silhouette
+  - fixed accessory logic
+  - fixed muted domestic palette
+approval_gate:
+  all_perspectives_score_85_plus: false
+  operator_approved: false
+  operator_session_ref: OP_PENDING_PROD_LINE_4
+downstream_use:
+  - kling_omni_3_shot_prompt

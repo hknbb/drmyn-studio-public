@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/schemas/character_look_variant.schema.json",
+  "title": "Character Look Variant Record",
+  "description": "Scene continuity look variant for a character identity anchor.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "look_id",
+    "character_id",
+    "inherits_identity_anchor",
+    "status",
+    "look_role",
+    "wardrobe_refs",
+    "continuity_scope",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.x-draft" },
+    "record_type": { "type": "string", "const": "character_look_variant" },
+    "look_id": {
+      "type": "string",
+      "pattern": "^C\\d{2}_LOOK_[A-Z0-9_]+_V\\d{3}$"
+    },
+    "character_id": { "type": "string", "pattern": "^C\\d{2}$" },
+    "inherits_identity_anchor": {
+      "type": "string",
+      "pattern": "^C\\d{2}_IDENTITY_ANCHOR_V\\d{3}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "locked"]
+    },
+    "look_role": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "wardrobe_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_wardrobe_id", "supplementary_wardrobe_ids"],
+      "properties": {
+        "primary_wardrobe_id": { "type": "string", "pattern": "^WD\\d{3}$" },
+        "supplementary_wardrobe_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^WD\\d{3}$" },
+          "uniqueItems": true
+        }
+      }
+    },
+    "appearance_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fatigue_level": {
+          "type": "string",
+          "enum": ["nominal", "tired", "exhausted"]
+        },
+        "damage_level": {
+          "type": "string",
+          "enum": ["none", "dirt", "wet", "injured"]
+        },
+        "hair_state_within_anchor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        }
+      }
+    },
+    "continuity_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start_scene", "end_scene"],
+      "properties": {
+        "start_scene": { "type": "string", "pattern": "^SC\\d{4}$" },
+        "end_scene": { "type": "string", "pattern": "^SC\\d{4}$" }
+      }
+    },
+    "change_reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
+    "notes": { "type": "string", "maxLength": 2000 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by", "created_at"],
+      "properties": {
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "git_commit": { "type": "string", "pattern": "^[a-f0-9]{7,40}$" }
+      }
+    }
+  }
+}

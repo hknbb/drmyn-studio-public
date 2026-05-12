@@ -1,0 +1,60 @@
+prompt_id: SC0001__omni-kling-omni-clip-clip-sc0001-01-aggressive__v01
+scene_id: SC0001
+prompt_type: omni_instruction
+lifecycle_stage: draft
+target_models:
+- kling_omni
+source_refs:
+  scene_card: planning/scenes/SC0001/scene_card.yaml
+  scene_excerpt: planning/scenes/SC0001/scene_excerpt.md
+prompt_text: 'Create one Kling Omni element-based video clip. Total duration: 15 seconds.
+  Active elements: @ValeResidenceKitchenPassage, @Nadia. Variant AGGRESSIVE: use stronger
+  cinematic expression and camera energy without adding any new story facts. Shot
+  1 (5s): INT. VALE RESIDENCE — KITCHEN PASSAGE. The kitchen is expensive and underused.
+  Pale stone surfaces. A single unwashed cup beside the sink — Nadia''s. Use wide
+  framing, locked static framing, filtered_daylight, directional, cool; subject motion
+  intensity 0.0; camera motion intensity 0.1. Action resolves into a settled end state.
+  Shot 2 (5s): @Nadia moves through the passage with the economy of someone who has
+  mapped every room for exits. Not rushed. Not nervous. Just precise. Use medium framing,
+  tracking move, filtered_daylight, directional, cool; subject motion intensity 0.4;
+  camera motion intensity 0.4. Action resolves into a settled end state. Shot 3 (5s):
+  @Nadia fills a glass of water, drinks half, sets it exactly where she found it.
+  Use medium_close framing, locked static framing, filtered_daylight, directional,
+  cool; subject motion intensity 0.3; camera motion intensity 0.0. Action resolves
+  into a settled end state. Continuity: frame_input_eligible. Keep clip at 15 seconds.
+  Do not add new story facts.'
+negative_prompt: sliding-feet, morphing, floating-objects, flickering, lens-distortion
+generation_params:
+  model_guidance_mode: dynamic_snapshot
+  adapter_name: kling_omni
+  clip_id: CLIP_SC0001_01
+  total_duration_seconds: 15
+  continuity_input_mode: frame_input_eligible
+  omni_clip_manifest_ref: planning/scenes/SC0001/manifests/CLIP_SC0001_01_manifest.yaml
+  source_scene_beat_plan_ref: planning/scenes/SC0001/scene_beat_plan.yaml
+  source_dialogue_beats_ref: planning/scenes/SC0001/dialogue_beats.yaml
+  repo_binary_committed: false
+  external_generation_required: true
+  recommended_cfg_scale: 0.5
+  recommended_ar: '16:9'
+  variant_mode: aggressive
+  render_pass: visual_test
+  quality_tier: test_720p
+  prompt_component_model: docs/methodology/omni_prompt_component_model.md
+  required_element_aliases:
+  - '@ValeResidenceKitchenPassage'
+  - '@Nadia'
+  audio_gate_status: allowed_audio_off
+  audio_gate_reason: visual_test_default_audio_off
+  model_guidance_snapshot_ref: model_guidance_snapshots/kling/20260508T140000Z_kling_omni_video_best_available.yaml
+  provider: kling
+  provider_surface: api
+  resolved_model_name: Kling 3.0 Omni
+  resolved_model_role: best_for_this_task
+  guidance_observed_at: '2026-05-08T14:00:00Z'
+  guidance_expires_at: '2026-06-08T14:00:00Z'
+expected_output:
+  asset_type: clip
+  duration_seconds: 15
+status: active
+canon_lock: false

@@ -1,0 +1,35 @@
+wardrobe_id: WD005
+name: "Dimitri operational executive attire"
+character_id: C04
+visual_description: "Disciplined operational-executive tailoring for Roman-facing office and command-adjacent scenes; exact garment split remains unresolved."
+semiotic_function: "Signals procedural threat, hierarchy awareness, and instrument-level efficiency."
+color_profile: "Dark corporate neutrals with restrained contrast."
+texture_notes: "Structured, functional surfaces; no ornamental styling."
+associated_character: "Dimitri Koss"
+narrative_phase: "setup operational pressure presentation"
+silhouette: "Lean, exact, and movement-ready."
+palette_bias: "Dark restraint over expressive color."
+material_notes: "Precision and utility over fashion emphasis."
+wear_state: "Controlled pilot baseline."
+continuity_constraints:
+  - "Must read as operationally efficient rather than socially decorative."
+  - "Avoid softening into casual or sympathetic styling."
+scene_anchors:
+  - SC0002
+  - SC0007
+  - SC0009
+movement_notes: "Supports short, efficient, hierarchy-aware movement."
+weather_logic: "Interior operational contexts; weather not primary driver."
+layering_notes: "UNRESOLVED - tie/jacket variant details deferred."
+continuity_state:
+  initial_state: "Dimitri baseline operational look."
+  state_changes: []
+scene_refs:
+  - SC0002
+  - SC0007
+  - SC0009
+unresolved_questions:
+  - "TODO_REVIEW: whether later continuity should split office and field-command variants."
+status: review
+review_status: pending
+canon_lock: false

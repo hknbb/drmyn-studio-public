@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/production_batch.schema.json",
+  "title": "Production Batch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "production_batch_id",
+    "status",
+    "scope",
+    "models",
+    "estimated_outputs",
+    "retry_policy",
+    "cost_tracking"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "production_batch"
+    },
+    "production_batch_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence_id",
+        "scenes"
+      ],
+      "properties": {
+        "sequence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scenes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^SC\\d{4}$"
+          }
+        }
+      }
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "midjourney_v8_1",
+          "gpt_images_2",
+          "kling_omni_3"
+        ]
+      }
+    },
+    "estimated_outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "midjourney_images": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "gpt_images_perspectives": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kling_video_takes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "retry_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_retries_per_prompt",
+        "failure_reason_required"
+      ],
+      "properties": {
+        "max_retries_per_prompt": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failure_reason_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "cost_tracking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "estimated_budget",
+        "currency"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "estimated_budget": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "source_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operator_session_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "plan_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

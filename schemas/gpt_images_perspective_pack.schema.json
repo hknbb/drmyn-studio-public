@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/gpt_images_perspective_pack.schema.json",
+  "title": "GPT Images Perspective Pack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "prompt_pack_id",
+    "status",
+    "source_reference_id",
+    "target_model",
+    "target_role",
+    "element_id",
+    "element_type",
+    "shared_preservation_instruction",
+    "prompts",
+    "qc_gate",
+    "downstream_use"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "gpt_images_perspective_pack"
+    },
+    "prompt_pack_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "source_reference_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "target_model": {
+      "type": "string",
+      "enum": [
+        "gpt_images_2",
+        "chatgpt_images_2"
+      ]
+    },
+    "target_role": {
+      "const": "multi_perspective_element_expander"
+    },
+    "element_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "element_type": {
+      "type": "string",
+      "enum": [
+        "character",
+        "location",
+        "prop",
+        "wardrobe",
+        "style",
+        "other"
+      ]
+    },
+    "shared_preservation_instruction": {
+      "type": "string",
+      "minLength": 1
+    },
+    "operator_session_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_refs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scene_card_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "element_sheet_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "midjourney_prompt_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "prompts": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "prompt_id",
+          "perspective",
+          "prompt_text",
+          "constraints",
+          "expected_output"
+        ],
+        "properties": {
+          "prompt_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "perspective": {
+            "type": "string",
+            "enum": [
+              "front_hero",
+              "three_quarter_left",
+              "three_quarter_right",
+              "rear_or_side",
+              "reverse_angle",
+              "side_depth",
+              "detail_or_threshold",
+              "usage_angle",
+              "scale_or_context"
+            ]
+          },
+          "prompt_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "constraints": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "expected_output": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "asset_type"
+            ],
+            "properties": {
+              "asset_type": {
+                "type": "string",
+                "enum": [
+                  "still",
+                  "image_set"
+                ]
+              },
+              "aspect_ratio": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "qc_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_score",
+        "all_perspectives_required",
+        "failed_perspective_revision_only"
+      ],
+      "properties": {
+        "minimum_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "all_perspectives_required": {
+          "type": "boolean"
+        },
+        "failed_perspective_revision_only": {
+          "type": "boolean"
+        }
+      }
+    },
+    "downstream_use": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

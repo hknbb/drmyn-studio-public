@@ -1,0 +1,14 @@
+schema_version: "0.x-draft"
+record_type: scene_character_look_map
+scene_id: SC0004
+status: draft
+characters:
+  - character_id: C01
+    identity_anchor_id: C01_IDENTITY_ANCHOR_V001
+    look_id: C01_LOOK_NIGHT_TIRED_V001
+    required: true
+    continuity_note: afternoon rented-room beat assigned to C01 night-tired continuity block per current canon-bounded look window
+notes: C01-only draft scene look assignment for KNOWN canon window; C02-C05 deferred.
+provenance:
+  created_by: codex
+  created_at: "2026-05-12T00:00:00Z"
