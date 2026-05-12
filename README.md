@@ -171,19 +171,28 @@ python scripts/validate_prompt_records.py --repo-root .
 
 ## Citation
 
-This private repository is the active development/production repository and is
-not the archival citation target.
+For publication citation, use the current public archived release. A Zenodo DOI
+will be assigned after minting for this checkpoint.
 
-For publication citation, use the public archived release:
+**Current release (v0.14.0-continuity-alias-checkpoint):**
+
+```
+Babacan, H. (2026). DRMYN Studio: Repository-Native Continuity and Look-Specific
+Alias Governance for AI-Assisted Film Production
+(Version 0.14.0-continuity-alias-checkpoint) [Computer software].
+https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.14.0-continuity-alias-checkpoint
+```
+
+Public release repository:
+https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.14.0-continuity-alias-checkpoint
+
+**Previous release (v0.4.6, archived):**
 
 ```
 Babacan, H. (2026). DRMYN Studio: Metadata-Only AI-Assisted Movie Development and
 Production Workflow (Version 0.4.6) [Computer software]. Zenodo.
 https://doi.org/10.5281/zenodo.20121045
 ```
-
-Public release repository:
-https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.4.6
 
 For machine-readable citation metadata, see [CITATION.cff](CITATION.cff).
 For authorship and contribution details, see [AUTHORS.md](AUTHORS.md), [CONTRIBUTORS.md](CONTRIBUTORS.md),

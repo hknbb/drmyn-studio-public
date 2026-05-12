@@ -1,8 +1,8 @@
 {
-  "title": "DRMYN Studio: Metadata-Only AI-Assisted Movie Development and Production Workflow",
+  "title": "DRMYN Studio: Repository-Native Continuity and Look-Specific Alias Governance for AI-Assisted Film Production",
   "upload_type": "software",
-  "version": "0.4.6",
-  "description": "DRMYN Studio is a metadata-only, schema-validated, human-gated research software framework for AI-assisted movie development and movie production process design, documentation, validation, and reproducibility. The repository records canonical source truth, planning metadata, prompt governance, validation evidence, human approval decisions, agent handoffs, and reproducibility artifacts for an AI-assisted film production workflow. It includes a three-agent autonomous orchestration layer (Claude Code / Codex / Gemini Code Assist) with auto-handoff and pickup mode enabling structured multi-agent coordination without external APIs, a Streamlit dashboard for operator oversight, 20+ JSON Schemas (draft 2020-12), and a Film Aesthetic Bible system for deterministic visual keyword injection into T2I prompts. Generated media outputs are stored externally and referenced through metadata-only records. Demonstrated through the Closing Price AI-assisted film project.",
+  "version": "0.14.0-continuity-alias-checkpoint",
+  "description": "DRMYN Studio is a metadata-only, schema-validated, human-gated research software framework for AI-assisted movie development and movie production process design, documentation, validation, and reproducibility. This checkpoint (v0.14.0-continuity-alias-checkpoint) completes the PROD-LINE-14A through PROD-LINE-14H continuity governance layer: character identity anchors, look-variant records, scene-to-character-look maps, and a look-specific Kling/Omni element alias architecture with scene-to-alias resolver and operator hint report. The repository records canonical source truth, planning metadata, prompt governance, validation evidence, human approval decisions, agent handoffs, and reproducibility artifacts for an AI-assisted film production workflow. It includes 55+ JSON Schemas (draft 2020-12), a three-agent autonomous orchestration layer, and a Film Aesthetic Bible system. This release is a metadata-only scientific software checkpoint; before PROD-LINE-15 external-ref write pass. Generated media outputs are stored externally and referenced through metadata-only records. Demonstrated through the Closing Price AI-assisted film project.",
   "creators": [
     {
       "name": "Babacan, Hakan",
@@ -42,7 +42,10 @@
     "multi-agent coordination",
     "human-gated workflow",
     "autonomous orchestration",
-    "agent handoff"
+    "agent handoff",
+    "continuity governance",
+    "look-specific alias",
+    "character identity anchor"
   ],
   "license": "MIT"
 }
