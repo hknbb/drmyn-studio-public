@@ -2,6 +2,10 @@
 
 ## v0.14.0-continuity-alias-checkpoint (2026-05-12)
 
+### Versioning note
+
+v0.14.0 follows v0.4.6 intentionally. The version number reflects completion of the PROD-LINE-14A–14H milestone rather than a sequential minor-version increment. It does not imply that public minor releases v0.5–v0.13 were separately published.
+
 ### Summary
 - Scientific checkpoint for PROD-LINE-14A through PROD-LINE-14H.
 - Scope is metadata-only governance architecture before PROD-LINE-15 external-output registration.
