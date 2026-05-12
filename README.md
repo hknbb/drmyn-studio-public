@@ -1,6 +1,6 @@
 # DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20143693.svg)](https://doi.org/10.5281/zenodo.20143693)
+[![DOI](https://zenodo.org/badge/1227492409.svg)](https://doi.org/10.5281/zenodo.19987410)
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -171,31 +171,19 @@ python scripts/validate_prompt_records.py --repo-root .
 
 ## Citation
 
-For publication citation, use the current public archived release.
+This private repository is the active development/production repository and is
+not the archival citation target.
 
-**Current release (v0.14.0-continuity-alias-checkpoint):**
-
-> **Versioning note:** v0.14.0 follows v0.4.6 intentionally. The version number reflects completion of the PROD-LINE-14A–14H milestone rather than a sequential minor-version increment. It does not imply that public minor releases v0.5–v0.13 were separately published.
-
-```
-Babacan, H. (2026). DRMYN Studio: Repository-Native Continuity and Look-Specific
-Alias Governance for AI-Assisted Film Production
-(Version 0.14.0-continuity-alias-checkpoint) [Computer software]. Zenodo.
-https://doi.org/10.5281/zenodo.20143693
-```
-
-Zenodo DOI: https://doi.org/10.5281/zenodo.20143693
-
-Public release repository:
-https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.14.0-continuity-alias-checkpoint
-
-**Previous release (v0.4.6, archived):**
+For publication citation, use the public archived release:
 
 ```
 Babacan, H. (2026). DRMYN Studio: Metadata-Only AI-Assisted Movie Development and
 Production Workflow (Version 0.4.6) [Computer software]. Zenodo.
 https://doi.org/10.5281/zenodo.20121045
 ```
+
+Public release repository:
+https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.4.6
 
 For machine-readable citation metadata, see [CITATION.cff](CITATION.cff).
 For authorship and contribution details, see [AUTHORS.md](AUTHORS.md), [CONTRIBUTORS.md](CONTRIBUTORS.md),

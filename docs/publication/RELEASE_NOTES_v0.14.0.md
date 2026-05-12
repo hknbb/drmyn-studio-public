@@ -2,10 +2,6 @@
 
 ## Continuity and Omni Alias Governance Checkpoint
 
-### Versioning note
-
-v0.14.0 follows v0.4.6 intentionally. The version number reflects completion of the PROD-LINE-14A–14H milestone rather than a sequential minor-version increment. It does not imply that public minor releases v0.5–v0.13 were separately published.
-
 Release type: metadata-only scientific software checkpoint.
 
 Date: 2026-05-12
