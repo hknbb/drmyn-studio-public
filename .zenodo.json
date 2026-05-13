@@ -2,6 +2,7 @@
   "title": "DRMYN Studio: Metadata Scaffold for Identity Evidence Set Selection in AI-Assisted Character Prompt Governance",
   "upload_type": "software",
   "version": "0.15.2-identity-evidence-set-metadata-checkpoint",
+  "doi": "10.5281/zenodo.20157166",
   "description": "DRMYN Studio is a metadata-only, schema-validated, human-gated research software framework for AI-assisted movie development and movie production process design, documentation, validation, and reproducibility. The repository records canonical source truth, planning metadata, prompt governance, validation evidence, human approval decisions, agent handoffs, and reproducibility artifacts for an AI-assisted film production workflow. It includes a three-agent autonomous orchestration layer (Claude Code / Codex / Gemini Code Assist) with auto-handoff and pickup mode enabling structured multi-agent coordination without external APIs, a Streamlit dashboard for operator oversight, 20+ JSON Schemas (draft 2020-12), and a Film Aesthetic Bible system for deterministic visual keyword injection into T2I prompts. Generated media outputs are stored externally and referenced through metadata-only records. Demonstrated through the Closing Price AI-assisted film project.",
   "creators": [
     {

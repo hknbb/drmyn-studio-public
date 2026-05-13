@@ -1,5 +1,6 @@
 cff-version: 1.2.0
-message: "DOI pending for v0.15.2. Use the tagged public release URL below; DOI will be synchronized after Zenodo minting."
+message: "For citation, use DOI 10.5281/zenodo.20157166."
+doi: 10.5281/zenodo.20157166
 title: "DRMYN Studio: Metadata Scaffold for Identity Evidence Set Selection in AI-Assisted Character Prompt Governance"
 type: software
 version: 0.15.2-identity-evidence-set-metadata-checkpoint

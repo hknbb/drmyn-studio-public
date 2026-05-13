@@ -171,13 +171,13 @@ python scripts/validate_prompt_records.py --repo-root .
 
 This public repository is the archival checkpoint repository for DRMYN Studio releases.
 
-Active release citation target (DOI pending until Zenodo minting):
+Active release citation target:
 
 ```
 Babacan, H. (2026). DRMYN Studio: Metadata Scaffold for Identity Evidence Set
 Selection in AI-Assisted Character Prompt Governance (Version
 0.15.2-identity-evidence-set-metadata-checkpoint) [Computer software]. Zenodo.
-DOI pending - will be synchronized after Zenodo minting.
+https://doi.org/10.5281/zenodo.20157166
 ```
 
 Public release repository:
@@ -194,5 +194,4 @@ Tagged releases are archived via Zenodo. Metadata is stored in [.zenodo.json](.z
 ## License
 
 See [LICENSE](LICENSE).
-
 
