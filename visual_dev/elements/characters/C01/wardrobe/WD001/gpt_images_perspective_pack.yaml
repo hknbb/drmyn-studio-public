@@ -1,0 +1,57 @@
+schema_version: "0.x-draft"
+record_type: gpt_images_perspective_pack
+prompt_pack_id: GPTIMG2_WD001_PERSPECTIVE_PACK_V001
+status: draft
+source_reference_id: C01_WD001_front_reference
+target_model: gpt_images_2
+target_role: multi_perspective_element_expander
+element_id: WD001
+element_type: wardrobe
+shared_preservation_instruction: Preserve WD001 garment identity anchors exactly (lapel, cuff, pocket, seam, label, fabric panel, closure direction) and change only perspective framing.
+prompts:
+  - prompt_id: GPTIMG2_WD001_P01_FLAT_LAY_V001
+    perspective: usage_angle
+    prompt_text: Use the registered WD001 hero/reference image as strict continuity anchor. Generate one single flat-lay wardrobe view on a neutral clean background; preserve closure direction, seam path geometry, panel boundaries, and hem behavior without redesign.
+    constraints:
+      - preserve lapel and collar geometry
+      - preserve pocket placement and label region
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "2:3"
+  - prompt_id: GPTIMG2_WD001_P02_MANNEQUIN_FRONT_V001
+    perspective: front_hero
+    prompt_text: Use the registered WD001 hero/reference image as strict continuity anchor. Generate one single on-mannequin front wardrobe view; preserve lapel break line, closure direction, pocket placement, cuff structure, and fabric drape.
+    constraints:
+      - preserve closure direction
+      - preserve seam topology
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "2:3"
+  - prompt_id: GPTIMG2_WD001_P03_MANNEQUIN_BACK_V001
+    perspective: rear_or_side
+    prompt_text: Use the registered WD001 hero/reference image as strict continuity anchor. Generate one single on-mannequin back wardrobe view; preserve back seam transitions, panel continuity, shoulder alignment, and hem fall.
+    constraints:
+      - preserve back seam layout
+      - preserve silhouette continuity
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "2:3"
+  - prompt_id: GPTIMG2_WD001_P04_MATERIAL_DETAIL_V001
+    perspective: detail_or_threshold
+    prompt_text: Use the registered WD001 hero/reference image as strict continuity anchor. Generate one single material detail crop preserving weave behavior, stitch direction, trim continuity, and tonal consistency.
+    constraints:
+      - preserve texture fidelity
+      - preserve stitch orientation
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+qc_gate:
+  minimum_score: 85
+  all_perspectives_required: true
+  failed_perspective_revision_only: true
+downstream_use:
+  - wardrobe_continuity_reference
