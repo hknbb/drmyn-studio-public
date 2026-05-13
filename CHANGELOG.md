@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.15.2-identity-evidence-set-metadata-checkpoint (2026-05-13)
+
+### Summary
+- Scientific checkpoint after PROD-LINE-15A-3B.
+- Scope remains documentation-only and metadata-only release hygiene.
+- Stage 2.5 Identity Evidence Set Selection is now machine-validated through schema + validator wiring.
+
+### Changed
+- Added formal `identity_evidence_set` metadata contract to the validated production model set.
+- Added validator discovery for `visual_dev/elements/characters/*/identity_evidence_sets/*.yaml`.
+- Added C01 HOME_MORNING draft scaffold for Stage 3 identity evidence selection.
+- Standardized evidence slot semantics: `E01_STAGE1_WINNER`, `E02_STAGE2A_PORTRAIT`, `E03_STAGE2B_FULL_BODY`, `E04_STAGE2C_EXPRESSION_BAND`.
+- Added enforcement gates for upload_count consistency, included/excluded_reason coupling, slot-to-source/role matching, look/alias consistency, and pending_external scaffold safety.
+
+### Validation Evidence
+- `python scripts/validate_production_records.py --repo-root .` -> 77 files scanned, 77 valid, 0 invalid.
+- `python -m pytest -q` -> 1368 passed.
+- `python scripts/validate_prompt_records.py --repo-root .` -> 7 files validated successfully.
+- `python scripts/validators/validate_model_research_gate.py --repo-root . --targets midjourney_image_best_available chatgpt_image_best_available kling_omni_video_best_available` -> 3/3 passed.
+
+### Policy Confirmation
+- No binary image/video/audio outputs committed.
+- No lifecycle promotion (`approved`, `locked`, `canon_lock`, `materialized`, `selected`, `applied`).
+- No real external reference replacement performed at this checkpoint.
+- No production record mutation in this release hygiene PR.
+- No schema, validator, or test changes in this release hygiene PR.
+
+### Next Step
+- Produce/register actual C01_HOME_MORNING identity evidence external refs, rerun PROD-LINE-15A preflight, and proceed only if READY.
+
 ## v0.15.1-identity-exploration-probe-checkpoint (2026-05-13)
 
 ### Summary

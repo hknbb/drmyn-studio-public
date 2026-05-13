@@ -18,7 +18,7 @@ From `planning/characters/C05.yaml`:
 - Character seed: `46`
 - Midjourney V8.1 tail (Stage 1 and Stage 5):
 `--v 8.1 --raw --ar 2:3 --s 100 --seed 46 --chaos 5 --no text logo watermark`
-- Midjourney V7 tail (Stage 2 only - requires Omni Reference URL from Stage 1 winner):
+- Midjourney V7 tail (Stage 2 only  requires Omni Reference URL from Stage 1 winner):
 `--v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout`
 
 ## Stage 1 - Identity Exploration Prompt (Midjourney)
@@ -30,25 +30,72 @@ From `planning/characters/C05.yaml`:
 ## Stage 2 - Identity Exploration 2 (Midjourney V7 + Omni Reference)
 Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls.
 
-### 2A - Identity Portrait Probe
+### 2A  Identity Portrait Probe
 ```text
 /imagine prompt: Marcus Chen cinematic identity portrait, single frame, head and shoulders close framing, man in late 30s to early 40s, quiet competent presence, emotionally load-bearing without theatrical sadness, grounded realism, realistic skin texture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2B - Identity Full-Body Probe
+### 2B  Identity Full-Body Probe
 ```text
 /imagine prompt: Marcus Chen cinematic identity full body, single frame, full-body standing pose, watchful contained silhouette, same face geometry as identity source, muted dark neutrals, neutral grounded posture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2C - Identity Expression Band Probe
+### 2C  Identity Expression Band Probe
 ```text
 /imagine prompt: Marcus Chen cinematic identity variant, single frame, restrained internal weight expression within controlled forward focus range, same face geometry and watchful contained silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-## Stage 3 - GPT Images 2 FRONT HERO LOCK Prompt
+## Stage 2.5 - Identity Evidence Set Selection
+Recommended default: E01 + E02 + E03. Add E04 only if expression-band probe preserves the same identity.
+
+```yaml
+stage3_identity_evidence_set:
+  evidence_set_id: C05_STAGE3_IDENTITY_EVIDENCE_SET_V001
+  target_character: C05
+  target_stage: GPT_IMAGES_2_FRONT_HERO_LOCK
+  upload_count: <1-4>
+  uploaded_slots:
+    - slot_id: E01_STAGE1_WINNER
+      source_stage: STAGE_1_IDENTITY_EXPLORATION
+      role: primary_identity_direction
+      included: true
+      external_ref: <operator_external_ref_or_note>
+    - slot_id: E02_STAGE2A_PORTRAIT
+      source_stage: STAGE_2A_IDENTITY_PORTRAIT_PROBE
+      role: face_topology_anchor
+      included: <true_or_false>
+      external_ref: <operator_external_ref_or_note>
+      excluded_reason: <required_if_included_false>
+    - slot_id: E03_STAGE2B_FULL_BODY
+      source_stage: STAGE_2B_IDENTITY_FULL_BODY_PROBE
+      role: silhouette_body_proportion_anchor
+      included: <true_or_false>
+      external_ref: <operator_external_ref_or_note>
+      excluded_reason: <required_if_included_false>
+    - slot_id: E04_STAGE2C_EXPRESSION_BAND
+      source_stage: STAGE_2C_IDENTITY_EXPRESSION_BAND_PROBE
+      role: expression_range_check
+      included: <true_or_false>
+      external_ref: <operator_external_ref_or_note>
+      excluded_reason: <required_if_included_false>
+```
+
+## Stage 3 - GPT Images 2 FRONT HERO LOCK from Identity Evidence Set
 
 ```text
-Use the uploaded C05 Marcus Chen reference image as identity source only, not as layout source. Generate one single full-body FRONT hero lock image with identical face geometry, age read, body proportions, and watchful contained silhouette. Keep emotionally load-bearing restraint without theatrical sadness. Neutral clean background, realistic texture, no contact sheet, no redesign, no text, no logo, no watermark, no extra characters.
+Use the uploaded C05 Marcus Chen identity evidence set strictly as identity evidence, not as layout references.
+
+The uploaded set may contain 1 to 4 images selected from these slots:
+E01_STAGE1_WINNER: primary identity direction
+E02_STAGE2A_PORTRAIT: face topology anchor
+E03_STAGE2B_FULL_BODY: silhouette and body proportion anchor
+E04_STAGE2C_EXPRESSION_BAND: expression range check
+
+Consolidate only the shared identity features across the uploaded images into one single full-body FRONT hero lock image of the same character. Preserve consistent facial geometry, age read, body proportions, hair silhouette, body silhouette, and expression range.
+
+Do not average into a new face. Do not mix conflicting details. If one uploaded image conflicts with the others, prioritize the most consistent shared identity features and ignore the outlier.
+
+Generate one single full-body front-facing character image only. Neutral clean background, natural cinematic realism, no text, no logos, no watermark, no contact sheet, no collage, no multi-panel output.
 ```
 
 ## Stage 4 - GPT Images 2 Four-Perspective Pack
@@ -87,6 +134,6 @@ No dedicated character-specific aesthetic pack found; use `planning/aesthetic_bi
 
 ## Operator Notes
 - Binaries stay external; repository keeps metadata only.
-- Stage sequence is mandatory: Stage 1 -> Stage 2 -> Stage 3 -> Stage 4 -> Stage 5.
+- Stage sequence is mandatory: Stage 1 -> Stage 2 -> Stage 2.5 -> Stage 3 -> Stage 4 -> Stage 5.
 - Keep look continuity strictly within `C05_LOOK_MEMORY_INTIMATE_V001` scope.
 - Use [gpt_images_external_ref_replacement_checklist.md](gpt_images_external_ref_replacement_checklist.md) for real external-ref registration workflow.

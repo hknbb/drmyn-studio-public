@@ -47,6 +47,7 @@ def _copy_schemas(repo_root: Path) -> None:
         "character_identity_anchor.schema.json",
         "character_look_variant.schema.json",
         "scene_character_look_map.schema.json",
+        "identity_evidence_set.schema.json",
     ):
         (schemas_dir / name).write_text(
             (REPO_ROOT / "schemas" / name).read_text(encoding="utf-8"),
@@ -362,6 +363,57 @@ def _valid_native_audio_compatibility_record(
         "uses_image_or_element_refs": True,
         "compatible": compatible,
         "checked_against_snapshot": "model_guidance_snapshots/kling/20260508T140000Z_kling_omni_video_best_available.yaml",
+    }
+
+
+def _valid_identity_evidence_set_record() -> dict:
+    return {
+        "record_type": "identity_evidence_set",
+        "record_id": "C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001",
+        "character_id": "C01",
+        "target_stage": "GPT_IMAGES_2_FRONT_HERO_LOCK",
+        "target_look_id": "C01_LOOK_HOME_MORNING_V001",
+        "target_alias": "@C01_HOME_MORNING",
+        "upload_count": 3,
+        "evidence_slots": [
+            {
+                "slot_id": "E01_STAGE1_WINNER",
+                "source_stage": "STAGE_1_IDENTITY_EXPLORATION",
+                "role": "primary_identity_direction",
+                "external_ref": "pending_external://C01_STAGE1_IDENTITY_WINNER_HOME_MORNING_V001",
+                "included": True,
+            },
+            {
+                "slot_id": "E02_STAGE2A_PORTRAIT",
+                "source_stage": "STAGE_2A_IDENTITY_PORTRAIT_PROBE",
+                "role": "face_topology_anchor",
+                "external_ref": "pending_external://C01_STAGE2A_IDENTITY_PORTRAIT_HOME_MORNING_V001",
+                "included": True,
+            },
+            {
+                "slot_id": "E03_STAGE2B_FULL_BODY",
+                "source_stage": "STAGE_2B_IDENTITY_FULL_BODY_PROBE",
+                "role": "silhouette_body_proportion_anchor",
+                "external_ref": "pending_external://C01_STAGE2B_IDENTITY_FULL_BODY_HOME_MORNING_V001",
+                "included": True,
+            },
+            {
+                "slot_id": "E04_STAGE2C_EXPRESSION_BAND",
+                "source_stage": "STAGE_2C_IDENTITY_EXPRESSION_BAND_PROBE",
+                "role": "expression_range_check",
+                "external_ref": "pending_external://C01_STAGE2C_IDENTITY_EXPRESSION_BAND_HOME_MORNING_V001",
+                "included": False,
+                "excluded_reason": "Optional expression-band probe reserved unless identity consistency is confirmed by operator.",
+            },
+        ],
+        "lifecycle": {
+            "status": "draft",
+            "approved": False,
+            "locked": False,
+            "canon_lock": False,
+            "materialized": False,
+        },
+        "notes": "Draft scaffold.",
     }
 
 
@@ -1628,6 +1680,215 @@ def test_new_character_identity_look_records_validate(tmp_path: Path) -> None:
                 "created_at": "2026-05-12T00:00:00Z",
             },
         },
+    )
+    report = run_validation(tmp_path)
+    assert report.invalid_files == 0
+
+
+def _write_identity_evidence_dependencies(tmp_path: Path) -> None:
+    _write_yaml(
+        tmp_path / "visual_dev/elements/characters/C01/look_variants/C01_LOOK_HOME_MORNING_V001.yaml",
+        {
+            "schema_version": "0.x-draft",
+            "record_type": "character_look_variant",
+            "look_id": "C01_LOOK_HOME_MORNING_V001",
+            "character_id": "C01",
+            "inherits_identity_anchor": "C01_IDENTITY_ANCHOR_V001",
+            "status": "draft",
+            "look_role": "domestic_morning",
+            "wardrobe_refs": {
+                "primary_wardrobe_id": "WD001",
+                "supplementary_wardrobe_ids": [],
+            },
+            "continuity_scope": {"start_scene": "SC0001", "end_scene": "SC0003"},
+            "change_reason": "opening continuity",
+            "provenance": {"created_by": "tests", "created_at": "2026-05-12T00:00:00Z"},
+        },
+    )
+    _write_yaml(
+        tmp_path / "visual_dev/elements/characters/C01/kling_elements/KLING_ELEM_C01_HOME_MORNING_V001.yaml",
+        {
+            "schema_version": "0.x-draft",
+            "record_type": "kling_character_look_element",
+            "kling_character_look_element_id": "KLING_ELEM_C01_HOME_MORNING_V001",
+            "character_id": "C01",
+            "identity_anchor_id": "C01_IDENTITY_ANCHOR_V001",
+            "look_id": "C01_LOOK_HOME_MORNING_V001",
+            "kling_element_alias": "@C01_HOME_MORNING",
+            "display_name": "C01 Home Morning",
+            "status": "draft",
+            "element_role": "character_look_composite",
+            "source_reference_chain": {
+                "identity_source_ref": "MJ_ELEMENT_C01_HERO_LOCKED_V001",
+                "front_hero_lock_ref": "pending_external://C01_FRONT_HERO_LOCK_V001",
+                "perspective_pack_id": None,
+                "wardrobe_ids": ["WD001"],
+            },
+            "omni_usage_policy": {
+                "use_as_primary_character_element": True,
+                "do_not_mix_with_other_same_character_look_aliases_in_same_shot": True,
+                "wardrobe_is_baked_into_element": True,
+                "separate_wardrobe_element_optional": False,
+            },
+            "provenance": {"created_by": "tests", "created_at": "2026-05-12T00:00:00Z"},
+        },
+    )
+
+
+def test_identity_evidence_set_valid_record_passes(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        _valid_identity_evidence_set_record(),
+    )
+    report = run_validation(tmp_path)
+    assert report.invalid_files == 0
+
+
+def test_identity_evidence_set_upload_count_mismatch_fails(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["upload_count"] = 2
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any(i.field_path == "upload_count" for i in report.issues)
+
+
+def test_identity_evidence_set_duplicate_slot_fails(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["evidence_slots"][1]["slot_id"] = "E01_STAGE1_WINNER"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any("Duplicate slot_id" in i.message for i in report.issues)
+
+
+def test_identity_evidence_set_missing_e01_fails(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["evidence_slots"][0]["included"] = False
+    payload["evidence_slots"][0]["excluded_reason"] = "drop"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any("E01_STAGE1_WINNER must be included" in i.message for i in report.issues)
+
+
+def test_identity_evidence_set_excluded_reason_rules_failures(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["evidence_slots"][3].pop("excluded_reason")
+    payload["evidence_slots"][1]["excluded_reason"] = "should-not-exist"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any("included=false requires non-empty excluded_reason" in i.message for i in report.issues)
+    assert any("included=true must not have excluded_reason" in i.message for i in report.issues)
+
+
+def test_identity_evidence_set_slot_stage_role_mismatch_fails(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["evidence_slots"][1]["source_stage"] = "STAGE_2B_IDENTITY_FULL_BODY_PROBE"
+    payload["evidence_slots"][2]["role"] = "face_topology_anchor"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any("slot_id/source_stage mismatch" in i.message for i in report.issues)
+    assert any("slot_id/role mismatch" in i.message for i in report.issues)
+
+
+def test_identity_evidence_set_character_look_prefix_mismatch_fails(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["target_look_id"] = "C02_LOOK_HOME_MORNING_V001"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any(i.field_path == "target_look_id" for i in report.issues)
+
+
+def test_identity_evidence_set_lifecycle_promotion_fails(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["lifecycle"]["approved"] = True
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any("Lifecycle promotion is forbidden" in i.message for i in report.issues)
+
+
+def test_identity_evidence_set_local_path_external_ref_fails(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["evidence_slots"][0]["external_ref"] = "C:\\Users\\test\\image.png"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert any("local absolute path" in i.message for i in report.issues)
+
+
+def test_identity_evidence_set_pending_external_allowed(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    for slot in payload["evidence_slots"]:
+        slot["external_ref"] = "pending_external://placeholder"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
+    )
+    report = run_validation(tmp_path)
+    assert report.invalid_files == 0
+
+
+def test_identity_evidence_set_hosted_media_url_allowed(tmp_path: Path) -> None:
+    _copy_schemas(tmp_path)
+    _write_identity_evidence_dependencies(tmp_path)
+    payload = _valid_identity_evidence_set_record()
+    payload["evidence_slots"][0]["external_ref"] = "https://storage.example/C01.png"
+    payload["evidence_slots"][1]["external_ref"] = "https://storage.example/C01-left.jpg"
+    _write_yaml(
+        tmp_path
+        / "visual_dev/elements/characters/C01/identity_evidence_sets/C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001.yaml",
+        payload,
     )
     report = run_validation(tmp_path)
     assert report.invalid_files == 0

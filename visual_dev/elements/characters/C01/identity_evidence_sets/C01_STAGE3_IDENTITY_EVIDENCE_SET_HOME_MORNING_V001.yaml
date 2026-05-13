@@ -1,0 +1,40 @@
+record_type: identity_evidence_set
+record_id: C01_STAGE3_IDENTITY_EVIDENCE_SET_HOME_MORNING_V001
+character_id: C01
+target_stage: GPT_IMAGES_2_FRONT_HERO_LOCK
+target_look_id: C01_LOOK_HOME_MORNING_V001
+target_alias: "@C01_HOME_MORNING"
+upload_count: 3
+evidence_slots:
+  - slot_id: E01_STAGE1_WINNER
+    source_stage: STAGE_1_IDENTITY_EXPLORATION
+    role: primary_identity_direction
+    external_ref: pending_external://C01_STAGE1_IDENTITY_WINNER_HOME_MORNING_V001
+    included: true
+  - slot_id: E02_STAGE2A_PORTRAIT
+    source_stage: STAGE_2A_IDENTITY_PORTRAIT_PROBE
+    role: face_topology_anchor
+    external_ref: pending_external://C01_STAGE2A_IDENTITY_PORTRAIT_HOME_MORNING_V001
+    included: true
+  - slot_id: E03_STAGE2B_FULL_BODY
+    source_stage: STAGE_2B_IDENTITY_FULL_BODY_PROBE
+    role: silhouette_body_proportion_anchor
+    external_ref: pending_external://C01_STAGE2B_IDENTITY_FULL_BODY_HOME_MORNING_V001
+    included: true
+  - slot_id: E04_STAGE2C_EXPRESSION_BAND
+    source_stage: STAGE_2C_IDENTITY_EXPRESSION_BAND_PROBE
+    role: expression_range_check
+    external_ref: pending_external://C01_STAGE2C_IDENTITY_EXPRESSION_BAND_HOME_MORNING_V001
+    included: false
+    excluded_reason: "Optional expression-band probe reserved unless identity consistency is confirmed by operator."
+lifecycle:
+  status: draft
+  approved: false
+  locked: false
+  canon_lock: false
+  materialized: false
+notes: >
+  Draft Stage 2.5 identity evidence set scaffold for C01 HOME_MORNING.
+  This record declares the planned GPT Images 2 Stage 3 upload set before
+  FRONT HERO LOCK generation. Pending refs must be replaced only through the
+  controlled external-ref registration workflow. No binary media is committed.

@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/identity_evidence_set.schema.json",
+  "title": "Identity Evidence Set",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_type",
+    "record_id",
+    "character_id",
+    "target_stage",
+    "target_look_id",
+    "upload_count",
+    "evidence_slots",
+    "lifecycle",
+    "notes"
+  ],
+  "properties": {
+    "record_type": {
+      "const": "identity_evidence_set"
+    },
+    "record_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9_]+$"
+    },
+    "character_id": {
+      "type": "string",
+      "pattern": "^C[0-9]{2}$"
+    },
+    "target_stage": {
+      "const": "GPT_IMAGES_2_FRONT_HERO_LOCK"
+    },
+    "target_look_id": {
+      "type": "string",
+      "pattern": "^C[0-9]{2}_LOOK_[A-Z0-9_]+_V[0-9]{3}$"
+    },
+    "target_alias": {
+      "type": "string",
+      "pattern": "^@[A-Z0-9_]+$"
+    },
+    "upload_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4
+    },
+    "evidence_slots": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "slot_id",
+          "source_stage",
+          "role",
+          "external_ref",
+          "included"
+        ],
+        "properties": {
+          "slot_id": {
+            "type": "string",
+            "enum": [
+              "E01_STAGE1_WINNER",
+              "E02_STAGE2A_PORTRAIT",
+              "E03_STAGE2B_FULL_BODY",
+              "E04_STAGE2C_EXPRESSION_BAND"
+            ]
+          },
+          "source_stage": {
+            "type": "string",
+            "enum": [
+              "STAGE_1_IDENTITY_EXPLORATION",
+              "STAGE_2A_IDENTITY_PORTRAIT_PROBE",
+              "STAGE_2B_IDENTITY_FULL_BODY_PROBE",
+              "STAGE_2C_IDENTITY_EXPRESSION_BAND_PROBE"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "primary_identity_direction",
+              "face_topology_anchor",
+              "silhouette_body_proportion_anchor",
+              "expression_range_check"
+            ]
+          },
+          "external_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "included": {
+            "type": "boolean"
+          },
+          "excluded_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "operator_note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "approved",
+        "locked",
+        "canon_lock",
+        "materialized"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "review"
+          ]
+        },
+        "approved": {
+          "const": false
+        },
+        "locked": {
+          "const": false
+        },
+        "canon_lock": {
+          "const": false
+        },
+        "materialized": {
+          "const": false
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

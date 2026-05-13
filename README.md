@@ -1,6 +1,4 @@
-# DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
-
-**DOI:** [10.5281/zenodo.20153766](https://doi.org/10.5281/zenodo.20153766)
+﻿# DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -173,17 +171,17 @@ python scripts/validate_prompt_records.py --repo-root .
 
 This public repository is the archival checkpoint repository for DRMYN Studio releases.
 
-For publication citation, use the public release checkpoint:
+Active release citation target (DOI pending until Zenodo minting):
 
 ```
-Babacan, H. (2026). DRMYN Studio: Single-Image Identity Exploration Probe for
-AI-Assisted Character Prompt Governance (Version 0.15.1-identity-exploration-probe-checkpoint)
-[Computer software]. Zenodo.
-https://doi.org/10.5281/zenodo.20153766
+Babacan, H. (2026). DRMYN Studio: Metadata Scaffold for Identity Evidence Set
+Selection in AI-Assisted Character Prompt Governance (Version
+0.15.2-identity-evidence-set-metadata-checkpoint) [Computer software]. Zenodo.
+DOI pending - will be synchronized after Zenodo minting.
 ```
 
 Public release repository:
-https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.1-identity-exploration-probe-checkpoint
+https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.2-identity-evidence-set-metadata-checkpoint
 
 For machine-readable citation metadata, see [CITATION.cff](CITATION.cff).
 For authorship and contribution details, see [AUTHORS.md](AUTHORS.md), [CONTRIBUTORS.md](CONTRIBUTORS.md),
@@ -196,3 +194,5 @@ Tagged releases are archived via Zenodo. Metadata is stored in [.zenodo.json](.z
 ## License
 
 See [LICENSE](LICENSE).
+
+

@@ -1,9 +1,8 @@
 {
-  "title": "DRMYN Studio: Single-Image Identity Exploration Probe for AI-Assisted Character Prompt Governance",
-  "doi": "10.5281/zenodo.20153766",
+  "title": "DRMYN Studio: Metadata Scaffold for Identity Evidence Set Selection in AI-Assisted Character Prompt Governance",
   "upload_type": "software",
-  "version": "0.15.1-identity-exploration-probe-checkpoint",
-  "description": "Metadata-only scientific checkpoint after PROD-LINE-15A-2. This release replaces the earlier Reference Sheet stage with a two-step identity exploration workflow and a V7 Omni Reference based single-image probe stage, before any real GPT Images 2 external-reference registration.",
+  "version": "0.15.2-identity-evidence-set-metadata-checkpoint",
+  "description": "DRMYN Studio is a metadata-only, schema-validated, human-gated research software framework for AI-assisted movie development and movie production process design, documentation, validation, and reproducibility. The repository records canonical source truth, planning metadata, prompt governance, validation evidence, human approval decisions, agent handoffs, and reproducibility artifacts for an AI-assisted film production workflow. It includes a three-agent autonomous orchestration layer (Claude Code / Codex / Gemini Code Assist) with auto-handoff and pickup mode enabling structured multi-agent coordination without external APIs, a Streamlit dashboard for operator oversight, 20+ JSON Schemas (draft 2020-12), and a Film Aesthetic Bible system for deterministic visual keyword injection into T2I prompts. Generated media outputs are stored externally and referenced through metadata-only records. Demonstrated through the Closing Price AI-assisted film project.",
   "creators": [
     {
       "name": "Babacan, Hakan",
@@ -23,13 +22,6 @@
       "orcid": "0000-0003-4916-3989",
       "affiliation": "Istanbul University, Informatics, Istanbul, Turkey",
       "type": "Researcher"
-    }
-  ],
-  "related_identifiers": [
-    {
-      "identifier": "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.1-identity-exploration-probe-checkpoint",
-      "relation": "isSupplementTo",
-      "scheme": "url"
     }
   ],
   "keywords": [

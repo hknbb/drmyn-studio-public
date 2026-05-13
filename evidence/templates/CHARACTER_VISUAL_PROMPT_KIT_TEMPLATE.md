@@ -33,36 +33,84 @@ Usage:
 - Character seed: `<CHARACTER_SEED>`
 - Midjourney V8.1 tail (Stage 1 and Stage 5):
 `--v 8.1 --raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --no text logo watermark`
-- Midjourney V7 tail (Stage 2 only - requires Omni Reference URL from Stage 1 winner):
+- Midjourney V7 tail (Stage 2 only  requires Omni Reference URL from Stage 1 winner):
 `--v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout`
 
 ## Stage 1 - Identity Exploration Prompt (Midjourney V8.1)
 Positive prompt language rules: do NOT use "reference sheet", "character design", "turnaround", "collage", "multi-panel", "grid", "contact sheet", or "character reference composition". Use "clean single-subject production image" or "single frame" instead.
 ```text
-/imagine prompt: [CXX Character identity exploration prompt adapted to truth profile - single frame, full body with face readability, clean single-subject production image] --v 8.1 --raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --no text logo watermark
+/imagine prompt: [CXX Character identity exploration prompt adapted to truth profile  single frame, full body with face readability, clean single-subject production image] --v 8.1 --raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --no text logo watermark
 ```
 
 ## Stage 2 - Identity Exploration 2 (Midjourney V7 + Omni Reference)
-Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls - do NOT merge into one prompt.
+Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls  do NOT merge into one prompt.
 
-### 2A - Identity Portrait Probe (close framing, face primacy)
+### 2A  Identity Portrait Probe (close framing, face primacy)
 ```text
 /imagine prompt: [CXX Character] cinematic identity portrait, single frame, head and shoulders close framing, [age + expression band + silhouette descriptors from Stage 1 truth profile], neutral controlled gaze, realistic skin and fabric texture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2B - Identity Full-Body Probe (silhouette confirmation, single frame)
+### 2B  Identity Full-Body Probe (silhouette confirmation, single frame)
 ```text
 /imagine prompt: [CXX Character] cinematic identity full body, single frame, full-body standing pose, [silhouette descriptors], same face geometry as identity source, neutral grounded posture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2C - Identity Expression Band Probe (within anchor range, single frame)
+### 2C  Identity Expression Band Probe (within anchor range, single frame)
 ```text
-/imagine prompt: [CXX Character] cinematic identity variant, single frame, [alternate expression within anchor - e.g. alternate between two controlled states], same face geometry and silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+/imagine prompt: [CXX Character] cinematic identity variant, single frame, [alternate expression within anchor  e.g. alternate between two controlled states], same face geometry and silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-## Stage 3 - GPT Images 2 FRONT HERO LOCK Prompt
+## Stage 2.5 - Identity Evidence Set Selection
+
+Recommended default: E01 + E02 + E03. Add E04 only if expression-band probe preserves the same identity.
+
+```yaml
+stage3_identity_evidence_set:
+  evidence_set_id: [CXX]_STAGE3_IDENTITY_EVIDENCE_SET_V001
+  target_character: [CXX]
+  target_stage: GPT_IMAGES_2_FRONT_HERO_LOCK
+  upload_count: <1-4>
+  uploaded_slots:
+    - slot_id: E01_STAGE1_WINNER
+      source_stage: STAGE_1_IDENTITY_EXPLORATION
+      role: primary_identity_direction
+      included: true
+      external_ref: <operator_external_ref_or_note>
+    - slot_id: E02_STAGE2A_PORTRAIT
+      source_stage: STAGE_2A_IDENTITY_PORTRAIT_PROBE
+      role: face_topology_anchor
+      included: <true_or_false>
+      external_ref: <operator_external_ref_or_note>
+      excluded_reason: <required_if_included_false>
+    - slot_id: E03_STAGE2B_FULL_BODY
+      source_stage: STAGE_2B_IDENTITY_FULL_BODY_PROBE
+      role: silhouette_body_proportion_anchor
+      included: <true_or_false>
+      external_ref: <operator_external_ref_or_note>
+      excluded_reason: <required_if_included_false>
+    - slot_id: E04_STAGE2C_EXPRESSION_BAND
+      source_stage: STAGE_2C_IDENTITY_EXPRESSION_BAND_PROBE
+      role: expression_range_check
+      included: <true_or_false>
+      external_ref: <operator_external_ref_or_note>
+      excluded_reason: <required_if_included_false>
+```
+
+## Stage 3 - GPT Images 2 FRONT HERO LOCK from Identity Evidence Set
 ```text
-Use uploaded [CXX] reference image as identity source, not layout source. Generate one single full-body FRONT hero lock image only. Preserve face geometry, age read, body proportions, and silhouette exactly. No contact sheet recreation.
+Use the uploaded [CXX] identity evidence set strictly as identity evidence, not as layout references.
+
+The uploaded set may contain 1 to 4 images selected from these slots:
+E01_STAGE1_WINNER: primary identity direction
+E02_STAGE2A_PORTRAIT: face topology anchor
+E03_STAGE2B_FULL_BODY: silhouette and body proportion anchor
+E04_STAGE2C_EXPRESSION_BAND: expression range check
+
+Consolidate only the shared identity features across the uploaded images into one single full-body FRONT hero lock image of the same character. Preserve consistent facial geometry, age read, body proportions, hair silhouette, body silhouette, and expression range.
+
+Do not average into a new face. Do not mix conflicting details. If one uploaded image conflicts with the others, prioritize the most consistent shared identity features and ignore the outlier.
+
+Generate one single full-body front-facing character image only. Neutral clean background, natural cinematic realism, no text, no logos, no watermark, no contact sheet, no collage, no multi-panel output.
 ```
 
 ## Stage 4 - GPT Images 2 Four-Perspective Pack
@@ -103,5 +151,5 @@ Use uploaded [CXX] reference image as identity source, not layout source. Genera
 ## Operator Notes
 - Binaries are external-only.
 - Same look only per perspective pack.
-- Stage sequence is mandatory (1 -> 2 -> 3 -> 4 -> 5).
+- Stage sequence is mandatory (1 -> 2 -> 2.5 -> 3 -> 4 -> 5).
 - Use external-ref replacement checklist for registration stage.

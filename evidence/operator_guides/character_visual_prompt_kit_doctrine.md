@@ -11,7 +11,7 @@ Authority note:
 - Canon window for look-lock usage: SC0001-SC0009 (KNOWN canon)
 - Stage context: pre-PROD-LINE-15A external-ref registration write pass
 
-## Five-Stage Pipeline
+## Six-Stage Pipeline
 
 ### Stage 1 - Identity Exploration Prompt (Midjourney)
 Goal: discover a stable identity source before wardrobe-specific lock attempts.
@@ -38,13 +38,55 @@ Midjourney parameter tail standard (Stage 2 only):
 IMPORTANT: `--v 8.1` and `--oref` are incompatible. V8.1 does not support Omni Reference as of 2026-05 (on roadmap; not live). Use V7 for Stage 2 when identity adherence via `--oref` is required. Source of truth: `docs/model_guides/midjourney.yaml` (`omni_reference` rule).
 
 Stage 2 hard rules:
-- Three separate `/imagine` calls (2A, 2B, 2C) — never merged into one prompt.
+- Three separate `/imagine` calls (2A, 2B, 2C)  never merged into one prompt.
 - "sheet", "reference sheet", "character design", "turnaround", "collage", "multi-panel", "grid", "contact sheet" are FORBIDDEN in the positive prompt body. They may appear only as hyphenated terms in the `--no` clause.
 - Stage 1 winner URL must be attached as Omni Reference (`--oref`) to each Stage 2 call.
 - Stage 2C is an expression band variant, NOT an angle variant (angle variants belong to Stage 4).
 
-### Stage 3 - GPT Images 2 FRONT HERO LOCK Prompt
-Goal: produce one clean, single full-body front hero lock from the selected identity source.
+### Stage 2.5 - Identity Evidence Set Selection
+Goal: before GPT Images 2, operator declares which identity evidence images will be uploaded.
+
+Output intent:
+- One operator-selected evidence set with 1-4 images.
+- Each included image has a slot id, source stage, role, inclusion flag, and optional exclusion reason.
+- This is operator-facing metadata doctrine, not a production record in this PR.
+
+Allowed evidence slots:
+- `E01_STAGE1_WINNER`
+  Source: Stage 1 Identity Exploration winner
+  Role: primary_identity_direction
+- `E02_STAGE2A_PORTRAIT`
+  Source: Stage 2A Identity Portrait Probe
+  Role: face_topology_anchor
+- `E03_STAGE2B_FULL_BODY`
+  Source: Stage 2B Identity Full-Body Probe
+  Role: silhouette_body_proportion_anchor
+- `E04_STAGE2C_EXPRESSION_BAND`
+  Source: Stage 2C Identity Expression Band Probe
+  Role: expression_range_check
+
+Evidence count rule:
+- Minimum: 1 image
+- Recommended: 2-4 images
+- Maximum for this workflow: 4 images
+
+Recommended input sets:
+- 1 image: best single identity source if other images drift
+- 2 images: E01 + strongest E02 or E03
+- 3 images: E01 + E02 + E03
+- 4 images: E01 + E02 + E03 + E04, only if all are identity-consistent
+
+Outlier rule:
+Do not upload a source image if it causes:
+- face drift
+- age drift
+- hair silhouette drift
+- body proportion drift
+- wardrobe/material-world drift
+- expression outside anchor range
+
+### Stage 3 - GPT Images 2 FRONT HERO LOCK from Identity Evidence Set
+Goal: produce one clean, single full-body front hero lock from the selected Stage 2.5 identity evidence set.
 
 Output intent:
 - One single image only
@@ -68,7 +110,7 @@ Output intent:
 
 ## Hard Rules
 - Stage 2 is a single-image variant probe, not a sheet or panel layout.
-- Stage 2 outputs are three independent single frames (2A, 2B, 2C) — not one merged sheet.
+- Stage 2 outputs are three independent single frames (2A, 2B, 2C)  not one merged sheet.
 - FRONT HERO LOCK is a single image, not a contact sheet recreation.
 - Same look only per perspective pack.
 - Identity anchor invariants are non-negotiable.
@@ -78,10 +120,11 @@ Output intent:
 ## Chain Discipline
 Sequential lock chain (do not parallelize shortcuts):
 
-`identity exploration 1 (V8.1) -> identity exploration 2 / single-image variant probe (V7 + oref) -> FRONT HERO LOCK -> four-perspective pack -> per-look lock`
+`identity exploration 1 (V8.1) -> identity exploration 2 / single-image variant probe (V7 + oref) -> identity evidence set selection (1-4 images) -> FRONT HERO LOCK from identity evidence set -> four-perspective pack -> per-look lock`
 
 Skipping Stage 1 collapses identity into wardrobe semantics and increases drift risk.
 Skipping Stage 2 removes independent frame evidence for the identity anchor band.
+Skipping Stage 2.5 removes explicit evidence selection control before Stage 3.
 
 ## Schema Crosswalk
 This doctrine maps prompt stages to existing metadata contracts.
@@ -89,7 +132,8 @@ This doctrine maps prompt stages to existing metadata contracts.
 - Stage 1-2 outputs map to:
   - `character_identity_anchor.source_reference_sheet_ref`
 
-  > Field name `source_reference_sheet_ref` is preserved for historical stability. Its semantic meaning is the single identity-source image selected from the Stage 2 Identity Exploration 2 probe set. This field does not point to a sheet image; sheet output is forbidden (`contact_sheet_layout_forbidden_as_lock: true`). Schema field rename is deferred to a future PR (PROD-LINE-15A-3 recommended).
+  > Field name `source_reference_sheet_ref` is preserved for historical stability. It remains the historical primary pointer from the Stage 1-2 identity chain. This field does not point to a sheet image; sheet output is forbidden (`contact_sheet_layout_forbidden_as_lock: true`).
+- Stage 2.5 is operator-facing selection context in this PR.
 - Stage 3 output maps to:
   - `character_identity_anchor.front_hero_lock_ref`
 - Stage 4 outputs map to:
@@ -97,11 +141,16 @@ This doctrine maps prompt stages to existing metadata contracts.
 - Stage 5 outputs map operationally to:
   - `character_look_variant` continuity usage
   - `kling_character_look_element.source_reference_chain.wardrobe_ids` continuity expectations
+- Future schema support may add `source_identity_evidence_refs` or an `identity_evidence_set` record type in a later PR.
 
 ## Field Notes
 - Identity exploration is metadata-first: the model must learn who the person is before wardrobe-specific lock prompts.
-- Stage 2 uses V7 + Omni Reference (`--oref`) because V8.1 does not support `--oref` as of 2026-05. Operatör must switch to V7 in Midjourney UI for Stage 2 calls.
+- Stage 2 uses V7 + Omni Reference (`--oref`) because V8.1 does not support `--oref` as of 2026-05. Operatr must switch to V7 in Midjourney UI for Stage 2 calls.
 - Stage 2 Omni Reference URL: paste the Stage 1 winner URL into `--oref`. `--ow 100` enforces maximum identity adherence.
+- More images are not automatically better.
+- Use fewer images if outliers degrade identity.
+- Default recommendation is E01 + E02 + E03.
+- Add E04 only when expression-band probe preserves identity.
 - Lock chain is sequential, not parallel: each stage consumes the previous stage's validated identity source.
 - The workflow is designed to reduce face/silhouette drift across look variants and scene transitions.
 

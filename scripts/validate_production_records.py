@@ -89,6 +89,9 @@ CHARACTER_IDENTITY_ANCHOR_PATTERN = (
 CHARACTER_LOOK_VARIANT_PATTERN = (
     "visual_dev/elements/characters/*/look_variants/*.yaml"
 )
+IDENTITY_EVIDENCE_SET_PATTERN = (
+    "visual_dev/elements/characters/*/identity_evidence_sets/*.yaml"
+)
 SCENE_CHARACTER_LOOK_MAP_PATTERN = "visual_dev/omni_sets/SC*/scene_character_look_map.yaml"
 AESTHETIC_BIBLE_PATH = "planning/aesthetic_bible.yaml"
 SCENE_CLIP_MAP_PATH = "evidence/scene_clip_map.csv"
@@ -122,6 +125,24 @@ PRODUCTION_BATCH_MODEL_GUIDANCE_TARGETS: dict[str, str] = {
     "midjourney_v8_1": "midjourney_image_best_available",
     "gpt_images_2": "chatgpt_image_best_available",
     "kling_omni_3": "kling_omni_video_best_available",
+}
+IDENTITY_EVIDENCE_SLOT_EXPECTATIONS: dict[str, tuple[str, str]] = {
+    "E01_STAGE1_WINNER": (
+        "STAGE_1_IDENTITY_EXPLORATION",
+        "primary_identity_direction",
+    ),
+    "E02_STAGE2A_PORTRAIT": (
+        "STAGE_2A_IDENTITY_PORTRAIT_PROBE",
+        "face_topology_anchor",
+    ),
+    "E03_STAGE2B_FULL_BODY": (
+        "STAGE_2B_IDENTITY_FULL_BODY_PROBE",
+        "silhouette_body_proportion_anchor",
+    ),
+    "E04_STAGE2C_EXPRESSION_BAND": (
+        "STAGE_2C_IDENTITY_EXPRESSION_BAND_PROBE",
+        "expression_range_check",
+    ),
 }
 
 
@@ -241,6 +262,7 @@ def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
             repo_root.glob(CHARACTER_IDENTITY_ANCHOR_PATTERN)
         ),
         "character_look_variant": sorted(repo_root.glob(CHARACTER_LOOK_VARIANT_PATTERN)),
+        "identity_evidence_set": sorted(repo_root.glob(IDENTITY_EVIDENCE_SET_PATTERN)),
         "scene_character_look_map": sorted(repo_root.glob(SCENE_CHARACTER_LOOK_MAP_PATTERN)),
         "aesthetic_bible": (
             [repo_root / AESTHETIC_BIBLE_PATH]
@@ -1981,6 +2003,268 @@ def validate_scene_clip_map_file(
     return issues
 
 
+def validate_identity_evidence_set_file(
+    path: Path,
+    repo_root: Path,
+    grouped_files: dict[str, list[Path]],
+) -> list[ProductionValidationIssue]:
+    record_type = "identity_evidence_set"
+    data, issues = _load_structural_record(
+        path=path,
+        repo_root=repo_root,
+        record_type=record_type,
+    )
+    if issues:
+        return issues
+
+    character_id = data.get("character_id")
+    target_look_id = data.get("target_look_id")
+    if (
+        isinstance(character_id, str)
+        and isinstance(target_look_id, str)
+        and not target_look_id.startswith(f"{character_id}_LOOK_")
+    ):
+        issues.append(
+            _structural_issue(
+                path=path,
+                repo_root=repo_root,
+                record_type=record_type,
+                field_path="target_look_id",
+                message="target_look_id must match character_id prefix.",
+            )
+        )
+
+    look_ids: set[str] = set()
+    for look_path in grouped_files.get("character_look_variant", []):
+        look_data = _load_yaml_mapping(look_path)
+        if not look_data:
+            continue
+        look_id = look_data.get("look_id")
+        if isinstance(look_id, str) and look_id:
+            look_ids.add(look_id)
+    if isinstance(target_look_id, str) and target_look_id not in look_ids:
+        issues.append(
+            _structural_issue(
+                path=path,
+                repo_root=repo_root,
+                record_type=record_type,
+                field_path="target_look_id",
+                message="target_look_id must reference an existing character_look_variant record.",
+            )
+        )
+
+    target_alias = data.get("target_alias")
+    if isinstance(target_alias, str):
+        alias_found = False
+        for alias_path in grouped_files.get("kling_character_look_element", []):
+            alias_data = _load_yaml_mapping(alias_path)
+            if not alias_data:
+                continue
+            status = alias_data.get("status")
+            alias = alias_data.get("kling_element_alias")
+            if (
+                alias == target_alias
+                and status in {"draft", "review", "approved", "locked"}
+            ):
+                alias_found = True
+                break
+        if not alias_found:
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path="target_alias",
+                    message="target_alias must match an active kling_character_look_element alias.",
+                )
+            )
+
+    slots = data.get("evidence_slots")
+    if not isinstance(slots, list):
+        return issues
+
+    included_count = 0
+    slot_ids_seen: set[str] = set()
+    has_e01_included = False
+    binary_ext_re = re.compile(
+        r"\.(png|jpg|jpeg|webp|gif|mp4|mov|avi|mkv|wav|mp3|flac)$", re.I
+    )
+
+    for idx, slot in enumerate(slots):
+        if not isinstance(slot, dict):
+            continue
+        field_prefix = f"evidence_slots[{idx}]"
+        slot_id = slot.get("slot_id")
+        source_stage = slot.get("source_stage")
+        role = slot.get("role")
+        included = slot.get("included")
+        excluded_reason = slot.get("excluded_reason")
+        external_ref = slot.get("external_ref")
+
+        if isinstance(slot_id, str):
+            if slot_id in slot_ids_seen:
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.slot_id",
+                        message="Duplicate slot_id is not allowed.",
+                    )
+                )
+            slot_ids_seen.add(slot_id)
+
+            expected = IDENTITY_EVIDENCE_SLOT_EXPECTATIONS.get(slot_id)
+            if expected:
+                expected_stage, expected_role = expected
+                if source_stage != expected_stage:
+                    issues.append(
+                        _structural_issue(
+                            path=path,
+                            repo_root=repo_root,
+                            record_type=record_type,
+                            field_path=f"{field_prefix}.source_stage",
+                            message="slot_id/source_stage mismatch.",
+                        )
+                    )
+                if role != expected_role:
+                    issues.append(
+                        _structural_issue(
+                            path=path,
+                            repo_root=repo_root,
+                            record_type=record_type,
+                            field_path=f"{field_prefix}.role",
+                            message="slot_id/role mismatch.",
+                        )
+                    )
+
+        if included is True:
+            included_count += 1
+            if slot_id == "E01_STAGE1_WINNER":
+                has_e01_included = True
+            if excluded_reason not in (None, ""):
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.excluded_reason",
+                        message="included=true must not have excluded_reason.",
+                    )
+                )
+        elif included is False:
+            if not isinstance(excluded_reason, str) or not excluded_reason.strip():
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.excluded_reason",
+                        message="included=false requires non-empty excluded_reason.",
+                    )
+                )
+
+        if isinstance(external_ref, str):
+            normalized = external_ref.strip()
+            if (
+                normalized.startswith("/")
+                or WINDOWS_ABSOLUTE_PATH_RE.match(normalized)
+                or normalized.startswith("file://")
+            ):
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.external_ref",
+                        message="external_ref must not be a local absolute path.",
+                    )
+                )
+            # Hosted external URLs are allowed even when they end with media
+            # extensions; this guard only blocks repo/local-style media paths.
+            if "://" not in normalized and binary_ext_re.search(normalized):
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.external_ref",
+                        message="external_ref must not point to repo binary/media paths.",
+                    )
+                )
+            if not normalized.startswith(
+                ("pending_external://", "https://", "http://", "external://")
+            ):
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"{field_prefix}.external_ref",
+                        message="external_ref must use pending_external://, external://, or https/http.",
+                    )
+                )
+
+    upload_count = data.get("upload_count")
+    if isinstance(upload_count, int) and upload_count != included_count:
+        issues.append(
+            _structural_issue(
+                path=path,
+                repo_root=repo_root,
+                record_type=record_type,
+                field_path="upload_count",
+                message="upload_count must equal number of included=true slots.",
+            )
+        )
+    if isinstance(upload_count, int) and not (1 <= upload_count <= 4):
+        issues.append(
+            _structural_issue(
+                path=path,
+                repo_root=repo_root,
+                record_type=record_type,
+                field_path="upload_count",
+                message="upload_count must be between 1 and 4.",
+            )
+        )
+    if not has_e01_included:
+        issues.append(
+            _structural_issue(
+                path=path,
+                repo_root=repo_root,
+                record_type=record_type,
+                field_path="evidence_slots",
+                message="E01_STAGE1_WINNER must be included.",
+            )
+        )
+
+    lifecycle = data.get("lifecycle")
+    if isinstance(lifecycle, dict):
+        status = lifecycle.get("status")
+        if status not in {"draft", "review"}:
+            issues.append(
+                _structural_issue(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    field_path="lifecycle.status",
+                    message="lifecycle.status must be draft or review.",
+                )
+            )
+        for key in ("approved", "locked", "canon_lock", "materialized"):
+            if lifecycle.get(key) is not False:
+                issues.append(
+                    _structural_issue(
+                        path=path,
+                        repo_root=repo_root,
+                        record_type=record_type,
+                        field_path=f"lifecycle.{key}",
+                        message="Lifecycle promotion is forbidden for identity_evidence_set scaffolds.",
+                    )
+                )
+
+    return issues
+
+
 def run_validation(
     repo_root: Path,
     report_json: Path | None = None,
@@ -2030,6 +2314,7 @@ def run_validation(
     native_audio_compatibility_record_validator: Draft202012Validator | None = None
     character_identity_anchor_validator: Draft202012Validator | None = None
     character_look_variant_validator: Draft202012Validator | None = None
+    identity_evidence_set_validator: Draft202012Validator | None = None
     scene_character_look_map_validator: Draft202012Validator | None = None
     production_batch_validator: Draft202012Validator | None = None
     aesthetic_bible_validator: Draft202012Validator | None = None
@@ -2504,6 +2789,23 @@ def run_validation(
                     repo_root=repo_root,
                     record_type=record_type,
                     validator=character_look_variant_validator,
+                )
+            elif record_type == "identity_evidence_set":
+                if identity_evidence_set_validator is None:
+                    identity_evidence_set_schema = load_schema(
+                        repo_root / "schemas" / "identity_evidence_set.schema.json"
+                    )
+                    identity_evidence_set_validator = Draft202012Validator(
+                        identity_evidence_set_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=identity_evidence_set_validator,
+                )
+                file_issues.extend(
+                    validate_identity_evidence_set_file(path, repo_root, grouped_files)
                 )
             elif record_type == "scene_character_look_map":
                 if scene_character_look_map_validator is None:

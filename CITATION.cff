@@ -1,12 +1,11 @@
 cff-version: 1.2.0
-message: "Public release v0.15.1 checkpoint DOI is now minted on Zenodo."
-doi: 10.5281/zenodo.20153766
-title: "DRMYN Studio: Single-Image Identity Exploration Probe for AI-Assisted Character Prompt Governance"
+message: "DOI pending for v0.15.2. Use the tagged public release URL below; DOI will be synchronized after Zenodo minting."
+title: "DRMYN Studio: Metadata Scaffold for Identity Evidence Set Selection in AI-Assisted Character Prompt Governance"
 type: software
-version: 0.15.1-identity-exploration-probe-checkpoint
+version: 0.15.2-identity-evidence-set-metadata-checkpoint
 date-released: 2026-05-13
 repository-code: "https://github.com/hknbb/drmyn-studio-public"
-url: "https://doi.org/10.5281/zenodo.20153766"
+url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.2-identity-evidence-set-metadata-checkpoint"
 abstract: >
   DRMYN Studio is a metadata-only, schema-validated, human-gated research
   software framework for AI-assisted movie development and movie production
