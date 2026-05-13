@@ -1,6 +1,6 @@
 # DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
-[![DOI](https://zenodo.org/badge/1227492409.svg)](https://doi.org/10.5281/zenodo.19987410)
+**DOI:** Pending Zenodo minting for `v0.15.1-identity-exploration-probe-checkpoint`
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -171,8 +171,7 @@ python scripts/validate_prompt_records.py --repo-root .
 
 ## Citation
 
-This private repository is the active development/production repository and is
-not the archival citation target.
+This public repository is the archival checkpoint repository for DRMYN Studio releases.
 
 For publication citation, use the public release checkpoint:
 

@@ -1,4 +1,4 @@
-﻿# C01 Nadia - Visual Prompt Kit
+# C01 Nadia - Visual Prompt Kit
 
 > Doctrine reference: [character_visual_prompt_kit_doctrine.md](character_visual_prompt_kit_doctrine.md)
 > Identity anchor: `C01_IDENTITY_ANCHOR_V001` (`visual_dev/elements/characters/C01/character_identity_anchor.yaml`)
@@ -19,7 +19,7 @@ From `planning/characters/C01.yaml`:
 - Character seed: `42`
 - Midjourney V8.1 tail (Stage 1 and Stage 5):
 `--v 8.1 --raw --ar 2:3 --s 100 --seed 42 --chaos 5 --no text logo watermark`
-- Midjourney V7 tail (Stage 2 only â€” requires Omni Reference URL from Stage 1 winner):
+- Midjourney V7 tail (Stage 2 only - requires Omni Reference URL from Stage 1 winner):
 `--v 7 --style raw --ar 2:3 --s 100 --seed 42 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout`
 
 ## Stage 1 - Identity Exploration Prompt (Midjourney)
@@ -32,17 +32,17 @@ Use this first, before any look-specific lock attempt.
 ## Stage 2 - Identity Exploration 2 (Midjourney V7 + Omni Reference)
 Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls.
 
-### 2A â€” Identity Portrait Probe
+### 2A - Identity Portrait Probe
 ```text
 /imagine prompt: Nadia cinematic identity portrait, single frame, head and shoulders close framing, woman in early to mid 30s, controlled observant presence, short wavy bob, precise stillness, natural restrained expression, realistic skin texture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 42 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2B â€” Identity Full-Body Probe
+### 2B - Identity Full-Body Probe
 ```text
 /imagine prompt: Nadia cinematic identity full body, single frame, full-body standing pose, lean upright economical silhouette, same face geometry as identity source, muted domestic neutrals, neutral grounded posture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 42 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2C â€” Identity Expression Band Probe
+### 2C - Identity Expression Band Probe
 ```text
 /imagine prompt: Nadia cinematic identity variant, single frame, tired but watchful expression within controlled range, same face geometry and lean upright silhouette as identity source, realistic skin texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed 42 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```

@@ -1,4 +1,4 @@
-﻿# [CXX] [Character Name] - Visual Prompt Kit
+# [CXX] [Character Name] - Visual Prompt Kit
 
 <!--
 Usage:
@@ -33,31 +33,31 @@ Usage:
 - Character seed: `<CHARACTER_SEED>`
 - Midjourney V8.1 tail (Stage 1 and Stage 5):
 `--v 8.1 --raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --no text logo watermark`
-- Midjourney V7 tail (Stage 2 only â€” requires Omni Reference URL from Stage 1 winner):
+- Midjourney V7 tail (Stage 2 only - requires Omni Reference URL from Stage 1 winner):
 `--v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout`
 
 ## Stage 1 - Identity Exploration Prompt (Midjourney V8.1)
 Positive prompt language rules: do NOT use "reference sheet", "character design", "turnaround", "collage", "multi-panel", "grid", "contact sheet", or "character reference composition". Use "clean single-subject production image" or "single frame" instead.
 ```text
-/imagine prompt: [CXX Character identity exploration prompt adapted to truth profile â€” single frame, full body with face readability, clean single-subject production image] --v 8.1 --raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --no text logo watermark
+/imagine prompt: [CXX Character identity exploration prompt adapted to truth profile - single frame, full body with face readability, clean single-subject production image] --v 8.1 --raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --no text logo watermark
 ```
 
 ## Stage 2 - Identity Exploration 2 (Midjourney V7 + Omni Reference)
-Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls â€” do NOT merge into one prompt.
+Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls - do NOT merge into one prompt.
 
-### 2A â€” Identity Portrait Probe (close framing, face primacy)
+### 2A - Identity Portrait Probe (close framing, face primacy)
 ```text
 /imagine prompt: [CXX Character] cinematic identity portrait, single frame, head and shoulders close framing, [age + expression band + silhouette descriptors from Stage 1 truth profile], neutral controlled gaze, realistic skin and fabric texture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2B â€” Identity Full-Body Probe (silhouette confirmation, single frame)
+### 2B - Identity Full-Body Probe (silhouette confirmation, single frame)
 ```text
 /imagine prompt: [CXX Character] cinematic identity full body, single frame, full-body standing pose, [silhouette descriptors], same face geometry as identity source, neutral grounded posture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
-### 2C â€” Identity Expression Band Probe (within anchor range, single frame)
+### 2C - Identity Expression Band Probe (within anchor range, single frame)
 ```text
-/imagine prompt: [CXX Character] cinematic identity variant, single frame, [alternate expression within anchor â€” e.g. alternate between two controlled states], same face geometry and silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+/imagine prompt: [CXX Character] cinematic identity variant, single frame, [alternate expression within anchor - e.g. alternate between two controlled states], same face geometry and silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed <CHARACTER_SEED> --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
 ## Stage 3 - GPT Images 2 FRONT HERO LOCK Prompt
