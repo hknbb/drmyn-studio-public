@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.15.3-non-character-perspective-pack-framework (2026-05-13)
+
+### Summary
+- Scientific checkpoint after PROD-LINE-15A-8.
+- Scope remains documentation-only and metadata-only release hygiene.
+- Non-character perspective pack governance now covers wardrobe, prop, and location framework scaffolding.
+
+### Changed
+- Added non-character perspective generalization notes for wardrobe, prop, and location workflows.
+- Added wardrobe, prop, and location perspective pack doctrine/template scaffolds.
+- Added first draft wardrobe perspective pack record for WD001.
+- Added first ready draft prop perspective pack record for PROP003.
+- Preserved schema-compatible perspective mappings without adding new enums in this release hygiene checkpoint.
+
+### Validation Evidence
+- `python scripts/validate_production_records.py --repo-root .` -> 83 files scanned, 83 valid, 0 invalid.
+- `python -m pytest -q` -> 1368 passed.
+- `python scripts/validate_prompt_records.py --repo-root .` -> 7 files validated successfully.
+- `python scripts/validators/validate_model_research_gate.py --repo-root . --targets midjourney_image_best_available chatgpt_image_best_available kling_omni_video_best_available` -> 3/3 passed.
+
+### Policy Confirmation
+- No binary image/video/audio outputs committed.
+- No lifecycle promotion (`approved`, `locked`, `canon_lock`, `materialized`, `selected`, `applied`).
+- No real external reference replacement performed at this checkpoint.
+- No production record mutation in this release hygiene PR.
+- No schema, validator, or test changes in this release hygiene PR.
+
+### Next Step
+- Resume C01 Nadia production work from the checkpoint, or open a dedicated PROD-LINE-15A-8B PR for the first LOCXXX draft perspective-pack record after location intake status reconciliation.
+
 ## v0.15.2-identity-evidence-set-metadata-checkpoint (2026-05-13)
 
 ### Summary
