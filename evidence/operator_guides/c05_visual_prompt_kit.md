@@ -1,4 +1,4 @@
-# C05 Marcus Chen - Visual Prompt Kit
+﻿# C05 Marcus Chen - Visual Prompt Kit
 
 > Doctrine reference: [character_visual_prompt_kit_doctrine.md](character_visual_prompt_kit_doctrine.md)
 > Identity anchor: `C05_IDENTITY_ANCHOR_V001` (`visual_dev/elements/characters/C05/character_identity_anchor.yaml`)
@@ -16,19 +16,33 @@ From `planning/characters/C05.yaml`:
 
 ## Seed Registry
 - Character seed: `46`
-- Midjourney V8.1 tail (all Stage 1/2/5 prompts):
+- Midjourney V8.1 tail (Stage 1 and Stage 5):
 `--v 8.1 --raw --ar 2:3 --s 100 --seed 46 --chaos 5 --no text logo watermark`
+- Midjourney V7 tail (Stage 2 only â€” requires Omni Reference URL from Stage 1 winner):
+`--v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout`
 
 ## Stage 1 - Identity Exploration Prompt (Midjourney)
 
 ```text
-/imagine prompt: C05 Marcus Chen cinematic identity exploration, man in late 30s to early 40s, quiet competent presence, watchful contained silhouette, emotionally load-bearing without theatrical sadness, muted dark neutrals, operationally plain private wear, secrecy and mobility over style, no stylized grief, no action-hero styling, no fashion editorial exaggeration, clean character reference composition, full body with face readability --v 8.1 --raw --ar 2:3 --s 100 --seed 46 --chaos 5 --no text logo watermark
+/imagine prompt: C05 Marcus Chen cinematic identity exploration, man in late 30s to early 40s, quiet competent presence, watchful contained silhouette, emotionally load-bearing without theatrical sadness, muted dark neutrals, operationally plain private wear, secrecy and mobility over style, no stylized grief, no action-hero styling, no fashion editorial exaggeration, clean single-subject production image, full body with face readability, single frame --v 8.1 --raw --ar 2:3 --s 100 --seed 46 --chaos 5 --no text logo watermark
 ```
 
-## Stage 2 - Reference Sheet Prompt (Midjourney)
+## Stage 2 - Identity Exploration 2 (Midjourney V7 + Omni Reference)
+Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls.
 
+### 2A â€” Identity Portrait Probe
 ```text
-/imagine prompt: C05 Marcus Chen reference sheet for identity source locking, preserve selected identity exactly, same face geometry, same age read, same watchful contained silhouette, same quiet competent bearing, full-body cinematic reference composition, clean neutral background, high facial readability, no wardrobe redesign, no decorative styling drift --v 8.1 --raw --ar 2:3 --s 100 --seed 46 --chaos 5 --no text logo watermark
+/imagine prompt: Marcus Chen cinematic identity portrait, single frame, head and shoulders close framing, man in late 30s to early 40s, quiet competent presence, emotionally load-bearing without theatrical sadness, grounded realism, realistic skin texture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+```
+
+### 2B â€” Identity Full-Body Probe
+```text
+/imagine prompt: Marcus Chen cinematic identity full body, single frame, full-body standing pose, watchful contained silhouette, same face geometry as identity source, muted dark neutrals, neutral grounded posture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+```
+
+### 2C â€” Identity Expression Band Probe
+```text
+/imagine prompt: Marcus Chen cinematic identity variant, single frame, restrained internal weight expression within controlled forward focus range, same face geometry and watchful contained silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed 46 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
 ## Stage 3 - GPT Images 2 FRONT HERO LOCK Prompt

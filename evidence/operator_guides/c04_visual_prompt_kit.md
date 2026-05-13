@@ -1,4 +1,4 @@
-# C04 Dimitri Koss - Visual Prompt Kit
+﻿# C04 Dimitri Koss - Visual Prompt Kit
 
 > Doctrine reference: [character_visual_prompt_kit_doctrine.md](character_visual_prompt_kit_doctrine.md)
 > Identity anchor: `C04_IDENTITY_ANCHOR_V001` (`visual_dev/elements/characters/C04/character_identity_anchor.yaml`)
@@ -16,19 +16,33 @@ From `planning/characters/C04.yaml`:
 
 ## Seed Registry
 - Character seed: `45`
-- Midjourney V8.1 tail (all Stage 1/2/5 prompts):
+- Midjourney V8.1 tail (Stage 1 and Stage 5):
 `--v 8.1 --raw --ar 2:3 --s 100 --seed 45 --chaos 5 --no text logo watermark`
+- Midjourney V7 tail (Stage 2 only â€” requires Omni Reference URL from Stage 1 winner):
+`--v 7 --style raw --ar 2:3 --s 100 --seed 45 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout`
 
 ## Stage 1 - Identity Exploration Prompt (Midjourney)
 
 ```text
-/imagine prompt: C04 Dimitri Koss cinematic identity exploration, man in his 40s, lean instrument silhouette, controlled hard-edged precision, no overt menace, no action-hero posing, dark corporate neutrals with functional contrast, operational executive tailoring, no flashy styling, no glamour retouching, no cyberpunk, no neon, clean character reference composition, full body with face readability --v 8.1 --raw --ar 2:3 --s 100 --seed 45 --chaos 5 --no text logo watermark
+/imagine prompt: C04 Dimitri Koss cinematic identity exploration, man in his 40s, lean instrument silhouette, controlled hard-edged precision, no overt menace, no action-hero posing, dark corporate neutrals with functional contrast, operational executive tailoring, no flashy styling, no glamour retouching, no cyberpunk, no neon, clean single-subject production image, full body with face readability, single frame --v 8.1 --raw --ar 2:3 --s 100 --seed 45 --chaos 5 --no text logo watermark
 ```
 
-## Stage 2 - Reference Sheet Prompt (Midjourney)
+## Stage 2 - Identity Exploration 2 (Midjourney V7 + Omni Reference)
+Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls.
 
+### 2A â€” Identity Portrait Probe
 ```text
-/imagine prompt: C04 Dimitri Koss reference sheet for identity source locking, preserve selected identity exactly, same face geometry, same age read, same lean instrument silhouette, same controlled procedural bearing, full-body cinematic reference composition, clean neutral background, high facial readability, no wardrobe redesign, no decorative styling drift --v 8.1 --raw --ar 2:3 --s 100 --seed 45 --chaos 5 --no text logo watermark
+/imagine prompt: Dimitri Koss cinematic identity portrait, single frame, head and shoulders close framing, man in his 40s, controlled hard-edged precision, no theatrical menace, professional polish, realistic skin texture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 45 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+```
+
+### 2B â€” Identity Full-Body Probe
+```text
+/imagine prompt: Dimitri Koss cinematic identity full body, single frame, full-body standing pose, lean instrument silhouette, same face geometry as identity source, dark corporate neutrals with functional contrast, neutral grounded posture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 45 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+```
+
+### 2C â€” Identity Expression Band Probe
+```text
+/imagine prompt: Dimitri Koss cinematic identity variant, single frame, watchful assessment expression within calm procedural neutrality range, same face geometry and lean instrument silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed 45 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
 ## Stage 3 - GPT Images 2 FRONT HERO LOCK Prompt

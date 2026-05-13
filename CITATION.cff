@@ -1,29 +1,40 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite the Zenodo DOI for v0.15.0."
-doi: 10.5281/zenodo.20146628
-title: "DRMYN Studio: Character Visual Prompt Kit Doctrine for AI-Assisted Film Production"
+message: "Public release v0.15.1 checkpoint. DOI will be synchronized after Zenodo minting."
+title: "DRMYN Studio: Single-Image Identity Exploration Probe for AI-Assisted Character Prompt Governance"
 type: software
-version: "0.15.0-character-visual-prompt-kit-checkpoint"
-date-released: 2026-05-12
+version: 0.15.1-identity-exploration-probe-checkpoint
+date-released: 2026-05-13
 repository-code: "https://github.com/hknbb/drmyn-studio-public"
-url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.0-character-visual-prompt-kit-checkpoint"
+url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.1-identity-exploration-probe-checkpoint"
 abstract: >
   DRMYN Studio is a metadata-only, schema-validated, human-gated research
   software framework for AI-assisted movie development and movie production
-  process design, documentation, validation, and reproducibility. This
-  v0.15.0 checkpoint captures the character visual prompt governance layer:
-  doctrine and operator-facing prompt kits for C01-C05, including a five-stage
-  identity-to-look workflow before real GPT Images 2 external-ref registration.
+  process design, documentation, validation, and reproducibility. It provides
+  canonical source records, planning metadata, prompt governance, JSON schema
+  validation (20+ schemas, draft 2020-12), human approval workflows, evidence
+  records, release manifests, and reproducibility infrastructure for AI-assisted
+  film production processes. The repository also includes a three-agent
+  autonomous orchestration layer (Claude Code / Codex / Gemini Code Assist)
+  with auto-handoff and pickup mode enabling structured multi-agent coordination
+  without external APIs. Generated media outputs are stored externally and
+  referenced through metadata-only records. Demonstrated through the Closing
+  Price AI-assisted film project.
 keywords:
-  - character visual prompt kit
-  - prompt governance
-  - Midjourney
-  - GPT Images 2
-  - Kling Omni
-  - identity continuity
-  - metadata-only pipeline
+  - movie development process
+  - movie production process
   - AI-assisted film production
+  - pre-production
+  - prompt engineering
   - reproducibility
+  - human-agent collaboration
+  - metadata-only pipeline
+  - schema validation
+  - computational film production
+  - cinema studies
+  - social sciences
+  - software validation
+  - multi-agent coordination
+  - human-gated workflow
 license: "MIT"
 authors:
   - family-names: "Babacan"

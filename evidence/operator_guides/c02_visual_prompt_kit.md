@@ -1,4 +1,4 @@
-# C02 Roman Vale - Visual Prompt Kit
+﻿# C02 Roman Vale - Visual Prompt Kit
 
 > Doctrine reference: [character_visual_prompt_kit_doctrine.md](character_visual_prompt_kit_doctrine.md)
 > Identity anchor: `C02_IDENTITY_ANCHOR_V001` (`visual_dev/elements/characters/C02/character_identity_anchor.yaml`)
@@ -17,19 +17,33 @@ From `planning/characters/C02.yaml`:
 
 ## Seed Registry
 - Character seed: `43`
-- Midjourney V8.1 tail (all Stage 1/2/5 prompts):
+- Midjourney V8.1 tail (Stage 1 and Stage 5):
 `--v 8.1 --raw --ar 2:3 --s 100 --seed 43 --chaos 5 --no text logo watermark`
+- Midjourney V7 tail (Stage 2 only â€” requires Omni Reference URL from Stage 1 winner):
+`--v 7 --style raw --ar 2:3 --s 100 --seed 43 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout`
 
 ## Stage 1 - Identity Exploration Prompt (Midjourney)
 
 ```text
-/imagine prompt: C02 Roman Vale cinematic identity exploration, man in late 40s to early 50s, tall lengthened upright silhouette, centered controlled composure, watchful institutional reading, no overt aggression, dark suiting neutrals, controlled whites, muted luxury restraint, tailored corporate and private-control wardrobe logic, disciplined construction, no decorative looseness, no fashion editorial exaggeration, no action-hero styling, no glamour retouching, no cyberpunk, no neon, clean character reference composition, full body with face readability --v 8.1 --raw --ar 2:3 --s 100 --seed 43 --chaos 5 --no text logo watermark
+/imagine prompt: C02 Roman Vale cinematic identity exploration, man in late 40s to early 50s, tall lengthened upright silhouette, centered controlled composure, watchful institutional reading, no overt aggression, dark suiting neutrals, controlled whites, muted luxury restraint, tailored corporate and private-control wardrobe logic, disciplined construction, no decorative looseness, no fashion editorial exaggeration, no action-hero styling, no glamour retouching, no cyberpunk, no neon, clean single-subject production image, full body with face readability, single frame --v 8.1 --raw --ar 2:3 --s 100 --seed 43 --chaos 5 --no text logo watermark
 ```
 
-## Stage 2 - Reference Sheet Prompt (Midjourney)
+## Stage 2 - Identity Exploration 2 (Midjourney V7 + Omni Reference)
+Run after selecting the Stage 1 identity direction. Paste Stage 1 winner URL as `--oref`. Three separate `/imagine` calls.
 
+### 2A â€” Identity Portrait Probe
 ```text
-/imagine prompt: C02 Roman Vale reference sheet for identity source locking, preserve selected identity exactly, same face geometry, same age read, same tall lengthened silhouette, same composed authority posture, full-body cinematic reference composition, clean neutral background, high facial readability, no wardrobe redesign, no decorative styling drift --v 8.1 --raw --ar 2:3 --s 100 --seed 43 --chaos 5 --no text logo watermark
+/imagine prompt: Roman Vale cinematic identity portrait, single frame, head and shoulders close framing, man in late 40s to early 50s, centered controlled composure, watchful institutional reading, no overt aggression, realistic skin texture, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 43 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+```
+
+### 2B â€” Identity Full-Body Probe
+```text
+/imagine prompt: Roman Vale cinematic identity full body, single frame, full-body standing pose, tall lengthened control silhouette, same face geometry as identity source, composed authority posture, dark suiting neutrals, clean neutral backdrop, one image only --v 7 --style raw --ar 2:3 --s 100 --seed 43 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
+```
+
+### 2C â€” Identity Expression Band Probe
+```text
+/imagine prompt: Roman Vale cinematic identity variant, single frame, measured authority decision-reading expression within institutional composure range, same face geometry and tall lengthened silhouette as identity source, realistic texture, clean neutral backdrop, one image only, expression variant not angle variant --v 7 --style raw --ar 2:3 --s 100 --seed 43 --chaos 5 --oref <STAGE1_WINNER_URL> --ow 100 --no text, logo, watermark, sheet, contact-sheet, multi-panel, collage, turnaround, character-design, grid, layout
 ```
 
 ## Stage 3 - GPT Images 2 FRONT HERO LOCK Prompt

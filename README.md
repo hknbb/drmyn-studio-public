@@ -1,6 +1,6 @@
 # DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20146628.svg)](https://doi.org/10.5281/zenodo.20146628)
+[![DOI](https://zenodo.org/badge/1227492409.svg)](https://doi.org/10.5281/zenodo.19987410)
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -171,21 +171,20 @@ python scripts/validate_prompt_records.py --repo-root .
 
 ## Citation
 
-Use this public checkpoint release for citation:
+This private repository is the active development/production repository and is
+not the archival citation target.
+
+For publication citation, use the public release checkpoint:
 
 ```
-Babacan, H. (2026). DRMYN Studio: Character Visual Prompt Kit Doctrine for AI-Assisted Film Production
-(Version 0.15.0-character-visual-prompt-kit-checkpoint) [Computer software].
-GitHub release: https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.0-character-visual-prompt-kit-checkpoint
-DOI: https://doi.org/10.5281/zenodo.20146628
+Babacan, H. (2026). DRMYN Studio: Single-Image Identity Exploration Probe for
+AI-Assisted Character Prompt Governance (Version 0.15.1-identity-exploration-probe-checkpoint)
+[Computer software]. Zenodo.
+DOI pending; to be synchronized after Zenodo minting.
 ```
 
-DOI:
-- Zenodo v0.15.0: https://doi.org/10.5281/zenodo.20146628
-
-Previous releases:
-- v0.14.0 continuity+alias checkpoint
-- v0.4.6 earlier scientific clean release
+Public release repository:
+https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.1-identity-exploration-probe-checkpoint
 
 For machine-readable citation metadata, see [CITATION.cff](CITATION.cff).
 For authorship and contribution details, see [AUTHORS.md](AUTHORS.md), [CONTRIBUTORS.md](CONTRIBUTORS.md),
@@ -198,6 +197,3 @@ Tagged releases are archived via Zenodo. Metadata is stored in [.zenodo.json](.z
 ## License
 
 See [LICENSE](LICENSE).
-
-
-
