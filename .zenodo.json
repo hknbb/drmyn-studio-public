@@ -1,5 +1,6 @@
 {
   "title": "DRMYN Studio: Single-Image Identity Exploration Probe for AI-Assisted Character Prompt Governance",
+  "doi": "10.5281/zenodo.20153766",
   "upload_type": "software",
   "version": "0.15.1-identity-exploration-probe-checkpoint",
   "description": "Metadata-only scientific checkpoint after PROD-LINE-15A-2. This release replaces the earlier Reference Sheet stage with a two-step identity exploration workflow and a V7 Omni Reference based single-image probe stage, before any real GPT Images 2 external-reference registration.",

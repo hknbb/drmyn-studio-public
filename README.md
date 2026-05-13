@@ -1,6 +1,6 @@
 # DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
-**DOI:** Pending Zenodo minting for `v0.15.1-identity-exploration-probe-checkpoint`
+**DOI:** [10.5281/zenodo.20153766](https://doi.org/10.5281/zenodo.20153766)
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
@@ -179,7 +179,7 @@ For publication citation, use the public release checkpoint:
 Babacan, H. (2026). DRMYN Studio: Single-Image Identity Exploration Probe for
 AI-Assisted Character Prompt Governance (Version 0.15.1-identity-exploration-probe-checkpoint)
 [Computer software]. Zenodo.
-DOI pending; to be synchronized after Zenodo minting.
+https://doi.org/10.5281/zenodo.20153766
 ```
 
 Public release repository:
