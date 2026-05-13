@@ -1,12 +1,12 @@
 cff-version: 1.2.0
-message: "For citation, use DOI 10.5281/zenodo.20157166."
-doi: 10.5281/zenodo.20157166
-title: "DRMYN Studio: Metadata Scaffold for Identity Evidence Set Selection in AI-Assisted Character Prompt Governance"
+message: "For citation, use DOI 10.5281/zenodo.20169170."
+doi: 10.5281/zenodo.20169170
+title: "DRMYN Studio: Non-Character Perspective Pack Framework for AI-Assisted Production Metadata Governance"
 type: software
-version: 0.15.2-identity-evidence-set-metadata-checkpoint
+version: 0.15.3-non-character-perspective-pack-framework
 date-released: 2026-05-13
 repository-code: "https://github.com/hknbb/drmyn-studio-public"
-url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.2-identity-evidence-set-metadata-checkpoint"
+url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.3-non-character-perspective-pack-framework"
 abstract: >
   DRMYN Studio is a metadata-only, schema-validated, human-gated research
   software framework for AI-assisted movie development and movie production
