@@ -174,14 +174,14 @@ This public repository is the archival checkpoint repository for DRMYN Studio re
 Active release citation target:
 
 ```
-Babacan, H. (2026). DRMYN Studio: Metadata Scaffold for Identity Evidence Set
-Selection in AI-Assisted Character Prompt Governance (Version
-0.15.2-identity-evidence-set-metadata-checkpoint) [Computer software]. Zenodo.
-https://doi.org/10.5281/zenodo.20157166
+Babacan, H. (2026). DRMYN Studio: Non-Character Perspective Pack Framework for
+AI-Assisted Production Metadata Governance (Version
+0.15.3-non-character-perspective-pack-framework) [Computer software]. Zenodo.
+https://doi.org/10.5281/zenodo.20169170
 ```
 
 Public release repository:
-https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.2-identity-evidence-set-metadata-checkpoint
+https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.15.3-non-character-perspective-pack-framework
 
 For machine-readable citation metadata, see [CITATION.cff](CITATION.cff).
 For authorship and contribution details, see [AUTHORS.md](AUTHORS.md), [CONTRIBUTORS.md](CONTRIBUTORS.md),
@@ -194,4 +194,3 @@ Tagged releases are archived via Zenodo. Metadata is stored in [.zenodo.json](.z
 ## License
 
 See [LICENSE](LICENSE).
-
