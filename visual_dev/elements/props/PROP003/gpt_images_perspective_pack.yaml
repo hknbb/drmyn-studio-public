@@ -1,0 +1,57 @@
+schema_version: "0.x-draft"
+record_type: gpt_images_perspective_pack
+prompt_pack_id: GPTIMG2_PROP003_PERSPECTIVE_PACK_V001
+status: draft
+source_reference_id: PROP003_FRAME_IN_SITU_COMPOSITION_V001
+target_model: gpt_images_2
+target_role: multi_perspective_element_expander
+element_id: PROP003
+element_type: prop
+shared_preservation_instruction: Preserve PROP003 identity anchors exactly (outer frame proportions, tilt behavior, asymmetric edge wear, interior skyline legibility, material texture, and scale cues) and change only perspective framing.
+prompts:
+  - prompt_id: GPTIMG2_PROP003_P01_ORTHO_FRONT_V001
+    perspective: front_hero
+    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single orthographic front prop view on a neutral clean background; preserve frame proportions, edge profile, visible wear asymmetry, and interior skyline content placement.
+    constraints:
+      - preserve frame outer dimensions
+      - preserve interior skyline legibility
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_PROP003_P02_ORTHO_SIDE_V001
+    perspective: side_depth
+    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single orthographic side prop view; preserve frame thickness profile, edge geometry transitions, and material highlights.
+    constraints:
+      - preserve side thickness ratio
+      - preserve material behavior
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_PROP003_P03_ORTHO_REAR_V001
+    perspective: rear_or_side
+    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single orthographic rear prop view; preserve rear panel boundaries, mount geometry, and silhouette thickness.
+    constraints:
+      - preserve rear panel layout
+      - preserve silhouette continuity
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_PROP003_P04_TOP_ORTHOGRAPHIC_V001
+    perspective: detail_or_threshold
+    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single top orthographic prop view; preserve top-edge profile, corner geometry, and scale cues.
+    constraints:
+      - preserve top-edge profile
+      - preserve corner geometry
+      - no redesign
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+qc_gate:
+  minimum_score: 85
+  all_perspectives_required: true
+  failed_perspective_revision_only: true
+downstream_use:
+  - prop_continuity_reference

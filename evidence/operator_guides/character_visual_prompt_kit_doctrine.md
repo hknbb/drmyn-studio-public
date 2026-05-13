@@ -92,14 +92,22 @@ Output intent:
 - One single image only
 - Identity lock image for downstream pack and look continuity
 
-### Stage 4 - GPT Images 2 Four-Perspective Pack
-Goal: expand one locked identity/look into four angle slots.
+### Stage 4 - GPT Images 2 Four-Perspective Pack (sequential separate-call, anatomy-anchored)
+Goal: produce four non-front perspective outputs from the Stage 3 FRONT HERO LOCK identity anchor while avoiding mirror-mate ambiguity.
 
-Required slots:
-1. Front
-2. Three-quarter left
-3. Three-quarter right
-4. Rear or side
+Required slots (each generated in a separate GPT Images 2 call):
+1. Rear view (`rear_or_side`)
+2. Three-quarter left (`three_quarter_left`)
+3. Right profile side (`right_profile_side`)
+4. Left profile side (`left_profile_side`)
+
+Anatomy-anchored descriptors are mandatory for left/right prompts. Use character-frame language such as:
+- "character's left shoulder closer to camera"
+- "character's right cheek dominant"
+- "character's left ear partially visible"
+- "character's right ear hidden behind head"
+
+Front view is not generated in Stage 4. Front hero lock belongs to Stage 3.
 
 ### Stage 5 - Per-Look-Variant Lock Prompts (Midjourney)
 Goal: enforce look-specific continuity while preserving the same identity anchor.
@@ -112,6 +120,10 @@ Output intent:
 - Stage 2 is a single-image variant probe, not a sheet or panel layout.
 - Stage 2 outputs are three independent single frames (2A, 2B, 2C)  not one merged sheet.
 - FRONT HERO LOCK is a single image, not a contact sheet recreation.
+- Stage 4 perspectives are produced as four separate GPT Images 2 calls; never request mirror-mate angles in one prompt.
+- Stage 4 must not request front view; Stage 3 owns front hero lock generation.
+- Anatomy-anchored left/right disambiguation is mandatory for Stage 4 left/right prompts.
+- Do not use camera-frame terms in Stage 4 prompt bodies: camera left, camera right, screen left, screen right.
 - Same look only per perspective pack.
 - Identity anchor invariants are non-negotiable.
 - `mutable_appearance_allowed` defines the only allowed appearance drift.
@@ -120,7 +132,7 @@ Output intent:
 ## Chain Discipline
 Sequential lock chain (do not parallelize shortcuts):
 
-`identity exploration 1 (V8.1) -> identity exploration 2 / single-image variant probe (V7 + oref) -> identity evidence set selection (1-4 images) -> FRONT HERO LOCK from identity evidence set -> four-perspective pack -> per-look lock`
+`identity exploration 1 (V8.1) -> identity exploration 2 / single-image variant probe (V7 + oref) -> identity evidence set selection (1-4 images) -> FRONT HERO LOCK from identity evidence set -> four-perspective pack (rear + 3q-left + right-profile + left-profile) -> per-look lock`
 
 Skipping Stage 1 collapses identity into wardrobe semantics and increases drift risk.
 Skipping Stage 2 removes independent frame evidence for the identity anchor band.
@@ -137,20 +149,53 @@ This doctrine maps prompt stages to existing metadata contracts.
 - Stage 3 output maps to:
   - `character_identity_anchor.front_hero_lock_ref`
 - Stage 4 outputs map to:
-  - `gpt_images_perspective_pack` (four perspective slots)
+  - `gpt_images_perspective_pack` (four perspective slots generated as separate calls)
+  - New perspective enums for new packs: `right_profile_side`, `left_profile_side`
+  - Deprecated for new packs (kept for backwards compatibility): `front_hero`, `three_quarter_right`
 - Stage 5 outputs map operationally to:
   - `character_look_variant` continuity usage
   - `kling_character_look_element.source_reference_chain.wardrobe_ids` continuity expectations
 - Future schema support may add `source_identity_evidence_refs` or an `identity_evidence_set` record type in a later PR.
 
+## Element-Type Generalization (Forward-Looking)
+
+The anatomy-anchored separate-call paradigm of Stage 4 can generalize to non-character element types such as wardrobe, props, and locations.
+
+For every element type, the same production rules apply:
+
+1. Generate one perspective per GPT Images 2 call.
+2. Use landmark-anchored disambiguation instead of camera-frame directions.
+3. Use the locked hero/reference image for that element type as the identity or continuity anchor.
+4. Do not request opposing mirror-mate views in the same prompt.
+5. Do not redesign the element while changing perspective.
+
+Element-specific anchors differ by type:
+
+- Character: ear, shoulder, cheek, hair silhouette, body proportions.
+- Wardrobe: lapel, cuff, pocket, seam, label, fabric panel, closure direction.
+- Prop: handle, logo/marking, asymmetric edge, material feature, scale reference.
+- Location: doorway, window, fireplace, furniture placement, threshold, wall geometry.
+
+This repository currently implements the migrated Stage 4 perspective set only for character elements.
+
+Non-character perspective packs are deferred:
+- PROD-LINE-15A-6: wardrobe perspective pack framework
+- PROD-LINE-15A-7: prop perspective pack framework
+- PROD-LINE-15A-8: location perspective pack framework
+
+Until those follow-up PRs land, no wardrobe, prop, or location perspective pack records are created.
+
+See [non_character_perspective_generalization_notes.md](../research_notes/non_character_perspective_generalization_notes.md) for the detailed framework, candidate perspective sets per element type (subject to schema review), and web research findings.
+
 ## Field Notes
 - Identity exploration is metadata-first: the model must learn who the person is before wardrobe-specific lock prompts.
-- Stage 2 uses V7 + Omni Reference (`--oref`) because V8.1 does not support `--oref` as of 2026-05. Operatr must switch to V7 in Midjourney UI for Stage 2 calls.
+- Stage 2 uses V7 + Omni Reference (`--oref`) because V8.1 does not support `--oref` as of 2026-05. Operator must switch to V7 in Midjourney UI for Stage 2 calls.
 - Stage 2 Omni Reference URL: paste the Stage 1 winner URL into `--oref`. `--ow 100` enforces maximum identity adherence.
 - More images are not automatically better.
 - Use fewer images if outliers degrade identity.
 - Default recommendation is E01 + E02 + E03.
 - Add E04 only when expression-band probe preserves identity.
+- Downstream records may still use historical perspective keys; migration is deferred to follow-up PROD-LINE-15A-5.
 - Lock chain is sequential, not parallel: each stage consumes the previous stage's validated identity source.
 - The workflow is designed to reduce face/silhouette drift across look variants and scene transitions.
 
