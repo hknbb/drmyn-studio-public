@@ -1,4 +1,4 @@
-﻿# DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
+# DRMYN Studio — Metadata-Only AI-Assisted Movie Development and Production Workflow
 
 This repository contains the canonical source records, planning metadata, prompt-governance, validation, and reproducibility infrastructure for **DRMYN Studio**, demonstrated through the *Closing Price* AI-assisted film project.
 
