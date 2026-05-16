@@ -2,53 +2,50 @@ schema_version: "0.x-draft"
 record_type: gpt_images_perspective_pack
 prompt_pack_id: GPTIMG2_C02_PERSPECTIVE_PACK_V001
 status: draft
-source_reference_id: pending_external://C02_FRONT_HERO_LOCK_V001
+source_reference_id: pending_external://MJ_OMNI_REF_C02_V001
 target_model: gpt_images_2
 target_role: multi_perspective_element_expander
 element_id: C02
 element_type: character
-shared_preservation_instruction: Preserve exact identity, silhouette, wardrobe/material palette, and change only perspective.
+perspective_policy: three_view_scale_angle_v2
+full_body_visible: false
+source_refs:
+  model_guidance_snapshot_ref: evidence/model_guidance_snapshots/20260504T113000Z_chatgpt_image.yaml
+shared_preservation_instruction: Preserve exact identity, silhouette, wardrobe/material palette, and change only camera angle and framing scale.
 prompts:
-  - prompt_id: GPTIMG2_C02_P01_REAR_V001
-    perspective: rear_or_side
-    prompt_text: Use the registered C02 FRONT HERO LOCK as identity anchor. Generate one single full-body rear view; back of head and shoulders centered, no facial features visible, preserve silhouette and wardrobe continuity.
+  - prompt_id: GPTIMG2_C02_P01_FRONT_V001
+    perspective: front_reference
+    prompt_text: Use the uploaded refined character reference as the strict identity source. Generate one front-facing production reference image of the same character, front view, full identity read. Preserve face geometry, age read, hair silhouette, body presence, wardrobe-world, and expression/performance identity. Change only camera angle and framing scale. No left/right or profile instruction. No props, no furniture, no extra people, no text, no watermark, no logo.
     constraints:
-      - preserve facial topology continuity from anchor
+      - preserve facial topology
       - preserve silhouette and wardrobe continuity
       - no costume change
+      - change only camera angle and framing scale
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
-  - prompt_id: GPTIMG2_C02_P02_THREE_QUARTER_LEFT_V001
-    perspective: three_quarter_left
-    prompt_text: Use the registered C02 FRONT HERO LOCK as identity anchor. Generate one single full-body three-quarter-left view where the character's left shoulder is closer to camera, right cheek dominant in frame, left ear partially visible, and right ear hidden behind head.
+      aspect_ratio: "2:3"
+  - prompt_id: GPTIMG2_C02_P02_TQM_V001
+    perspective: three_quarter_medium_reference
+    prompt_text: Use the uploaded refined character reference as the strict identity source. Generate one three-quarter-angle production reference image of the same character at medium framing. Preserve face geometry, age read, hair silhouette, body presence, wardrobe-world, and expression/performance identity. Change only camera angle and framing scale. No left/right or profile instruction. No props, no furniture, no extra people, no text, no watermark, no logo.
     constraints:
-      - preserve facial topology continuity from anchor
+      - preserve facial topology
       - preserve silhouette and wardrobe continuity
       - no costume change
+      - change only camera angle and framing scale
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
-  - prompt_id: GPTIMG2_C02_P03_RIGHT_PROFILE_V001
-    perspective: right_profile_side
-    prompt_text: Use the registered C02 FRONT HERO LOCK as identity anchor. Generate one single full-body strict 90-degree right profile where the character's right ear is closest to camera and left ear is hidden behind head.
+      aspect_ratio: "2:3"
+  - prompt_id: GPTIMG2_C02_P03_TQC_V001
+    perspective: three_quarter_close_reference
+    prompt_text: Use the uploaded refined character reference as the strict identity source. Generate one three-quarter-angle production reference image of the same character at closer framing. Preserve face geometry, age read, hair silhouette, body presence, wardrobe-world, and expression/performance identity. Change only camera angle and framing scale. No left/right or profile instruction. No props, no furniture, no extra people, no text, no watermark, no logo.
     constraints:
-      - preserve facial topology continuity from anchor
+      - preserve facial topology
       - preserve silhouette and wardrobe continuity
       - no costume change
+      - change only camera angle and framing scale
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
-  - prompt_id: GPTIMG2_C02_P04_LEFT_PROFILE_V001
-    perspective: left_profile_side
-    prompt_text: Use the registered C02 FRONT HERO LOCK as identity anchor. Generate one single full-body strict 90-degree left profile where the character's left ear is closest to camera and right ear is hidden behind head.
-    constraints:
-      - preserve facial topology continuity from anchor
-      - preserve silhouette and wardrobe continuity
-      - no costume change
-    expected_output:
-      asset_type: still
-      aspect_ratio: "1:1"
+      aspect_ratio: "2:3"
 qc_gate:
   minimum_score: 85
   all_perspectives_required: true

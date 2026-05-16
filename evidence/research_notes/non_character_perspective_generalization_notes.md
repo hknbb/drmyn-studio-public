@@ -1,5 +1,19 @@
 # Non-Character Perspective Pack Generalization (Research Notes)
 
+> **Superseded in part by `element-reference-policy-v2`.** These research notes
+> explored element-specific candidate perspective sets. Policy v2 resolves that
+> exploration with a single decision: all element types — character and
+> non-character alike — use one standard view triple, `front_reference` /
+> `three_quarter_medium_reference` / `three_quarter_close_reference`
+> (`perspective_policy: three_view_scale_angle_v2`), differing by camera angle
+> and framing scale, not direction. Non-character elements route through
+> ChatGPT Images 2 for both the first identity reference
+> (`source_reference_id` = `CHATGPTIMG_ELEMENT_*`) and the scale-angle pack.
+> The element-specific candidate sets below (flat_lay, ortho_front,
+> establishing_hero, etc.) are retained only as historical research context and
+> are NOT the v2 perspective vocabulary. See
+> `docs/methodology/element_reference_generation_policy.md`.
+
 ## Purpose
 This document records the forward-looking framework for extending the Stage 4 anatomy-anchored separate-call paradigm to non-character element types (wardrobe, prop, location). It is **research and planning only** - no schema, validator, or production record is touched by it.
 

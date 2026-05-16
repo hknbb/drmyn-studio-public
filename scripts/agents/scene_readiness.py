@@ -258,8 +258,10 @@ def _next_steps_for_element(
         blockers.append("gpt_images_perspective_pack.yaml missing in element root")
         next_steps.append(
             "Author a gpt_images_perspective_pack.yaml (downstream_use: "
-            "kling_omni_3_shot_prompt) with front_reference, left_reference, "
-            "and right_reference aligned to the kling_element_reference schema."
+            "kling_omni_3_shot_prompt) with the three_view_scale_angle_v2 views "
+            "front_reference, three_quarter_medium_reference, and "
+            "three_quarter_close_reference aligned to the kling_element_reference "
+            "schema."
         )
     elif not gpt_pack_ok:
         blockers.append(

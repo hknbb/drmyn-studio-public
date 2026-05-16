@@ -9,7 +9,7 @@ evidence_slots:
   - slot_id: E01_STAGE1_WINNER
     source_stage: STAGE_1_IDENTITY_EXPLORATION
     role: primary_identity_direction
-    external_ref: https://cdn.midjourney.com/u/0ab65b69-70ed-4bf8-94fd-dd244a112b04/12b9b547a843b3eb1847026da5b96c57a54021a748a07d7b5501772a24697d2f.png
+    external_ref: pending_external://C01_E01_STAGE1_WINNER
     included: true
   - slot_id: E02_STAGE2A_PORTRAIT
     source_stage: STAGE_2A_IDENTITY_PORTRAIT_PROBE

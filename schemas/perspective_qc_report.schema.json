@@ -60,7 +60,9 @@
               "left_profile_side",
               "front_reference",
               "left_reference",
-              "right_reference"
+              "right_reference",
+              "three_quarter_medium_reference",
+              "three_quarter_close_reference"
             ]
           },
           "identity_preservation": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
@@ -68,6 +70,14 @@
           "material_palette_continuity": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
           "production_reference_cleanliness": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
           "hallucination_absence": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+          "character_description_strength": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 character QC criterion: does the image read as the intended person."},
+          "identity_readability": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 character QC criterion: face/age/identity legibility."},
+          "silhouette_readability": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 character QC criterion: silhouette and hair read."},
+          "wardrobe_world_fit": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 character QC criterion: wardrobe-world continuity."},
+          "expression_performance_readability": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 character QC criterion: expression/performance register."},
+          "view_distinction": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 scale-angle QC criterion: each view is visibly distinct."},
+          "scale_distinction": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 scale-angle QC criterion: framing scale is distinct between views."},
+          "no_directional_confusion": {"type": ["integer", "null"], "minimum": 0, "maximum": 100, "description": "Optional v2 scale-angle QC criterion: no left/right directional confusion. Replaces legacy left/right accuracy scoring."},
           "total_score": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
           "decision": {"type": "string", "enum": ["pending", "pass", "revise", "fail"]}
         }

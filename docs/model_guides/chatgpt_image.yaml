@@ -96,6 +96,21 @@ prompt_rules:
       source: "plan invariant"
       confidence: high
       human_verified: true
+    - id: element_reference_policy_v2
+      rule: >
+        Element Reference Generation Policy v2: ChatGPT Images 2 produces the
+        scale-angle three-view pack (perspective_policy three_view_scale_angle_v2)
+        for ALL element types — front_reference, three_quarter_medium_reference,
+        three_quarter_close_reference. Views differ by camera angle and framing
+        scale; left/right directional prompts are NOT used. For non-character
+        elements (location/prop/wardrobe/style) ChatGPT Images 2 also produces
+        the first identity reference (source_reference_id CHATGPTIMG_ELEMENT_*).
+        For characters the input is the V7 --oref refined reference. Operator
+        prompt templates: templates/element_reference_prompts/. Doctrine:
+        docs/methodology/element_reference_generation_policy.md.
+      source: "plan invariant"
+      confidence: high
+      human_verified: true
 
   do_not_invent:
     - "Any -- parameter flags (gpt-image-2 has no Midjourney-style parameters)"

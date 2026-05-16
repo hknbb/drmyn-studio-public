@@ -1,66 +1,52 @@
 # Changelog
 
-## v0.16.2-native-audio-dialogue-rendering (2026-05-16)
+## element-reference-policy-v2-c0205-migration (2026-05-16)
 
 ### Summary
-
-Scientific checkpoint completing the element-first SC0001 production baseline and introducing
-readiness-gated Kling Omni 3 native-audio dialogue rendering infrastructure.
-
-### Added
-
-- **Kling Omni guidance snapshot** (`model_guidance_snapshots/kling/20260516T000000Z_kling_omni_video_best_available.yaml`):
-  Refreshed and human-verified guidance snapshot. Key addition: verified native-audio
-  dialogue syntax — dialogue is in-prompt text only, action-first, `@alias (tone): "line"` format,
-  temporal connectors between speakers.
-- **`audio_plan` component renderer** in `KlingOmniAdapter.generate_from_clip_manifest()`:
-  New helper `_build_audio_plan_component()` inserts dialogue at component position #8.
-  When all speaking elements are `native_audio_readiness: ready`, renders verified
-  Omni 3 `@alias`-keyed dialogue. When any speaker is blocked, emits exact suppression note.
-- **`_strip_screenplay_dialogue()`**: Removes raw `SPEAKER: "..."` screenplay cues from
-  `prompt_action` when a shot carries `dialogue_line_ids` (audio_plan owns spoken content).
-- **`_load_dialogue_beats_lines()`**: Loads `dialogue_lines[]` from `dialogue_beats.yaml`.
-- **Explicit dialogue_line_ids scoping**: When a shot has explicit IDs, those are used exclusively
-  (beat-overlap fallback only when no explicit IDs given — prevents split-beat over-inclusion).
-- **`omni_prompt_component_model.md`** updated: full `audio_plan` rendering spec, readiness gate,
-  suppression note, verified syntax, clip scoping, and action stripping rules.
-- **SC0001 SH001 canon record** (`evidence/operator_sessions/OP-PROD-SC0001-SH001-TAKE002-CANON-2026-05-16.yaml`):
-  TAKE002 (QC score 88/100) selected as canon over TAKE001 (80/100); locked_metadata_only.
-- **SC0001 suppressed-path proof** (`evidence/operator_sessions/OP-PROD-SC0001-DIALOGUE-SUPPRESSED-PATH-2026-05-16.yaml`):
-  Dry-run synthesis of CLIP_SC0001_04 confirms suppression note present, zero line text,
-  zero canonical ID leak.
-- **Perspective QC records** for C01, LOC001, PROP003 perspective packs.
-- **GPT Images perspective pack** for PROP003 (`visual_dev/elements/props/PROP003/`).
-- **New schemas**: `gpt_images_perspective_pack`, `shot_element_manifest`,
-  `perspective_qc_report`, `kling_element_reference_record`.
-- **8 new tests** in `TestAudioPlanComponent`: blocked path, ready path, mixed readiness,
-  screenplay cue stripping, canonical-ID leak guard, missing beats file, implied-line exclusion,
-  explicit line-ID scoping.
+- PR-REF-5: migrates the draft characters C02, C03, C04, C05 to Element Reference Generation Policy v2.
+- First proof of policy v2 on real character records. Grandfathered records (C01, LOC001, PROP003) untouched.
 
 ### Changed
-
-- `docs/model_guides/kling_omni.yaml`: guide_version 0.2.0 → 0.3.0; added verified
-  `native_audio_dialogue_format` rule; updated `snapshot_ref` to 20260516 snapshot.
-- `evidence/scene_clip_map.csv`: SC0001 TAKE002 external_storage_ref added.
-- `planning/scenes/SC0001/scene_card.yaml`: updated with element-first shot list.
+- Rewrote `gpt_images_perspective_pack.yaml` for C02/C03/C04/C05 to `perspective_policy: three_view_scale_angle_v2`: three scale-angle views (`front_reference`, `three_quarter_medium_reference`, `three_quarter_close_reference`), no left/right directional prompts, `full_body_visible: false`, prompt text free of canonical IDs.
+- Added `reference_chain.yaml` for C02/C03/C04/C05 recording the two-stage Midjourney chain (V8.1 narrative identity -> V7 `--oref` refinement) and the ChatGPT Images 2 handoff.
+- `source_reference_id` now points at the chain handoff (`pending_external://MJ_OMNI_REF_C0x_V001`); stage outputs remain `pending_external` until real generation.
 
 ### Validation Evidence
-
-- `python scripts/validate_production_records.py --repo-root .` → 98 files scanned, 98 valid, 0 invalid.
-- `python -m pytest -q` → 1408 passed.
-- `python scripts/validators/validate_model_research_gate.py --targets kling_omni_video_best_available` → 1/1 passed.
+- `python -m pytest -q` -> 1441 passed.
+- `python scripts/validate_production_records.py --repo-root .` -> 98 files scanned, 98 valid, 0 invalid.
 
 ### Policy Confirmation
-
-- No binary image/video/audio outputs committed.
-- `repo_binary_committed: false` for all takes; SC0001 TAKE002 stored in external local media.
-- No API keys or private local paths in committed files.
-- Suppression note contains no raw character names, canonical IDs, or planning aliases.
+- No binary outputs committed. No lifecycle promotion — all records remain `status: draft`.
+- Grandfathered C01/LOC001/PROP003 records unchanged.
 
 ### Next Step
+- Operator generates real C03 Birta images per the prompt templates, then promotes the chain and perspective pack from draft -> review.
 
-- C03 Birta full element production → C01/C03 `native_audio_readiness: ready` →
-  dialogue-bearing SC0001 prompt generation → full v0.17.0 scene production trial.
+## element-reference-policy-v2 (2026-05-16)
+
+### Summary
+- PR-REF-0: defines Element Reference Generation Policy v2 (doctrine + additive schema + operator prompt templates).
+- Forward-only policy. Existing records (C01, LOC001, PROP003) are grandfathered, not migrated.
+- This entry is the v2 cutoff: records authored after it must use `perspective_policy: three_view_scale_angle_v2`.
+
+### Changed
+- Added doctrine `docs/methodology/element_reference_generation_policy.md` (two-stage character chain, non-character routing, scale-angle three-view, full-body-not-a-gate, grandfather rule).
+- Added operator guide `docs/operator_guides/element_reference_prompting_v2.md` and prompt templates under `templates/element_reference_prompts/` (5 stage templates, each citing the active model guide + snapshot).
+- `schemas/gpt_images_perspective_pack.schema.json`: added `three_view_scale_angle_v2` to `perspective_policy` enum and a new `prompts` `oneOf` branch (`front_reference`, `three_quarter_medium_reference`, `three_quarter_close_reference`). Legacy enum values and branches retained for grandfathered records.
+- Added `tests/test_gpt_images_perspective_pack_schema.py`.
+- Added `element_reference_policy_v2` policy notes to `docs/model_guides/midjourney.yaml` and `docs/model_guides/chatgpt_image.yaml`.
+
+### Validation Evidence
+- `python scripts/validate_production_records.py --repo-root .` -> 98 files scanned, 98 valid, 0 invalid.
+- `python -m pytest -q` -> 1416 passed.
+
+### Policy Confirmation
+- No binary outputs committed.
+- No lifecycle promotion. No production record mutation — schema changes are strictly additive.
+- Existing C01/LOC001/PROP003 records unchanged (grandfathered).
+
+### Next Step
+- PR-REF-1: add the `character_reference_chain` schema.
 
 ## v0.15.3-non-character-perspective-pack-framework (2026-05-13)
 

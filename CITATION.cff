@@ -1,28 +1,30 @@
 cff-version: 1.2.0
-message: "For citation, use DOI 10.5281/zenodo.20237165."
-doi: 10.5281/zenodo.20237165
-title: "DRMYN Studio: Metadata-Only Element-First AI Film Production Pipeline with SC0001 Selected Take and Readiness-Gated Omni 3 Dialogue Rendering"
+message: "This is a private development repository. For citation, use the public archived release DOI 10.5281/zenodo.20121045."
+doi: 10.5281/zenodo.20121045
+title: "DRMYN Studio: Metadata-Only AI-Assisted Movie Development and Production Workflow"
 type: software
-version: 0.16.2-native-audio-dialogue-rendering
+version: 0.17.0
 date-released: 2026-05-16
 repository-code: "https://github.com/hknbb/drmyn-studio-public"
-url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.16.2-native-audio-dialogue-rendering"
+url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.17.0-public-methodology-checkpoint"
 abstract: >
   DRMYN Studio is a metadata-only, schema-validated, human-gated research
   software framework for AI-assisted movie development and movie production
-  process design, documentation, validation, and reproducibility. This
-  checkpoint (v0.16.2) completes the element-first SC0001 production baseline
-  and introduces readiness-gated Omni 3 native-audio dialogue rendering: a
-  three-PR patch (guidance refresh, adapter implementation, suppressed-path
-  proof) that embeds verified @alias-keyed dialogue into Kling Omni prompt_text
-  when all speakers are native_audio_readiness: ready, or emits an exact
-  suppression note when blocked. SC0001 SH001 TAKE002 was selected as canon
-  (QC score 88/100). The repository provides canonical source records, planning
-  metadata, prompt governance, JSON schema validation (55+ schemas, draft
-  2020-12), human approval workflows, evidence records, and reproducibility
-  infrastructure for AI-assisted film production. Generated media outputs are
-  stored externally and referenced through metadata-only records. Demonstrated
-  through the Closing Price AI-assisted film project.
+  process design, documentation, validation, and reproducibility. It provides
+  canonical source records, planning metadata, prompt governance, JSON schema
+  validation (20+ schemas, draft 2020-12), human approval workflows, evidence
+  records, release manifests, and reproducibility infrastructure for AI-assisted
+  film production processes. The repository also includes a three-agent
+  autonomous orchestration layer (Claude Code / Codex / Gemini Code Assist)
+  with auto-handoff and pickup mode enabling structured multi-agent coordination
+  without external APIs. Generated media outputs are stored externally and
+  referenced through metadata-only records. This v0.17.0 checkpoint formalizes
+  the Element Reference Generation Policy v2: a two-stage Midjourney character
+  reference chain (V8.1 narrative identity followed by V7 Omni Reference
+  refinement), a scale-angle three-view pack replacing directional views
+  (front_reference, three_quarter_medium_reference, three_quarter_close_reference),
+  and non-character element routing through GPT Images 2. Demonstrated through
+  the Closing Price AI-assisted film project.
 keywords:
   - movie development process
   - movie production process

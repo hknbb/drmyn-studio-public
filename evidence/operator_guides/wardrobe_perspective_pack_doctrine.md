@@ -1,5 +1,18 @@
 ﻿# Wardrobe Perspective Pack Doctrine (PROD-LINE-15A-6 Scaffold)
 
+> **Policy v2 update (`element-reference-policy-v2`).** This scaffold predates
+> Element Reference Generation Policy v2. Under v2, non-character elements
+> (location / prop / wardrobe / style) route through ChatGPT Images 2 for BOTH
+> the first identity reference and the scale-angle three-view pack. The
+> `source_reference_id` follows the `CHATGPTIMG_ELEMENT_*` pattern. The
+> candidate perspective set below is superseded by the single standard triple:
+> `front_reference`, `three_quarter_medium_reference`,
+> `three_quarter_close_reference` (`perspective_policy: three_view_scale_angle_v2`).
+> Views differ by camera angle and framing scale — no left/right directional
+> wording. See `docs/methodology/element_reference_generation_policy.md` and the
+> operator prompt templates in `templates/element_reference_prompts/`. Records
+> authored before the v2 cutoff are grandfathered and not migrated.
+
 This doctrine defines the first framework scaffold for wardrobe perspective packs.
 
 Status:

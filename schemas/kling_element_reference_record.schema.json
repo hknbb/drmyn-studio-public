@@ -155,6 +155,28 @@
               "minLength": 1
             }
           }
+        },
+        {
+          "additionalProperties": false,
+          "required": [
+            "front_reference",
+            "three_quarter_medium_reference",
+            "three_quarter_close_reference"
+          ],
+          "properties": {
+            "front_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "three_quarter_medium_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "three_quarter_close_reference": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       ]
     },

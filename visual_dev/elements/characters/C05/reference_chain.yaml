@@ -1,0 +1,38 @@
+schema_version: "0.x-draft"
+record_type: character_reference_chain
+character_id: C05
+status: draft
+stage_1:
+  model: midjourney
+  version: "v8.1"
+  role: narrative_identity_reference
+  prompt_template_ref: templates/element_reference_prompts/character_mj_v8_narrative_identity.md
+  model_guidance_snapshot_ref: evidence/model_guidance_snapshots/20260507T140000Z_midjourney.yaml
+  output_ref: pending_external://C05_NARRATIVE_IDENTITY_V001
+  qc_focus:
+    - character_description_strength
+    - face_geometry_clarity
+    - silhouette_readability
+    - wardrobe_world_fit
+    - expression_performance_readability
+  full_body_required: false
+stage_2:
+  model: midjourney
+  version: "v7"
+  role: omni_reference_identity_refinement
+  prompt_template_ref: templates/element_reference_prompts/character_mj_v7_oref_refinement.md
+  model_guidance_snapshot_ref: evidence/model_guidance_snapshots/20260507T140000Z_midjourney.yaml
+  input_ref: pending_external://C05_NARRATIVE_IDENTITY_V001
+  output_ref: pending_external://MJ_OMNI_REF_C05_V001
+  uses_oref: true
+  qc_focus:
+    - identity_consistency
+    - reference_lock_strength
+    - no_redesign
+handoff:
+  to_model: gpt_images_2
+  source_reference_id: pending_external://MJ_OMNI_REF_C05_V001
+notes: Draft v2 reference chain scaffold. Stage outputs remain pending_external until the operator generates and selects real images per the prompt templates.
+provenance:
+  created_by: hknbb
+  created_at: "2026-05-16T00:00:00Z"

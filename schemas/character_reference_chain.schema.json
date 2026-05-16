@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/character_reference_chain.schema.json",
+  "title": "Character Reference Chain",
+  "description": "Two-stage Midjourney reference chain for a character under Element Reference Generation Policy v2: stage_1 (narrative identity reference) -> stage_2 (omni-reference identity refinement) -> handoff to ChatGPT Images 2 for the scale-angle three-view pack. Stage versions are recorded in stage_1.version / stage_2.version; the active Midjourney version policy lives in docs/model_guides/midjourney.yaml. Metadata-only: stores prompt template references and external reference IDs, never image binaries. This record must never contain or modify pack_status, canon_lock, approved, locked, or selected lifecycle fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "character_id",
+    "status",
+    "stage_1",
+    "stage_2",
+    "handoff",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "type": "string",
+      "const": "character_reference_chain"
+    },
+    "character_id": {
+      "type": "string",
+      "pattern": "^C\\d{2}$",
+      "description": "Character identifier: C01, C03, etc."
+    },
+    "look_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Optional look qualifier, e.g. C03_HOUSEKEEPER_MORNING."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "stage_1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "version", "role", "output_ref"],
+      "properties": {
+        "model": {
+          "const": "midjourney"
+        },
+        "version": {
+          "type": "string",
+          "enum": ["v8", "v8.1"]
+        },
+        "role": {
+          "const": "narrative_identity_reference"
+        },
+        "prompt_template_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to the operator prompt template, e.g. templates/element_reference_prompts/character_mj_v8_narrative_identity.md."
+        },
+        "model_guidance_snapshot_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to the model_guidance_snapshot governing the Midjourney version used."
+        },
+        "output_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "External reference for the selected Stage 1 image. external://... once generated; pending_external://... while scaffolded."
+        },
+        "qc_focus": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "full_body_required": {
+          "type": "boolean",
+          "description": "Optional. Full body is not a quality gate under policy v2; defaults to not required when omitted."
+        }
+      }
+    },
+    "stage_2": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "version", "role", "input_ref", "output_ref", "uses_oref"],
+      "properties": {
+        "model": {
+          "const": "midjourney"
+        },
+        "version": {
+          "const": "v7"
+        },
+        "role": {
+          "const": "omni_reference_identity_refinement"
+        },
+        "prompt_template_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to the operator prompt template, e.g. templates/element_reference_prompts/character_mj_v7_oref_refinement.md."
+        },
+        "model_guidance_snapshot_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Must reference the Stage 1 output (the image uploaded as the Omni Reference)."
+        },
+        "output_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "External reference for the refined omni-reference identity lock."
+        },
+        "uses_oref": {
+          "type": "boolean",
+          "description": "Stage 2 uses the Midjourney --oref Omni Reference; expected true."
+        },
+        "qc_focus": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["to_model", "source_reference_id"],
+      "properties": {
+        "to_model": {
+          "type": "string",
+          "enum": ["gpt_images_2", "chatgpt_images_2"]
+        },
+        "source_reference_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The reference ID the ChatGPT Images 2 scale-angle pack consumes as source_reference_id. Mirrors stage_2.output_ref identity."
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1, "maxLength": 500 }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by", "created_at"],
+      "properties": {
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

@@ -112,6 +112,20 @@ prompt_rules:
       source: "https://docs.midjourney.com/hc/en-us/articles/32634113811853-Raw-Mode"
       confidence: high
       human_verified: true
+    - id: element_reference_policy_v2
+      rule: >
+        Element Reference Generation Policy v2: Midjourney is used ONLY for the
+        character first-reference chain. Stage 1 uses V8/V8.1 for a narrative
+        identity reference (--style raw, --ar 2:3, --seed); full body is NOT a
+        quality requirement. Stage 2 uses V7 --oref to refine the selected Stage
+        1 image into an Omni Reference identity lock. Non-character elements
+        (location/prop/wardrobe/style) do NOT use Midjourney — see
+        chatgpt_image.yaml. Operator prompt templates:
+        templates/element_reference_prompts/. Doctrine:
+        docs/methodology/element_reference_generation_policy.md.
+      source: "plan invariant"
+      confidence: high
+      human_verified: true
   do_not_invent:
     - "Prompt weighting syntax (::2) — not confirmed in V7/V8"
     - "--cref — removed in V7; use --oref instead"
