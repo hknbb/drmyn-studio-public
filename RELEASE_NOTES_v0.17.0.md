@@ -2,7 +2,7 @@
 
 **Release date:** 2026-05-16
 **Tag:** `v0.17.0-public-methodology-checkpoint`
-**Zenodo DOI:** Will be inserted in the follow-up commit after the public GitHub Release is archived by Zenodo.
+**Zenodo DOI:** [10.5281/zenodo.20241807](https://doi.org/10.5281/zenodo.20241807)
 
 ---
 
