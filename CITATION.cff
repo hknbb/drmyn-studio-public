@@ -1,6 +1,6 @@
 cff-version: 1.2.0
-message: "For citation, use DOI 10.5281/zenodo.20169170."
-doi: 10.5281/zenodo.20169170
+message: "For citation, use DOI 10.5281/zenodo.20237165."
+doi: 10.5281/zenodo.20237165
 title: "DRMYN Studio: Metadata-Only Element-First AI Film Production Pipeline with SC0001 Selected Take and Readiness-Gated Omni 3 Dialogue Rendering"
 type: software
 version: 0.16.2-native-audio-dialogue-rendering

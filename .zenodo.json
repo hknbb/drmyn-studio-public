@@ -2,6 +2,7 @@
   "title": "DRMYN Studio: Metadata-Only Element-First AI Film Production Pipeline with SC0001 Selected Take and Readiness-Gated Omni 3 Dialogue Rendering",
   "upload_type": "software",
   "version": "0.16.2-native-audio-dialogue-rendering",
+  "doi": "10.5281/zenodo.20237165",
   "description": "DRMYN Studio is a metadata-only, schema-validated, human-gated research software framework for AI-assisted movie development and movie production process design, documentation, validation, and reproducibility. This checkpoint (v0.16.2) completes the element-first SC0001 production baseline and introduces readiness-gated Kling Omni 3 native-audio dialogue rendering: a three-PR patch (guidance refresh, adapter implementation, suppressed-path proof) that embeds verified @alias-keyed dialogue into prompt_text when all speakers are native_audio_readiness: ready, or emits an exact suppression note when blocked. SC0001 SH001 TAKE002 was selected as canon (QC score 88/100). The repository records canonical source truth, planning metadata, prompt governance, validation evidence, human approval decisions, agent handoffs, and reproducibility artifacts for an AI-assisted film production workflow. It includes 55+ JSON Schemas (draft 2020-12), a Film Aesthetic Bible, and a multi-agent orchestration layer (Claude Code / Codex / Gemini Code Assist). Generated media outputs are stored externally and referenced through metadata-only records. Demonstrated through the Closing Price AI-assisted film project.",
   "creators": [
     {

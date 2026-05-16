@@ -53,4 +53,4 @@ See [`CITATION.cff`](CITATION.cff) for full citation metadata. For journal/publi
 
 Babacan, H. (2026). DRMYN Studio: Repository-Native Continuity and Look-Specific Alias Governance for AI-Assisted Film Production (Version 0.14.0-continuity-alias-checkpoint) [Computer software]. https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.14.0-continuity-alias-checkpoint
 
-A Zenodo DOI will be assigned upon archival.
+**DOI:** https://doi.org/10.5281/zenodo.20237165
