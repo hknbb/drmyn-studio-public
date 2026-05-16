@@ -1,0 +1,24 @@
+schema_version: "0.x-draft"
+record_type: kling_element_reference_record
+kling_element_reference_id: KLING_REF_LOC001_KITCHEN_PASSAGE_V001
+status: review
+element_id: LOC001
+element_type: location
+source_midjourney_reference:
+  reference_id: MJ_ELEMENT_LOC001_KITCHEN_PASSAGE_HERO_V001
+  prompt_id: MJ_PROMPT_LOC001_KITCHEN_PASSAGE_HERO_V001
+gpt_images_2_perspectives:
+  front_reference: GPTIMG2_LOC001_P01_FRONT_V001
+  left_reference: GPTIMG2_LOC001_P02_LEFT_V001
+  right_reference: GPTIMG2_LOC001_P03_RIGHT_V001
+continuity_anchors:
+  - fixed pale stone corridor walls and floor
+  - fixed art photograph wall sequence on right side
+  - fixed geometric window light pattern on floor
+  - fixed empty passage spatial depth and scale
+approval_gate:
+  all_perspectives_score_85_plus: true
+  operator_approved: true
+  operator_session_ref: OP-PROD-LINE-LOC001-THREE-VIEW-2026-05-15
+downstream_use:
+  - kling_omni_3_shot_prompt

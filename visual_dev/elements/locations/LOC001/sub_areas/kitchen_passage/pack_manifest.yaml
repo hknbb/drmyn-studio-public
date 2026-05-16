@@ -1,0 +1,17 @@
+element_id: LOC001
+element_type: location_sub_area
+sub_area: kitchen_passage
+canonical_name: Vale Residence — Kitchen Passage (East-Wing Corridor)
+planning_record: planning/locations/LOC001.yaml
+pack_status: metadata_only
+image_seeding_blocked: false
+image_seeding_note: >
+  SC0001 kitchen_passage three-view GPT Images 2 perspective outputs selected and
+  locked (front 95, left 91, right 94). Kling element reference at review status.
+  Ready for downstream Kling Omni prompt synthesis.
+pilot_scene_usage:
+  - scene: SC0001
+    context: early morning, pale stone corridor, geometric window light, art-wall sequence
+provenance:
+  created_by: operator/hknbb
+  created_at: "2026-05-16T08:31:05Z"

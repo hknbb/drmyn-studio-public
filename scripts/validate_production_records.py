@@ -38,6 +38,14 @@ from typing import Any
 import yaml
 from jsonschema import Draft202012Validator
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.validators.validate_shot_element_manifest import (
+    validate_shot_element_manifest_file,
+)
+
 
 IMAGE_SELECTION_PATTERN = "visual_dev/elements/**/image_selection.yaml"
 PACK_SUGGESTION_PATTERN = "visual_dev/elements/**/pack_manifest_update_suggestion.yaml"
@@ -46,6 +54,9 @@ PROMPT_REVIEW_BRIEF_PATTERN = "evidence/prompt_reviews/*_brief.yaml"
 STORYBOARD_OPTIONS_PATTERN = "visual_dev/storyboards/SC*/storyboard_options.yaml"
 SHOT_LIST_OMNI_SUGGESTION_PATTERN = (
     "visual_dev/storyboards/SC*/shot_list_omni_suggestion.yaml"
+)
+SHOT_ELEMENT_MANIFEST_PATTERN = (
+    "visual_dev/omni_sets/SC*/shot_element_manifests/*.yaml"
 )
 BATCH_JOB_PATTERN = "evidence/batch_jobs/*.yaml"
 PRODUCTION_BATCH_PATTERN = "evidence/batch_jobs/production_batch_*.yaml"
@@ -214,6 +225,7 @@ def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
         "shot_list_omni_suggestion": sorted(
             repo_root.glob(SHOT_LIST_OMNI_SUGGESTION_PATTERN)
         ),
+        "shot_element_manifest": sorted(repo_root.glob(SHOT_ELEMENT_MANIFEST_PATTERN)),
         "batch_job": batch_job_files,
         "production_batch": production_batch_files,
         "operator_session": sorted(repo_root.glob(OPERATOR_SESSION_PATTERN)),
@@ -377,19 +389,15 @@ def validate_prod_line_cross_references(
 
         perspectives = data.get("gpt_images_2_perspectives")
         if isinstance(perspectives, dict):
-            for key in (
-                "front_hero",
-                "three_quarter_left",
-                "three_quarter_right",
-                "rear_or_side",
-            ):
-                ref = perspectives.get(key)
-                if isinstance(ref, str) and ref and ref not in gpt_prompt_ids:
+            for key, ref in perspectives.items():
+                if not isinstance(ref, str) or not ref:
+                    continue
+                if ref not in gpt_prompt_ids:
                     issues.append(
                         ProductionValidationIssue(
                             file=_relative(path, repo_root),
                             record_type="kling_element_reference_record",
-                            field_path="gpt_images_2_perspectives",
+                            field_path=f"gpt_images_2_perspectives.{key}",
                             message=f"missing GPT Images 2 perspective prompt: {ref}",
                         )
                     )
@@ -688,7 +696,7 @@ def validate_perspective_qc_readiness(
         scores = data.get("perspective_scores")
         minimum_score = gate.get("minimum_score")
         can_advance = True
-        if not isinstance(scores, list) or len(scores) != 4:
+        if not isinstance(scores, list) or len(scores) not in {3, 4}:
             can_advance = False
         if not _is_int_score(minimum_score):
             can_advance = False
@@ -2361,6 +2369,16 @@ def run_validation(
                     record_type=record_type,
                     validator=shot_list_omni_suggestion_validator,
                 )
+            elif record_type == "shot_element_manifest":
+                file_issues = [
+                    ProductionValidationIssue(
+                        file=issue.file,
+                        record_type=record_type,
+                        field_path=issue.field_path,
+                        message=issue.message,
+                    )
+                    for issue in validate_shot_element_manifest_file(path, repo_root)
+                ]
             elif record_type == "batch_job":
                 file_issues = _schema_issues(
                     path=path,

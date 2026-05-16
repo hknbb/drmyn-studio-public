@@ -1,0 +1,21 @@
+schema_version: "0.x-draft"
+record_type: shot_element_manifest
+manifest_id: MANIFEST_SC0001_SH001_V001
+scene_id: SC0001
+shot_id: SH001
+required_elements:
+  - element_id: C01
+    element_type: character
+    role: primary_subject
+    registration_state_required: created
+  - element_id: LOC001
+    element_type: location_sub_area
+    role: attached_location
+    registration_state_required: created
+  - element_id: PROP003
+    element_type: prop
+    role: attached_prop
+    registration_state_required: created
+environmental_only_allowed_ids: []
+gate_status: all_elements_ready
+notes: SH001 element gate declared ready. C01 @Nadia, LOC001 @ValeResidenceKitchenPassage, PROP003 @VardovaFrame all have binding_status created, kling_element_reference review, operator_approved true, all_perspectives_score_85_plus true. No Kling prompt generated in this PR; PR-5 generates alias-only v02 prompt.

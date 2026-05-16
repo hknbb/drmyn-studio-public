@@ -1,4 +1,1 @@
 run_id,scene_id,model,prompt_type,outputs_expected,cost_value,cost_unit,status
-RUN_SC0001_CLIP_SC0001_01_KO_0001,SC0001,kling_omni,omni_instruction,1,0,unknown,pending
-RUN_SC0001_CLIP_SC0001_01_KO_0002,SC0001,kling_omni,omni_instruction,1,0,unknown,pending
-RUN_SC0001_CLIP_SC0001_01_KO_0003,SC0001,kling_omni,omni_instruction,1,0,unknown,pending

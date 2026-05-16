@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/shot_element_manifest.schema.json",
+  "title": "Shot Element Manifest",
+  "description": "Per-shot element readiness gate for Kling Omni prompt synthesis. Records required attached elements before prompt generation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "manifest_id",
+    "scene_id",
+    "shot_id",
+    "required_elements",
+    "environmental_only_allowed_ids",
+    "gate_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "shot_element_manifest"
+    },
+    "manifest_id": {
+      "type": "string",
+      "pattern": "^MANIFEST_SC\\d{4}_[A-Z0-9_]+_V\\d{3}$"
+    },
+    "scene_id": {
+      "type": "string",
+      "pattern": "^SC\\d{4}$"
+    },
+    "shot_id": {
+      "type": "string",
+      "pattern": "^[A-Z0-9_]+$"
+    },
+    "required_elements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "element_id",
+          "element_type",
+          "role",
+          "registration_state_required"
+        ],
+        "properties": {
+          "element_id": {
+            "type": "string",
+            "pattern": "^(C\\d{2}|LOC\\d{3}(?:_[A-Z0-9_]+)?|PROP\\d{3}|WD\\d{3}|STYLE\\d{3})$"
+          },
+          "element_type": {
+            "type": "string",
+            "enum": [
+              "character",
+              "location",
+              "location_sub_area",
+              "prop",
+              "wardrobe",
+              "style"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "primary_subject",
+              "attached_location",
+              "attached_prop",
+              "environmental_only"
+            ]
+          },
+          "registration_state_required": {
+            "type": "string",
+            "enum": [
+              "created",
+              "voice_capable",
+              "voice_locked"
+            ]
+          }
+        }
+      }
+    },
+    "environmental_only_allowed_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(C\\d{2}|LOC\\d{3}(?:_[A-Z0-9_]+)?|PROP\\d{3}|WD\\d{3}|STYLE\\d{3})$"
+      }
+    },
+    "gate_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "all_elements_ready",
+        "blocked"
+      ]
+    },
+    "notes": {
+      "type": "string",
+      "maxLength": 2000
+    }
+  }
+}

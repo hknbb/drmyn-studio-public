@@ -31,7 +31,7 @@
     "operator_session_ref": {"type": "string", "minLength": 1},
     "perspective_scores": {
       "type": "array",
-      "minItems": 4,
+      "minItems": 3,
       "maxItems": 4,
       "items": {
         "type": "object",
@@ -51,7 +51,17 @@
           "prompt_id": {"type": "string", "minLength": 1},
           "perspective": {
             "type": "string",
-            "enum": ["front_hero", "three_quarter_left", "three_quarter_right", "rear_or_side"]
+            "enum": [
+              "front_hero",
+              "three_quarter_left",
+              "three_quarter_right",
+              "rear_or_side",
+              "right_profile_side",
+              "left_profile_side",
+              "front_reference",
+              "left_reference",
+              "right_reference"
+            ]
           },
           "identity_preservation": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
           "perspective_usefulness": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
@@ -66,10 +76,11 @@
     "gate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["minimum_score", "all_four_required", "can_advance_to_kling_reference"],
+      "required": ["minimum_score", "can_advance_to_kling_reference"],
       "properties": {
         "minimum_score": {"type": "integer", "minimum": 0, "maximum": 100},
         "all_four_required": {"type": "boolean"},
+        "all_perspectives_required": {"type": "boolean"},
         "can_advance_to_kling_reference": {"type": "boolean"}
       }
     },

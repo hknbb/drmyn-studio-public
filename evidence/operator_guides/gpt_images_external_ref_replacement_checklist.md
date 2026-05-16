@@ -10,10 +10,10 @@ commits.
 ## Scope
 - Applies to SC0001 / C01 GPT Images 2 perspective outputs.
 - Applies to these four prompt IDs only:
-  - `GPTIMG2_C01_P01_FRONT_V001`
-  - `GPTIMG2_C01_P02_LEFT_V001`
-  - `GPTIMG2_C01_P03_RIGHT_V001`
-  - `GPTIMG2_C01_P04_REAR_V001`
+  - `GPTIMG2_C01_P01_REAR_V001`
+  - `GPTIMG2_C01_P02_THREE_QUARTER_LEFT_V001`
+  - `GPTIMG2_C01_P03_RIGHT_PROFILE_V001`
+  - `GPTIMG2_C01_P04_LEFT_PROFILE_V001`
 
 ## Storage Rule
 Generated image binaries must stay outside this repository.

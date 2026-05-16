@@ -4,29 +4,28 @@ character_id: C01
 target_stage: GPT_IMAGES_2_FRONT_HERO_LOCK
 target_look_id: C01_LOOK_HOME_MORNING_V001
 target_alias: "@C01_HOME_MORNING"
-upload_count: 3
+upload_count: 4
 evidence_slots:
   - slot_id: E01_STAGE1_WINNER
     source_stage: STAGE_1_IDENTITY_EXPLORATION
     role: primary_identity_direction
-    external_ref: pending_external://C01_STAGE1_IDENTITY_WINNER_HOME_MORNING_V001
+    external_ref: https://cdn.midjourney.com/u/0ab65b69-70ed-4bf8-94fd-dd244a112b04/12b9b547a843b3eb1847026da5b96c57a54021a748a07d7b5501772a24697d2f.png
     included: true
   - slot_id: E02_STAGE2A_PORTRAIT
     source_stage: STAGE_2A_IDENTITY_PORTRAIT_PROBE
     role: face_topology_anchor
-    external_ref: pending_external://C01_STAGE2A_IDENTITY_PORTRAIT_HOME_MORNING_V001
+    external_ref: external://local_manual/drmyn-studio-images/u9435212546_Nadia_cinematic_identity_portrait_single_frame_he_867e0f9d-4f64-4ebf-8601-95a58ed393da_3_(1).png
     included: true
   - slot_id: E03_STAGE2B_FULL_BODY
     source_stage: STAGE_2B_IDENTITY_FULL_BODY_PROBE
     role: silhouette_body_proportion_anchor
-    external_ref: pending_external://C01_STAGE2B_IDENTITY_FULL_BODY_HOME_MORNING_V001
+    external_ref: external://local_manual/drmyn-studio-images/u9435212546_Nadia_cinematic_identity_full_body_single_frame_f_0e95c96f-8943-4192-9351-63dbcfb6f7a5_0.png
     included: true
   - slot_id: E04_STAGE2C_EXPRESSION_BAND
     source_stage: STAGE_2C_IDENTITY_EXPRESSION_BAND_PROBE
     role: expression_range_check
-    external_ref: pending_external://C01_STAGE2C_IDENTITY_EXPRESSION_BAND_HOME_MORNING_V001
-    included: false
-    excluded_reason: "Optional expression-band probe reserved unless identity consistency is confirmed by operator."
+    external_ref: external://local_manual/drmyn-studio-images/u9435212546_Nadia_cinematic_identity_variant_single_frame_tir_db05d77d-baa3-4428-9028-1418be3c1df2_3.png
+    included: true
 lifecycle:
   status: draft
   approved: false
@@ -35,6 +34,6 @@ lifecycle:
   materialized: false
 notes: >
   Draft Stage 2.5 identity evidence set scaffold for C01 HOME_MORNING.
-  This record declares the planned GPT Images 2 Stage 3 upload set before
-  FRONT HERO LOCK generation. Pending refs must be replaced only through the
-  controlled external-ref registration workflow. No binary media is committed.
+  This record declares the selected GPT Images 2 Stage 3 upload set before
+  FRONT HERO LOCK generation and includes E01/E02/E03/E04. External refs were
+  operator-registered in metadata-only form. No binary media is committed.

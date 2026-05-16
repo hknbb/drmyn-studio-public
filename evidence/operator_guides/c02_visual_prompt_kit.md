@@ -99,29 +99,60 @@ Do not average into a new face. Do not mix conflicting details. If one uploaded 
 Generate one single full-body front-facing character image only. Neutral clean background, natural cinematic realism, no text, no logos, no watermark, no contact sheet, no collage, no multi-panel output.
 ```
 
-## Stage 4 - GPT Images 2 Four-Perspective Pack
-Rule: one look per pack, no look mixing.
+## Stage 4 - GPT Images 2 Four-Perspective Pack (sequential separate-call, anatomy-anchored)
+Rule: run 4 separate GPT Images 2 calls. Front is owned by Stage 3 and is not regenerated here.
 
-### Perspective 1: Front Hero
+### Perspective 1: Rear View (`rear_or_side`)
 ```text
-Using the locked C02 identity source, generate one full-body FRONT view. Preserve identical face geometry, body proportions, silhouette, and exact same look styling.
+Use the registered C02 Roman Vale FRONT HERO LOCK as the strict identity anchor.
+
+Generate ONE single full-body rear view image of the same character. Full rear view, back of head and shoulders centered toward the camera, no facial features visible, preserve hair silhouette, body proportions, and wardrobe-world continuity.
+
+Keep facial geometry continuity, age read continuity, body proportions, hair silhouette, and wardrobe-world consistency locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround. Do not add text, logos, watermark, or panel labels.
+
+Output exactly one clean full-body image for character continuity use.
 ```
 
-### Perspective 2: Three-Quarter Left
+### Perspective 2: Three-Quarter Left (`three_quarter_left`)
 ```text
-Using the locked C02 identity source, generate one full-body three-quarter LEFT view (about 45 degrees). Preserve identical identity anchors and exact same look styling as Perspective 1.
+Use the registered C02 Roman Vale FRONT HERO LOCK as the strict identity anchor.
+
+Generate ONE single full-body three-quarter-left image of the same character. Three-quarter angle where the character's left shoulder is closer to the camera and rotated slightly toward it; the character's right cheek is the dominant facial plane in frame; the character's left ear is partially visible at frame edge; right ear hidden behind the head.
+
+Keep facial geometry, age read, body proportions, hair silhouette, and controlled authority expression range locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not use ambiguous camera-frame directional wording. Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround.
+
+Output exactly one clean full-body image for character continuity use.
 ```
 
-### Perspective 3: Three-Quarter Right
+### Perspective 3: Right Profile Side (`right_profile_side`)
 ```text
-Using the locked C02 identity source, generate one full-body three-quarter RIGHT view (about 45 degrees). Preserve identical identity anchors and exact same look styling as Perspectives 1-2.
+Use the registered C02 Roman Vale FRONT HERO LOCK as the strict identity anchor.
+
+Generate ONE single full-body strict 90-degree right-profile image of the same character. The character's right ear is closest to the camera; the character's left ear is fully hidden behind the head; one full side facial plane is visible.
+
+Keep facial geometry, age read, body proportions, hair silhouette, and wardrobe-world continuity locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not use ambiguous camera-frame directional wording. Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround.
+
+Output exactly one clean full-body image for character continuity use.
 ```
 
-### Perspective 4: Rear or Side
+### Perspective 4: Left Profile Side (`left_profile_side`)
 ```text
-Using the locked C02 identity source, generate one full-body REAR view (or strict SIDE if rear fails). Preserve identity anchors and exact same look styling as Perspectives 1-3.
-```
+Use the registered C02 Roman Vale FRONT HERO LOCK as the strict identity anchor.
 
+Generate ONE single full-body strict 90-degree left-profile image of the same character. The character's left ear is closest to the camera; the character's right ear is fully hidden behind the head; one full side facial plane is visible.
+
+Keep facial geometry, age read, body proportions, hair silhouette, and wardrobe-world continuity locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not use ambiguous camera-frame directional wording. Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround.
+
+Output exactly one clean full-body image for character continuity use.
+```
 ## Stage 5 - Per-Look-Variant Lock Prompts (Midjourney)
 
 ### Look: CORPORATE_CONTROL (`C02_LOOK_CORPORATE_CONTROL_V001`, SC0002-SC0007)
@@ -145,3 +176,4 @@ From `planning/aesthetic_bible.yaml`:
 - Stage 4 must not mix `C02_LOOK_CORPORATE_CONTROL_V001` and `C02_LOOK_DOMESTIC_AUTHORITY_V001` in the same pack.
 - Stage sequence is mandatory: Stage 1 -> Stage 2 -> Stage 2.5 -> Stage 3 -> Stage 4 -> Stage 5.
 - Use [gpt_images_external_ref_replacement_checklist.md](gpt_images_external_ref_replacement_checklist.md) for real external-ref registration workflow.
+

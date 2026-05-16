@@ -793,7 +793,7 @@ def test_missing_gpt_images_perspective_prompt_fails(tmp_path: Path) -> None:
     report = run_validation(tmp_path)
     assert any(
         i.record_type == "kling_element_reference_record"
-        and i.field_path == "gpt_images_2_perspectives"
+        and i.field_path == "gpt_images_2_perspectives.rear_or_side"
         and "missing GPT Images 2 perspective prompt" in i.message
         for i in report.issues
     )

@@ -1,0 +1,14 @@
+scene_id: SC0001
+prompt_id: SC0001__omni-kling-omni3-home-morning-tilted-frame__v02
+review_notes_path: evidence/video_reviews/VR_SC0001_TAKE001_R001_notes.md
+review_notes: >-
+  Usable / 80-89 range. All five axes scored 4/5. Element identities held,
+  corridor morning grounding consistent, palette acceptable, no major temporal
+  breaks. Take is usable as a draft reference. Second generation pass advised
+  before selection; selected_take remains null.
+take_ids:
+  - SC0001_TAKE001
+selected_take: null
+round_status: in_progress
+needs_prompt_revision: false
+storage_policy: external_video_only

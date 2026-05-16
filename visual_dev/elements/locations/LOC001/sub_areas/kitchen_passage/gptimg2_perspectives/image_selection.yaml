@@ -1,0 +1,52 @@
+element_id: LOC001
+element_type: location
+selection_round: 1
+source_prompt_ids:
+  - SC0001__gptimg2-loc001-perspective-pack__v01
+candidate_images:
+  - asset_id: GPTIMG2_LOC001_P01_FRONT_V001
+    path: external://local_manual/drmyn-studio-images/ChatGPT Image 15 May 2026 23_03_52.png
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 15 May 2026 23_03_52.png
+    repo_binary_committed: false
+    status: selected
+    reason: Three-view front_reference output registered from 2026-05-15 session. Entry POV, geometric shadow on floor, linen ledge and art wall visible.
+    quality_scores:
+      identity_consistency: 5
+      source_grounding: 5
+      style_compliance: 5
+      continuity: 5
+      production_usability: 5
+    failure_reason: null
+  - asset_id: GPTIMG2_LOC001_P02_LEFT_V001
+    path: external://local_manual/drmyn-studio-images/ChatGPT Image 15 May 2026 23_06_03.png
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 15 May 2026 23_06_03.png
+    repo_binary_committed: false
+    status: selected
+    reason: Three-view left_reference output registered from 2026-05-15 session. Corridor axis perspective; window-wall emphasis weaker than prompt but location identity preserved.
+    quality_scores:
+      identity_consistency: 4
+      source_grounding: 4
+      style_compliance: 5
+      continuity: 5
+      production_usability: 4
+    failure_reason: null
+  - asset_id: GPTIMG2_LOC001_P03_RIGHT_V001
+    path: external://local_manual/drmyn-studio-images/ChatGPT Image 15 May 2026 23_08_34.png
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 15 May 2026 23_08_34.png
+    repo_binary_committed: false
+    status: selected
+    reason: Three-view right_reference output registered from 2026-05-15 session. Art photograph wall emphasis confirmed; pale stone and corridor geometry maintained.
+    quality_scores:
+      identity_consistency: 5
+      source_grounding: 5
+      style_compliance: 5
+      continuity: 5
+      production_usability: 5
+    failure_reason: null
+canonical_images: []
+round_status: complete
+pack_manifest_sync: pending
+review_notes: LOC001 kitchen passage Stage 4 perspective selection gate completed by human decision. All three QC-passing external outputs selected. left_reference achieved corridor identity lock despite limited window-wall POV emphasis. No binary commit, lifecycle promotion, or materialized output registration applied.
+provenance:
+  created_by: operator/hknbb
+  created_at: "2026-05-15T23:08:34Z"

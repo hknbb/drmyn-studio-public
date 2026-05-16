@@ -1,0 +1,41 @@
+prompt_id: SC0001__omni-kling-omni3-home-morning-tilted-frame__v02
+scene_id: SC0001
+prompt_type: omni_instruction
+lifecycle_stage: draft
+target_models:
+  - kling_omni
+source_refs:
+  scene_card: planning/scenes/SC0001/scene_card.yaml
+  scene_excerpt: >-
+    Early morning, Vale Residence kitchen passage (east-wing corridor). Nadia
+    moves through the pale stone corridor, registering the tilted Vardova
+    skyline photograph frame on the east wall. Filtered early daylight.
+    Surveillance geometry: thresholds, corridor depth, object deviation.
+  character_refs:
+    - C01
+  location_refs:
+    - LOC001
+  prop_refs:
+    - PROP003
+  omni_set_ref: visual_dev/omni_sets/SC0001/
+prompt_text: >-
+  @Nadia walks the length of @ValeResidenceKitchenPassage in early morning
+  light. Pale stone corridor, geometric window shadows crossing the floor. Her
+  movement is exact and minimal — she reads the corridor before she crosses it.
+  She passes @VardovaFrame on the east wall: tilted off horizontal, a small
+  degree of deviation she registers without breaking stride. Camera holds at
+  corridor depth, threshold framing. Duration: 5 seconds.
+status: active
+canon_lock: false
+generation_params:
+  shot_element_manifest_ref: >-
+    visual_dev/omni_sets/SC0001/shot_element_manifests/SH001.yaml
+  provider: kling
+  provider_surface: web_ui
+  required_element_aliases:
+    - "@Nadia"
+    - "@ValeResidenceKitchenPassage"
+    - "@VardovaFrame"
+provenance:
+  created_by: operator/hknbb
+  created_at: "2026-05-16T09:00:00Z"

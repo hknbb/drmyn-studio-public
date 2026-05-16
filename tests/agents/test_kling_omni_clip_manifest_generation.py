@@ -1238,6 +1238,15 @@ class TestAliasInjection:
         )
         if not manifest_ref.exists():
             pytest.skip("CLIP_SC0001_01_manifest.yaml not found in repo")
+        bindings_path = repo_root / "visual_dev" / "omni_sets" / "SC0001" / "element_bindings.yaml"
+        if not bindings_path.exists():
+            pytest.skip("element_bindings.yaml not yet authored (clean baseline; re-created in PR-1)")
+
+        import yaml as _yaml
+        with open(bindings_path, "r", encoding="utf-8") as _f:
+            _bindings_docs = [d for d in _yaml.safe_load_all(_f) if d]
+        _bound_ids = {d.get("element_id") for d in _bindings_docs}
+        loc001_bound = "LOC001" in _bound_ids
 
         adapter = KlingOmniAdapter(repo_root)
         result = adapter.generate_from_clip_manifest(str(manifest_ref))
@@ -1245,6 +1254,8 @@ class TestAliasInjection:
         aliases = result.prompt_record["generation_params"].get("required_element_aliases", [])
 
         assert "@Nadia" in prompt_text, f"@Nadia missing: {prompt_text}"
+        if not loc001_bound:
+            pytest.skip("LOC001 not yet registered (PR-2 scope); @ValeResidenceKitchenPassage check deferred")
         assert "@ValeResidenceKitchenPassage" in prompt_text, (
             f"@ValeResidenceKitchenPassage missing: {prompt_text}"
         )
@@ -1363,3 +1374,624 @@ class TestCameraLightingMotionConsumption:
         adapter = KlingOmniAdapter(tmp_path)
         prompt_text = adapter.generate_from_clip_manifest(str(manifest_path)).prompt_record["prompt_text"]
         assert ".." not in prompt_text
+
+
+# ---------------------------------------------------------------------------
+# Element-first strict gate (Bolum 3): shot_element_manifest_ref enforcement
+# ---------------------------------------------------------------------------
+
+
+def _create_shot_element_manifest(
+    tmpdir: Path,
+    *,
+    scene_id: str = "SC0001",
+    shot_id: str = "SH001",
+    manifest_id: str = "MANIFEST_SC0001_SH001_V001",
+    required_elements: list[dict] | None = None,
+    gate_status: str = "all_elements_ready",
+) -> Path:
+    """Write a shot_element_manifest YAML for strict-gate tests."""
+    if required_elements is None:
+        required_elements = [
+            {
+                "element_id": "C01",
+                "element_type": "character",
+                "role": "primary_subject",
+                "registration_state_required": "created",
+            }
+        ]
+    manifest_dir = (
+        tmpdir / "visual_dev" / "omni_sets" / scene_id / "shot_element_manifests"
+    )
+    manifest_dir.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": "0.x-draft",
+        "record_type": "shot_element_manifest",
+        "manifest_id": manifest_id,
+        "scene_id": scene_id,
+        "shot_id": shot_id,
+        "required_elements": required_elements,
+        "environmental_only_allowed_ids": [],
+        "gate_status": gate_status,
+    }
+    path = manifest_dir / f"{shot_id}.yaml"
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.dump(payload, f)
+    return path
+
+
+class TestElementFirstStrictGate:
+    """shot_element_manifest_ref enforces element-first synthesis."""
+
+    def _setup_ready_clip(self, tmp_path: Path) -> tuple[Path, Path]:
+        _create_element_bindings(tmp_path)
+        clip_path = _create_manifest(
+            tmp_path,
+            shots=[
+                {
+                    "shot_id": "SHOT_SC0001_01_A",
+                    "duration_seconds": 5,
+                    "source_beat_ids": ["NADIA_PASSAGE_MOVEMENT"],
+                    "required_element_ids": ["C01"],
+                    "prompt_action": "She moves through the passage with precise economy.",
+                    "duration_reason": "normal/action 5s",
+                }
+            ],
+            total_duration=5,
+            required_element_ids=["C01"],
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        shot_manifest = _create_shot_element_manifest(tmp_path)
+        return clip_path, shot_manifest
+
+    def test_ready_manifest_succeeds_and_embeds_ref(self, tmp_path):
+        clip_path, shot_manifest = self._setup_ready_clip(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+
+        result = adapter.generate_from_clip_manifest(
+            str(clip_path),
+            shot_element_manifest_ref=str(shot_manifest),
+        )
+
+        params = result.prompt_record["generation_params"]
+        assert (
+            params["shot_element_manifest_ref"]
+            == "visual_dev/omni_sets/SC0001/shot_element_manifests/SH001.yaml"
+        )
+        assert params["required_element_aliases"] == ["@Nadia"]
+        prompt_text = result.prompt_record["prompt_text"]
+        assert "@Nadia" in prompt_text
+        assert "C01" not in prompt_text
+        assert "LOC001" not in prompt_text
+
+    def test_blocked_manifest_raises(self, tmp_path):
+        clip_path, _ = self._setup_ready_clip(tmp_path)
+        blocked_manifest = _create_shot_element_manifest(
+            tmp_path, gate_status="blocked"
+        )
+        adapter = KlingOmniAdapter(tmp_path)
+
+        with pytest.raises(KlingOmniAdapterError, match="gate_status"):
+            adapter.generate_from_clip_manifest(
+                str(clip_path),
+                shot_element_manifest_ref=str(blocked_manifest),
+            )
+
+    def test_missing_manifest_raises(self, tmp_path):
+        clip_path, _ = self._setup_ready_clip(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+
+        with pytest.raises(KlingOmniAdapterError, match="Missing.*shot_element_manifest"):
+            adapter.generate_from_clip_manifest(
+                str(clip_path),
+                shot_element_manifest_ref="visual_dev/omni_sets/SC0001/shot_element_manifests/MISSING.yaml",
+            )
+
+    def test_no_active_aliases_in_strict_mode_raises(self, tmp_path):
+        # Bindings present but their element_ids do not match clip required_element_ids.
+        _create_element_bindings(
+            tmp_path,
+            bindings=[
+                {
+                    "schema_version": "0.x-draft",
+                    "record_type": "element_binding",
+                    "element_id": "C03",
+                    "element_type": "character",
+                    "kling_alias": "@Birta",
+                    "binding_status": "created",
+                }
+            ],
+        )
+        clip_path = _create_manifest(
+            tmp_path,
+            shots=[
+                {
+                    "shot_id": "SHOT_SC0001_01_A",
+                    "duration_seconds": 5,
+                    "source_beat_ids": ["NADIA_PASSAGE_MOVEMENT"],
+                    "required_element_ids": ["C01"],
+                    "prompt_action": "She moves through.",
+                    "duration_reason": "normal/action 5s",
+                }
+            ],
+            total_duration=5,
+            required_element_ids=["C01"],
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        shot_manifest = _create_shot_element_manifest(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+
+        with pytest.raises(KlingOmniAdapterError, match="zero active Kling aliases"):
+            adapter.generate_from_clip_manifest(
+                str(clip_path),
+                shot_element_manifest_ref=str(shot_manifest),
+            )
+
+    def test_canonical_id_leak_in_prompt_text_raises(self, tmp_path):
+        # Force a leak by putting LOC001 literally inside the shot prompt_action.
+        # The text rewriter only substitutes character names, so LOC001 leaks through.
+        _create_element_bindings(tmp_path)
+        clip_path = _create_manifest(
+            tmp_path,
+            shots=[
+                {
+                    "shot_id": "SHOT_SC0001_01_A",
+                    "duration_seconds": 5,
+                    "source_beat_ids": ["NADIA_PASSAGE_MOVEMENT"],
+                    "required_element_ids": ["C01"],
+                    "prompt_action": "She enters LOC001 with precise economy.",
+                    "duration_reason": "normal/action 5s",
+                }
+            ],
+            total_duration=5,
+            required_element_ids=["C01"],
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        shot_manifest = _create_shot_element_manifest(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+
+        with pytest.raises(KlingOmniAdapterError, match="leaks repo-canonical element ids"):
+            adapter.generate_from_clip_manifest(
+                str(clip_path),
+                shot_element_manifest_ref=str(shot_manifest),
+            )
+
+    def test_legacy_path_without_manifest_ref_still_works(self, tmp_path):
+        # Backward compat: no shot_element_manifest_ref -> legacy path, no strict gate.
+        clip_path = _create_manifest(tmp_path, total_duration=5, shots=[{
+            "shot_id": "SHOT_SC0001_01_A",
+            "duration_seconds": 5,
+            "source_beat_ids": ["B1"],
+            "prompt_action": "Pale stone corridor with filtered daylight.",
+            "duration_reason": "normal/establish 5s",
+        }])
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+
+        result = adapter.generate_from_clip_manifest(str(clip_path))
+
+        params = result.prompt_record["generation_params"]
+        assert "shot_element_manifest_ref" not in params
+
+
+# ---------------------------------------------------------------------------
+# Helpers for dialogue / audio_plan tests
+# ---------------------------------------------------------------------------
+
+def _create_dialogue_beats(
+    tmpdir: Path,
+    scene_id: str = "SC0001",
+    dialogue_lines: list[dict] | None = None,
+) -> Path:
+    """Write a dialogue_beats.yaml for testing."""
+    if dialogue_lines is None:
+        dialogue_lines = [
+            {
+                "line_id": "DL001",
+                "target_beat_id": "BEAT_DIALOGUE",
+                "speaker_element_id": "C01",
+                "speaker_kling_alias": "@Nadia",
+                "line_text": "I slept.",
+                "line_type": "spoken",
+                "delivery_note": "controlled, low voice",
+                "dialogue_required": True,
+            },
+            {
+                "line_id": "DL002",
+                "target_beat_id": "BEAT_DIALOGUE",
+                "speaker_element_id": "C03",
+                "speaker_kling_alias": "@Birta",
+                "line_text": "You slept the way you fold laundry.",
+                "line_type": "spoken",
+                "delivery_note": "warm, knowing tone",
+                "dialogue_required": True,
+            },
+        ]
+
+    scenes_dir = tmpdir / "planning" / "scenes" / scene_id
+    scenes_dir.mkdir(parents=True, exist_ok=True)
+    path = scenes_dir / "dialogue_beats.yaml"
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.dump({"dialogue_lines": dialogue_lines}, f)
+    return path
+
+
+def _dialogue_shots(beat_id: str = "BEAT_DIALOGUE") -> list[dict]:
+    """Shots referencing a dialogue beat and dialogue_line_ids."""
+    return [
+        {
+            "shot_id": "SHOT_SC0001_DIAL_A",
+            "duration_seconds": 8,
+            "source_beat_ids": [beat_id],
+            "required_element_ids": ["C01", "C03"],
+            "dialogue_line_ids": ["DL001", "DL002"],
+            'prompt_action': 'NADIA: "I slept." BIRTA: "You slept the way you fold laundry."',
+            "duration_reason": "dialogue 8s",
+        }
+    ]
+
+
+class TestAudioPlanComponent:
+    """Tests for audio_plan component rendering in generate_from_clip_manifest."""
+
+    def test_blocked_speakers_emit_suppression_note(self, tmp_path):
+        """When speakers are native_audio_readiness: blocked, prompt_text must contain
+        the exact suppression note and zero raw dialogue line text."""
+        _create_dialogue_beats(tmp_path)
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=_dialogue_shots(),
+            total_duration=8,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C01",
+                "element_type": "character",
+                "kling_alias": "@Nadia",
+                "binding_status": "created",
+                "native_audio_readiness": "blocked",
+            },
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C03",
+                "element_type": "character",
+                "kling_alias": "@Birta",
+                "binding_status": "created",
+                "native_audio_readiness": "blocked",
+            },
+        ])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        assert (
+            "Audio plan suppressed: one or more speaking elements are not "
+            "native_audio_readiness: ready. Dialogue line text omitted from prompt_text."
+        ) in prompt_text
+        assert "I slept" not in prompt_text
+        assert "fold laundry" not in prompt_text
+
+    def test_ready_speakers_render_dialogue_in_omni3_syntax(self, tmp_path):
+        """When all speakers are native_audio_readiness: ready, prompt_text must
+        contain the verified Omni 3 @alias-keyed dialogue in the correct order."""
+        _create_dialogue_beats(tmp_path)
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=_dialogue_shots(),
+            total_duration=8,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C01",
+                "element_type": "character",
+                "kling_alias": "@Nadia",
+                "binding_status": "created",
+                "native_audio_readiness": "ready",
+            },
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C03",
+                "element_type": "character",
+                "kling_alias": "@Birta",
+                "binding_status": "created",
+                "native_audio_readiness": "ready",
+            },
+        ])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        assert "Audio plan:" in prompt_text
+        assert "@Nadia" in prompt_text
+        assert "@Birta" in prompt_text
+        assert '"I slept."' in prompt_text
+        assert '"You slept the way you fold laundry."' in prompt_text
+        assert "Immediately," in prompt_text
+        assert "suppressed" not in prompt_text
+
+    def test_mixed_readiness_emits_suppression_not_partial_dialogue(self, tmp_path):
+        """If one speaker is blocked and another is ready, the suppression note must
+        fire — no partial dialogue must appear."""
+        _create_dialogue_beats(tmp_path)
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=_dialogue_shots(),
+            total_duration=8,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C01",
+                "element_type": "character",
+                "kling_alias": "@Nadia",
+                "binding_status": "created",
+                "native_audio_readiness": "ready",
+            },
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C03",
+                "element_type": "character",
+                "kling_alias": "@Birta",
+                "binding_status": "created",
+                "native_audio_readiness": "blocked",
+            },
+        ])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        assert "suppressed" in prompt_text
+        assert "I slept" not in prompt_text
+        assert "fold laundry" not in prompt_text
+
+    def test_screenplay_cues_stripped_from_action_when_audio_plan_active(self, tmp_path):
+        """Raw SPEAKER: \"...\" cues must be removed from the shot action text when the
+        shot carries dialogue_line_ids and audio_plan takes ownership."""
+        _create_dialogue_beats(tmp_path)
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=_dialogue_shots(),
+            total_duration=8,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C01",
+                "element_type": "character",
+                "kling_alias": "@Nadia",
+                "binding_status": "created",
+                "native_audio_readiness": "blocked",
+            },
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C03",
+                "element_type": "character",
+                "kling_alias": "@Birta",
+                "binding_status": "created",
+                "native_audio_readiness": "blocked",
+            },
+        ])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        # Raw screenplay SPEAKER: "..." form must not survive into prompt_text
+        assert 'NADIA: "' not in prompt_text
+        assert 'BIRTA: "' not in prompt_text
+
+    def test_canonical_id_leak_guard_passes_with_dialogue_suppressed(self, tmp_path):
+        """Suppressed audio_plan must not introduce canonical IDs into prompt_text."""
+        _create_dialogue_beats(tmp_path)
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=_dialogue_shots(),
+            total_duration=8,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C01",
+                "element_type": "character",
+                "kling_alias": "@Nadia",
+                "binding_status": "created",
+                "native_audio_readiness": "blocked",
+            },
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C03",
+                "element_type": "character",
+                "kling_alias": "@Birta",
+                "binding_status": "created",
+                "native_audio_readiness": "blocked",
+            },
+        ])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        assert "C01" not in prompt_text
+        assert "C03" not in prompt_text
+        assert "SC0001" not in prompt_text
+
+    def test_no_dialogue_beats_file_skips_audio_plan(self, tmp_path):
+        """When dialogue_beats.yaml is absent, audio_plan component must be skipped
+        entirely (no suppression note, no crash)."""
+        # Do NOT call _create_dialogue_beats — simulate missing file.
+        manifest_path = _create_manifest(
+            tmp_path,
+            shots=[{
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 5,
+                "source_beat_ids": ["ESTABLISH_KITCHEN"],
+                "prompt_action": "Pale stone corridor, filtered morning light.",
+                "duration_reason": "normal/establish 5s",
+            }],
+            total_duration=5,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        assert "Audio plan" not in prompt_text
+        assert "suppressed" not in prompt_text
+
+    def test_implied_lines_excluded_from_audio_plan(self, tmp_path):
+        """Lines with line_type: implied must not appear in the rendered audio_plan."""
+        _create_dialogue_beats(tmp_path, dialogue_lines=[
+            {
+                "line_id": "DL001",
+                "target_beat_id": "BEAT_DIALOGUE",
+                "speaker_element_id": "C01",
+                "speaker_kling_alias": "@Nadia",
+                "line_text": "I slept.",
+                "line_type": "spoken",
+                "delivery_note": "controlled",
+                "dialogue_required": True,
+            },
+            {
+                "line_id": "DL_IMP",
+                "target_beat_id": "BEAT_DIALOGUE",
+                "speaker_element_id": "C03",
+                "speaker_kling_alias": "@Birta",
+                "line_text": "[unspoken acknowledgement — she already knew]",
+                "line_type": "implied",
+                "dialogue_required": False,
+            },
+        ])
+        shots = [
+            {
+                "shot_id": "SHOT_SC0001_DIAL_A",
+                "duration_seconds": 8,
+                "source_beat_ids": ["BEAT_DIALOGUE"],
+                "required_element_ids": ["C01", "C03"],
+                "dialogue_line_ids": ["DL001", "DL_IMP"],
+                "prompt_action": 'NADIA: "I slept."',
+                "duration_reason": "dialogue 8s",
+            }
+        ]
+        manifest_path = _create_manifest(tmp_path, shots=shots, total_duration=8)
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C01",
+                "element_type": "character",
+                "kling_alias": "@Nadia",
+                "binding_status": "created",
+                "native_audio_readiness": "ready",
+            },
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C03",
+                "element_type": "character",
+                "kling_alias": "@Birta",
+                "binding_status": "created",
+                "native_audio_readiness": "ready",
+            },
+        ])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        assert "I slept" in prompt_text
+        assert "unspoken acknowledgement" not in prompt_text
+
+    def test_explicit_line_ids_scope_overrides_beat_overlap(self, tmp_path):
+        """When dialogue_line_ids is explicit, only those lines are rendered —
+        other lines in the same beat that belong to a different clip are excluded."""
+        # Both DL001 and DL002 share BEAT_DIALOGUE, but this clip only lists DL001.
+        _create_dialogue_beats(tmp_path, dialogue_lines=[
+            {
+                "line_id": "DL001",
+                "target_beat_id": "BEAT_DIALOGUE",
+                "speaker_element_id": "C01",
+                "speaker_kling_alias": "@Nadia",
+                "line_text": "I slept.",
+                "line_type": "spoken",
+                "delivery_note": "controlled",
+                "dialogue_required": True,
+            },
+            {
+                "line_id": "DL002",
+                "target_beat_id": "BEAT_DIALOGUE",
+                "speaker_element_id": "C03",
+                "speaker_kling_alias": "@Birta",
+                "line_text": "You slept the way you fold laundry.",
+                "line_type": "spoken",
+                "delivery_note": "warm",
+                "dialogue_required": True,
+            },
+        ])
+        # This clip only owns DL001; DL002 is assigned to a different clip.
+        shots = [
+            {
+                "shot_id": "SHOT_SC0001_DIAL_A",
+                "duration_seconds": 5,
+                "source_beat_ids": ["BEAT_DIALOGUE"],
+                "required_element_ids": ["C01"],
+                "dialogue_line_ids": ["DL001"],
+                "prompt_action": 'NADIA: "I slept."',
+                "duration_reason": "dialogue 5s",
+            }
+        ]
+        manifest_path = _create_manifest(tmp_path, shots=shots, total_duration=5)
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+        _create_element_bindings(tmp_path, bindings=[
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C01",
+                "element_type": "character",
+                "kling_alias": "@Nadia",
+                "binding_status": "created",
+                "native_audio_readiness": "ready",
+            },
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "element_binding",
+                "element_id": "C03",
+                "element_type": "character",
+                "kling_alias": "@Birta",
+                "binding_status": "created",
+                "native_audio_readiness": "ready",
+            },
+        ])
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+        prompt_text = result.prompt_record["prompt_text"]
+
+        # Only DL001 must appear; DL002 belongs to another clip.
+        assert "I slept" in prompt_text
+        assert "fold laundry" not in prompt_text

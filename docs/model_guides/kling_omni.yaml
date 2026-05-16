@@ -4,17 +4,17 @@
 # Maintained by: human PR only.
 # Freshness policy: max_age_days: 7 (faster release cadence).
 # Phase 3 Prerequisites: shot_list_omni non-empty + storyboard selected + fresh snapshot.
-# Source evidence: evidence/model_guidance_snapshots/20260504T140000Z_kling_omni.yaml
+# Source evidence: model_guidance_snapshots/kling/20260516T000000Z_kling_omni_video_best_available.yaml
 
 model_id: kling_omni
 schema_version: "1.0"
-guide_version: "0.2.0"
+guide_version: "0.3.0"
 status: active
-last_updated: "2026-05-04"
+last_updated: "2026-05-16"
 maintained_by: "human PR only"
 phase: 3
 actual_model_id: "kling-3.0-omni"
-snapshot_ref: "evidence/model_guidance_snapshots/20260504T140000Z_kling_omni.yaml"
+snapshot_ref: "model_guidance_snapshots/kling/20260516T000000Z_kling_omni_video_best_available.yaml"
 
 capability:
   output_type: video
@@ -135,12 +135,29 @@ prompt_rules:
       source: "plan invariant"
       confidence: high
       human_verified: true
+    - id: native_audio_dialogue_format
+      rule: >
+        Kling 3.0 Omni native-audio dialogue is written inline in prompt_text;
+        the API exposes NO separate audio/voice/dialogue parameter (Tier 1:
+        Magnific Kling v3 Omni API reference). Render each spoken line
+        action-first: physical action sentence, then the speaker clause, then
+        the quoted line. Tag every line with a stable speaker label — in this
+        repo the character's Kling element @alias (e.g. @Nadia), optionally
+        followed by a parenthesised tone/delivery descriptor. Never mark a
+        speaker with a bare pronoun. Place a temporal connector (Immediately,
+        Then, After a pause) between consecutive speakers so speech is not
+        merged. Keep lines short and source-grounded; never invent dialogue.
+        Example: 'She sets the glass down. @Nadia (controlled, low voice):
+        "I slept." Immediately, @Birta (warm, knowing tone): "You slept the
+        way you fold laundry."'
+      source: "model_guidance_snapshots/kling/20260516T000000Z_kling_omni_video_best_available.yaml"
+      confidence: high
+      human_verified: true
 
   do_not_invent:
     - "Seed parameter — not exposed in official Kling 3.0 Omni API"
     - "Element reference upload format — verify @element_name syntax in current API"
     - "Exact cfg_scale range — confirmed 0-1.0 but verify edge behavior"
-    - "Audio generation prompt syntax — native audio in 3.0 Omni; verify current format"
 
 source_refs:
   - url: "https://docs.magnific.com/api-reference/video/kling-v3-omni/generate-std-video-reference"

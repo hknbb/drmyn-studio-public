@@ -1,0 +1,18 @@
+scene_id: SC0001
+selected_take: SC0001_TAKE002
+source_video_takes: visual_dev/omni_sets/SC0001/video_takes.yaml
+prompt_id: SC0001__omni-kling-omni3-home-morning-tilted-frame__v02
+platform_asset_ref: kling_20260516_VIDEO___Element1_4010_0
+external_storage_ref: >-
+  external://local_manual/drmyn-studio-images/kling_20260516_VIDEO___Element1_4010_0.mp4
+local_proxy_ref: null
+repo_binary_committed: false
+lock_status: locked_metadata_only
+locked_by: operator_pr
+locked_at: "2026-05-16T09:00:00Z"
+storage_policy: external_video_only
+notes: >-
+  SC0001 SH001 selected take. TAKE002 chosen over TAKE001: 4/4/4/5/5 vs
+  4/4/4/4/4. Outperforms TAKE001 on continuity and production_usability.
+  Prompt v02 alias-only; elements @Nadia, @ValeResidenceKitchenPassage,
+  @VardovaFrame. No video binary in repo.

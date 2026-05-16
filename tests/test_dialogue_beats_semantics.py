@@ -37,7 +37,7 @@ def _minimal_dialogue_beats(overrides: dict | None = None) -> dict:
         "record_type": "dialogue_beats",
         "scene_id": "SC0001",
         "source_scene_beat_plan_ref": "planning/scenes/SC0001/scene_beat_plan.yaml",
-        "source_element_bindings_ref": "visual_dev/omni_sets/SC0001/element_bindings.yaml",
+        "source_element_bindings_ref": "tests/fixtures/element_bindings_minimal.yaml",
         "dialogue_lines": [
             {
                 "line_id": "DLG_NADIA_SLEEP_01",

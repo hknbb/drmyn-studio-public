@@ -1,0 +1,19 @@
+schema_version: "0.x-draft"
+record_type: element_binding
+element_id: C01
+kling_alias: "@Nadia"
+binding_status: created
+voice_capability: none
+native_audio_readiness: blocked
+kling_native_audio:
+  enabled: false
+---
+schema_version: "0.x-draft"
+record_type: element_binding
+element_id: C03
+kling_alias: "@Birta"
+binding_status: created
+voice_capability: none
+native_audio_readiness: blocked
+kling_native_audio:
+  enabled: false

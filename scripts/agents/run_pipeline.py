@@ -32,6 +32,7 @@ from scripts.agents.critic import CriticAgent
 from scripts.agents.model_research import ModelResearchAgent, find_latest_snapshot
 from scripts.agents.neutral_brief import NeutralBriefAgent
 from scripts.agents.operator_next_step import recommend_next_step
+from scripts.agents.scene_readiness import compute_scene_readiness, render_report
 from scripts.agents.pr_helper import suggest_pr
 from scripts.agents.review_outputs import ImageReviewAgent, QUALITY_SCORE_FIELDS
 from scripts.agents.scene_clip_locking import SceneClipLockingAgent
@@ -213,6 +214,14 @@ def run_generate_shot_list_omni_suggestion(args: argparse.Namespace) -> Pipeline
 
 def run_operator_next_step(args: argparse.Namespace) -> int:
     repo_root = args.repo_root.resolve()
+    if args.scene:
+        if not re.fullmatch(r"SC\d{4}", args.scene):
+            raise PipelineError(
+                f"--scene expects an SC#### id (e.g. SC0001); got {args.scene!r}"
+            )
+        report = compute_scene_readiness(repo_root=repo_root, scene_id=args.scene)
+        print(render_report(report, fmt=args.format))
+        return 0
     step = recommend_next_step(repo_root)
     if args.format == "json":
         print(json.dumps(step.to_dict(), indent=2, ensure_ascii=False))
@@ -707,6 +716,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--models")
     parser.add_argument("--save-snapshot", action="store_true")
     parser.add_argument("--scene-id")
+    parser.add_argument("--scene")
     parser.add_argument("--scene-ids")
     parser.add_argument("--model-guidance-snapshot-dir")
     parser.add_argument("--model-guidance-snapshots")

@@ -1,0 +1,61 @@
+record_type: model_guidance_snapshot
+schema_version: "0.x-draft"
+snapshot_id: "20260516T000000Z_kling_omni_video_best_available"
+internal_model_target: kling_omni_video_best_available
+provider: kling
+model_family: video_generation
+provider_surface: manual_external
+observed_at: "2026-05-16T00:00:00Z"
+expires_at: "2026-05-23T00:00:00Z"
+# human_verified: research performed by agent; sources below reviewed and
+# verified by human operator (hknbb) on 2026-05-16 before this flag was set.
+human_verified: true
+current_default_model: "Kling 3.0 Omni"
+latest_available_model: "Kling 3.0 Omni"
+best_for_this_task: "Kling 3.0 Omni"
+feature_required_model:
+  native_audio: "Kling 3.0 Omni"
+  native_audio_dialogue: "Kling 3.0 Omni"
+  multi_shot: "Kling 3.0 Omni"
+  element_reference: "Kling 3.0 Omni"
+version_policy:
+  hardcode_in_adapter: false
+  adapter_must_read_snapshot: true
+  prompt_generation_blocks_if_expired: true
+  prompt_generation_blocks_if_unverified: true
+sources:
+  - source_type: official_docs
+    title: "Magnific Kling v3 Omni API reference"
+    retrieved_at: "2026-05-16T12:00:00Z"
+    url: "https://docs.magnific.com/api-reference/video/kling-v3-omni/generate-std-video-reference"
+  - source_type: verified_platform_blog
+    title: "FAL.ai Kling 3.0 prompting guide"
+    retrieved_at: "2026-05-16T12:00:00Z"
+    url: "https://blog.fal.ai/kling-3-0-prompting-guide/"
+capabilities:
+  output_type: video
+  supports_native_audio: true
+  supports_native_audio_dialogue: true
+  supports_multi_shot: true
+  supports_camera_motion: true
+constraints:
+  max_duration_seconds: 15
+  prompt_text_max_chars: 2500
+  negative_prompt_max_chars: 2500
+  # Tier 1 (official API reference): the Kling v3 Omni endpoint exposes no
+  # separate audio/voice/dialogue parameter. Dialogue is in-prompt text only.
+  native_audio_separate_param: false
+prompting_rules:
+  - "Write cinematic direction prompts with explicit shot movement and end-state."
+  - "For multi-shot generations, label shots explicitly and keep continuity anchors stable."
+  - "Use native audio only with explicit speech constraints and compatibility checks."
+  - "Native-audio dialogue is written inline in prompt_text; there is no separate audio or voice API parameter (Magnific Kling v3 Omni API reference, Tier 1). The model converts in-prompt dialogue lines into synchronized speech and lip movement."
+  - "Render each spoken line action-first: describe the physical action, then the speaker clause, then the quoted line. Example: 'She sets the glass down. @Nadia (controlled, low voice): \"I slept.\"'"
+  - "Tag every spoken line with a stable, unique speaker label. In this repo the speaker label is the character's Kling element @alias (e.g. @Nadia), optionally followed by a parenthesised tone/delivery descriptor. Never use bare pronouns to mark a speaker."
+  - "Place a temporal connector (Immediately, Then, After a pause) between consecutive speakers so the model does not merge speech across speakers."
+  - "Keep dialogue lines short and source-grounded; never invent lines. Prefer one speaking character focus per shot."
+provenance:
+  created_by: claude-code
+  created_at: "2026-05-16T12:24:00Z"
+  updated_by: operator/hknbb
+  updated_at: "2026-05-16T12:30:00Z"

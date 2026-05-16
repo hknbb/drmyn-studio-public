@@ -1,0 +1,14 @@
+scene_id: SC0001
+prompt_id: SC0001__omni-kling-omni3-home-morning-tilted-frame__v02
+review_notes_path: evidence/video_reviews/VR_SC0001_TAKE002_R001_notes.md
+review_notes: >-
+  Usable / 88 range. identity_consistency 4, source_grounding 4,
+  style_compliance 4, continuity 5, production_usability 5. TAKE002
+  outperforms TAKE001 on continuity and production_usability (5/5 vs 4/4).
+  Strongest candidate so far; selection decision follows in next PR.
+take_ids:
+  - SC0001_TAKE002
+selected_take: null
+round_status: in_progress
+needs_prompt_revision: false
+storage_policy: external_video_only

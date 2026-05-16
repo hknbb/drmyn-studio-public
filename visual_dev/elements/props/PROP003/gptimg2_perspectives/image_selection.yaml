@@ -1,0 +1,52 @@
+element_id: PROP003
+element_type: prop
+selection_round: 1
+source_prompt_ids:
+  - SC0001__gptimg2-prop003-perspective-pack__v01
+candidate_images:
+  - asset_id: GPTIMG2_PROP003_P01_FRONT_V001
+    path: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_28_35.png
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_28_35.png
+    repo_binary_committed: false
+    status: selected
+    reason: Three-view front_reference output registered from 2026-05-16 session. Straight-on view preserving frame tilt, dust-shadow mismatch, glass reflection, and skyline photograph identity.
+    quality_scores:
+      identity_consistency: 5
+      source_grounding: 5
+      style_compliance: 5
+      continuity: 5
+      production_usability: 5
+    failure_reason: null
+  - asset_id: GPTIMG2_PROP003_P02_LEFT_V001
+    path: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_29_53.png
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_29_53.png
+    repo_binary_committed: false
+    status: selected
+    reason: Three-view left_reference output registered from 2026-05-16 session. Left profile showing frame depth, material finish, dust-shadow, and glass edge. Prop identity lock confirmed.
+    quality_scores:
+      identity_consistency: 5
+      source_grounding: 4
+      style_compliance: 5
+      continuity: 5
+      production_usability: 5
+    failure_reason: null
+  - asset_id: GPTIMG2_PROP003_P03_RIGHT_V001
+    path: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_31_05.png
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_31_05.png
+    repo_binary_committed: false
+    status: selected
+    reason: Three-view right_reference output registered from 2026-05-16 session. Right profile showing frame depth, glass reflection, dust-shadow mismatch, and skyline photograph identity preserved.
+    quality_scores:
+      identity_consistency: 5
+      source_grounding: 5
+      style_compliance: 5
+      continuity: 5
+      production_usability: 5
+    failure_reason: null
+canonical_images: []
+round_status: complete
+pack_manifest_sync: pending
+review_notes: PROP003 Vardova frame Stage 4 perspective selection gate completed by human decision. All three QC-passing external outputs selected. Source reference generated with GPT Images 2 (not Midjourney); schema source_midjourney_reference field used with CHATGPTIMG IDs per operator decision. No binary commit, lifecycle promotion, or materialized output registration applied.
+provenance:
+  created_by: operator/hknbb
+  created_at: "2026-05-16T08:31:05Z"

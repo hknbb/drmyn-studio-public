@@ -1,0 +1,25 @@
+scene_id: _elements
+created_at: "2026-05-16T08:31:05Z"
+storage_policy: external_image_only
+entries:
+  - kind: gpt_images_2_perspective_output
+    element_id_or_take_id: GPTIMG2_PROP003_P01_FRONT_V001
+    storage_backend: local_manual
+    last_seen_at: "2026-05-16T08:28:35Z"
+    repo_binary_committed: false
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_28_35.png
+    notes: Three-view front_reference output for PROP003 Vardova frame; no image binary stored in repo.
+  - kind: gpt_images_2_perspective_output
+    element_id_or_take_id: GPTIMG2_PROP003_P02_LEFT_V001
+    storage_backend: local_manual
+    last_seen_at: "2026-05-16T08:29:53Z"
+    repo_binary_committed: false
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_29_53.png
+    notes: Three-view left_reference output for PROP003 Vardova frame; no image binary stored in repo.
+  - kind: gpt_images_2_perspective_output
+    element_id_or_take_id: GPTIMG2_PROP003_P03_RIGHT_V001
+    storage_backend: local_manual
+    last_seen_at: "2026-05-16T08:31:05Z"
+    repo_binary_committed: false
+    external_storage_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 16 May 2026 08_31_05.png
+    notes: Three-view right_reference output for PROP003 Vardova frame; no image binary stored in repo.

@@ -1,0 +1,57 @@
+schema_version: "0.x-draft"
+record_type: gpt_images_perspective_pack
+prompt_pack_id: GPTIMG2_C04_PERSPECTIVE_PACK_V001
+status: draft
+source_reference_id: pending_external://C04_FRONT_HERO_LOCK_V001
+target_model: gpt_images_2
+target_role: multi_perspective_element_expander
+element_id: C04
+element_type: character
+shared_preservation_instruction: Preserve exact identity, silhouette, wardrobe/material palette, and change only perspective.
+prompts:
+  - prompt_id: GPTIMG2_C04_P01_REAR_V001
+    perspective: rear_or_side
+    prompt_text: Use the registered C04 FRONT HERO LOCK as identity anchor. Generate one single full-body rear view; back of head and shoulders centered, no facial features visible, preserve silhouette and wardrobe continuity.
+    constraints:
+      - preserve facial topology continuity from anchor
+      - preserve silhouette and wardrobe continuity
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_C04_P02_THREE_QUARTER_LEFT_V001
+    perspective: three_quarter_left
+    prompt_text: Use the registered C04 FRONT HERO LOCK as identity anchor. Generate one single full-body three-quarter-left view where the character's left shoulder is closer to camera, right cheek dominant in frame, left ear partially visible, and right ear hidden behind head.
+    constraints:
+      - preserve facial topology continuity from anchor
+      - preserve silhouette and wardrobe continuity
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_C04_P03_RIGHT_PROFILE_V001
+    perspective: right_profile_side
+    prompt_text: Use the registered C04 FRONT HERO LOCK as identity anchor. Generate one single full-body strict 90-degree right profile where the character's right ear is closest to camera and left ear is hidden behind head.
+    constraints:
+      - preserve facial topology continuity from anchor
+      - preserve silhouette and wardrobe continuity
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+  - prompt_id: GPTIMG2_C04_P04_LEFT_PROFILE_V001
+    perspective: left_profile_side
+    prompt_text: Use the registered C04 FRONT HERO LOCK as identity anchor. Generate one single full-body strict 90-degree left profile where the character's left ear is closest to camera and right ear is hidden behind head.
+    constraints:
+      - preserve facial topology continuity from anchor
+      - preserve silhouette and wardrobe continuity
+      - no costume change
+    expected_output:
+      asset_type: still
+      aspect_ratio: "1:1"
+qc_gate:
+  minimum_score: 85
+  all_perspectives_required: true
+  failed_perspective_revision_only: true
+downstream_use:
+  - kling_omni_3_shot_prompt

@@ -1,57 +1,53 @@
 schema_version: "0.x-draft"
 record_type: gpt_images_perspective_pack
 prompt_pack_id: GPTIMG2_PROP003_PERSPECTIVE_PACK_V001
-status: draft
-source_reference_id: PROP003_FRAME_IN_SITU_COMPOSITION_V001
+status: review
+source_reference_id: CHATGPTIMG_ELEMENT_PROP003_VARDOVA_FRAME_V001
 target_model: gpt_images_2
 target_role: multi_perspective_element_expander
 element_id: PROP003
 element_type: prop
-shared_preservation_instruction: Preserve PROP003 identity anchors exactly (outer frame proportions, tilt behavior, asymmetric edge wear, interior skyline legibility, material texture, and scale cues) and change only perspective framing.
+perspective_policy: three_view_no_rear
+source_refs:
+  model_guidance_snapshot_ref: evidence/model_guidance_snapshots/20260504T113000Z_chatgpt_image.yaml
+shared_preservation_instruction: Preserve exact prop identity, Vardova skyline photograph frame shape and tilt angle, dust-shadow mismatch behind frame, glass reflection quality, pale stone wall texture, and change only camera perspective.
 prompts:
-  - prompt_id: GPTIMG2_PROP003_P01_ORTHO_FRONT_V001
-    perspective: front_hero
-    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single orthographic front prop view on a neutral clean background; preserve frame proportions, edge profile, visible wear asymmetry, and interior skyline content placement.
+  - prompt_id: GPTIMG2_PROP003_P01_FRONT_V001
+    perspective: front_reference
+    prompt_text: Using the uploaded reference image as the prop identity source, generate a SINGLE production still of the same Vardova skyline photo frame. Straight-on view, frame centered on pale stone wall. Frame tilted subtly off-angle, dust-shadow mismatch visible behind frame, glass reflection present, skyline photograph image legible through glass. Early morning cool filtered light, muted pale stone wall palette. No people, no furniture, no additional objects. Photorealistic, cinematic still, clean production reference photography. No text, no watermark, no logo.
     constraints:
-      - preserve frame outer dimensions
-      - preserve interior skyline legibility
-      - no redesign
+      - preserve frame tilt angle
+      - preserve dust-shadow mismatch
+      - preserve pale stone wall
+      - no people
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
-  - prompt_id: GPTIMG2_PROP003_P02_ORTHO_SIDE_V001
-    perspective: side_depth
-    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single orthographic side prop view; preserve frame thickness profile, edge geometry transitions, and material highlights.
+      aspect_ratio: "4:3"
+  - prompt_id: GPTIMG2_PROP003_P02_LEFT_V001
+    perspective: left_reference
+    prompt_text: Using the uploaded reference image as the prop identity source, generate a SINGLE production still of the same Vardova skyline photo frame. Camera positioned to the left side of the frame. Preserve the off-angle hanging, dust-shadow mismatch behind frame, glass edge thickness, frame material and finish, pale stone wall texture, early morning filtered light. Skyline photograph partially visible through glass. No people, no furniture, no additional objects. Photorealistic, cinematic still, clean production reference photography. No text, no watermark, no logo.
     constraints:
-      - preserve side thickness ratio
-      - preserve material behavior
-      - no redesign
+      - preserve frame tilt angle
+      - preserve dust-shadow mismatch
+      - preserve glass and frame material
+      - no people
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
-  - prompt_id: GPTIMG2_PROP003_P03_ORTHO_REAR_V001
-    perspective: rear_or_side
-    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single orthographic rear prop view; preserve rear panel boundaries, mount geometry, and silhouette thickness.
+      aspect_ratio: "4:3"
+  - prompt_id: GPTIMG2_PROP003_P03_RIGHT_V001
+    perspective: right_reference
+    prompt_text: Using the uploaded reference image as the prop identity source, generate a SINGLE production still of the same Vardova skyline photo frame. Camera positioned to the right side of the frame. Preserve the off-angle hanging, dust-shadow mismatch, visible glass reflection, frame depth and edge, pale stone wall texture, early morning filtered light. Skyline photograph identity preserved. No people, no furniture, no additional objects. Photorealistic, cinematic still, clean production reference photography. No text, no watermark, no logo.
     constraints:
-      - preserve rear panel layout
-      - preserve silhouette continuity
-      - no redesign
+      - preserve frame tilt angle
+      - preserve dust-shadow mismatch
+      - preserve glass reflection
+      - no people
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
-  - prompt_id: GPTIMG2_PROP003_P04_TOP_ORTHOGRAPHIC_V001
-    perspective: detail_or_threshold
-    prompt_text: Use the registered PROP003 hero/reference as strict continuity anchor. Generate one single top orthographic prop view; preserve top-edge profile, corner geometry, and scale cues.
-    constraints:
-      - preserve top-edge profile
-      - preserve corner geometry
-      - no redesign
-    expected_output:
-      asset_type: still
-      aspect_ratio: "1:1"
+      aspect_ratio: "4:3"
 qc_gate:
   minimum_score: 85
   all_perspectives_required: true
   failed_perspective_revision_only: true
 downstream_use:
-  - prop_continuity_reference
+  - kling_omni_3_shot_prompt

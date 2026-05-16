@@ -1,0 +1,18 @@
+session_id: OP-PROD-LINE-C01-THREE-VIEW-2026-05-15
+created_at: "2026-05-15T22:00:00Z"
+scene_id: SC0001
+current_task: Review and approve C01 three-view GPT Images 2 perspective outputs
+recommended_files:
+  - visual_dev/elements/characters/C01/gpt_images_perspective_pack.yaml
+  - evidence/local_media_indices/LOCAL_MEDIA_INDEX_C01_GPTIMG2_PERSPECTIVES_V001.yaml
+  - visual_dev/elements/characters/C01/gptimg2_perspectives/image_selection.yaml
+  - evidence/perspective_qc/PQC_C01_PERSPECTIVE_PACK_V001.yaml
+  - visual_dev/elements/characters/C01/kling_element_reference.yaml
+  - visual_dev/omni_sets/SC0001/element_bindings.yaml
+recommended_steps:
+  - Confirm three-view outputs (front_reference, left_reference, right_reference) meet identity lock requirements.
+  - Verify all three perspective scores reach 85+ threshold.
+  - Approve can_advance_to_kling_reference in PQC record.
+  - Create element_bindings.yaml with C01 @Nadia and C03 @Birta stubs.
+status: complete
+notes: Human operator reviewed ChatGPT Images 2 outputs from 2026-05-15 session. front_reference 91, left_reference 88, right_reference 85. All pass 85+ gate. right_reference red lip noted; wardrobe WD001 governs final look. C03 @Birta stub included so dialogue validators resolve.

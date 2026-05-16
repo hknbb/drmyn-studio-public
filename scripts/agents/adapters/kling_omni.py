@@ -28,6 +28,39 @@ from scripts.agents.model_guidance_resolver import (
 CANONICAL_ID_RE = re.compile(r"\b(SC\d{4}|C\d{2}|LOC\d{3}|PROP\d{3}|WD\d{3})\b")
 CHARACTER_ID_RE = re.compile(r"^C\d{2}$")
 
+# Strict canonical-id leak guard for element-first Kling Omni 3 prompts.
+# Matches any repo-canonical element identifier (C##, LOC###, LOC###_SUBAREA,
+# PROP###, WD###, STYLE###). When the strict gate is active the synthesized
+# prompt_text must reference elements only through their @alias values; raw
+# canonical IDs must not leak into the text Kling receives.
+ELEMENT_CANONICAL_ID_LEAK_RE = re.compile(
+    r"\b(C\d{2}|LOC\d{3}(?:_[A-Z0-9_]+)?|PROP\d{3}|WD\d{3}|STYLE\d{3})\b"
+)
+MANIFEST_READY_GATE_STATUS = "all_elements_ready"
+
+# Matches screenplay-style speaker cues: SPEAKERNAME: "..." or NAME (CONT'D): "..."
+# Handles truncated lines (no closing quote). Used to strip dialogue from prompt_action
+# when the audio_plan component owns the spoken content.
+SCREENPLAY_CUE_RE = re.compile(
+    r"""\b[A-Z]{2,}(?:\s+\(CONT'D\))?\s*:\s*"[^"]*"?"""
+)
+
+
+def _assert_no_canonical_id_leak(prompt_text: str) -> None:
+    """Raise KlingOmniAdapterError if a repo-canonical element ID leaks into prompt_text.
+
+    The element-first contract requires Kling Omni 3 prompts to reference
+    elements only via their registered @alias. Canonical IDs (``C01``,
+    ``LOC001``, ``PROP003`` and so on) belong in YAML metadata fields, not
+    in the prompt text the model sees.
+    """
+    matches = sorted({m.group(0) for m in ELEMENT_CANONICAL_ID_LEAK_RE.finditer(prompt_text)})
+    if matches:
+        raise KlingOmniAdapterError(
+            "prompt_text leaks repo-canonical element ids that must appear "
+            "only as registered @aliases: " + ", ".join(matches)
+        )
+
 # Binding statuses that mean the element is active in Kling Element Library
 ACTIVE_BINDING_STATUSES = frozenset({"created", "voice_capable", "voice_locked"})
 
@@ -105,6 +138,126 @@ def _sanitize_prompt_text(text: str) -> str:
     text = CANONICAL_ID_RE.sub("the referenced production element", text)
     text = re.sub(r"\.{2,}", ".", text)
     return " ".join(text.split())
+
+
+def _strip_screenplay_dialogue(prompt_action: str) -> str:
+    """Remove SPEAKER: \"...\" cues from prompt_action when audio_plan owns spoken content."""
+    stripped = SCREENPLAY_CUE_RE.sub("", prompt_action).strip()
+    return " ".join(stripped.split())
+
+
+def _load_dialogue_beats_lines(dialogue_beats_ref: str, repo_root: Path) -> list[dict[str, Any]]:
+    """Load dialogue_lines list from a dialogue_beats.yaml file."""
+    path = repo_root / dialogue_beats_ref
+    doc = _read_yaml(path)
+    if not doc:
+        return []
+    lines = doc.get("dialogue_lines")
+    if not isinstance(lines, list):
+        return []
+    return [line for line in lines if isinstance(line, dict)]
+
+
+def _build_audio_plan_component(
+    shots: list[dict[str, Any]],
+    dialogue_lines: list[dict[str, Any]],
+    readiness_map: dict[str, str],
+    alias_map: dict[str, str],
+) -> str:
+    """Build the audio_plan component text (omni_prompt_component_model position #8).
+
+    Returns empty string if no dialogue lines apply to this clip's shots.
+    Returns the suppression note if any speaking element is not
+    native_audio_readiness: ready (per kling_native_audio_pass_policy).
+    Returns verified-syntax dialogue (action-first, @alias-tagged) when all
+    speakers are ready.
+    """
+    if not dialogue_lines:
+        return ""
+
+    # Collect beat IDs and line IDs referenced by this clip's shots.
+    shot_beat_ids: set[str] = set()
+    shot_dlg_ids: set[str] = set()
+    for shot in shots:
+        if not isinstance(shot, dict):
+            continue
+        for bid in shot.get("source_beat_ids") or []:
+            if isinstance(bid, str):
+                shot_beat_ids.add(bid)
+        for did in shot.get("dialogue_line_ids") or []:
+            if isinstance(did, str):
+                shot_dlg_ids.add(did)
+
+    # Filter to lines belonging to this clip; exclude implied lines.
+    # Prefer explicit dialogue_line_ids when present — beat overlap is a fallback
+    # only for clips that carry no explicit line-level scoping. This prevents split
+    # dialogue beats from pulling in lines assigned to a different clip in the same beat.
+    if shot_dlg_ids:
+        clip_lines = [
+            line for line in dialogue_lines
+            if line.get("line_id") in shot_dlg_ids
+            and line.get("line_type") != "implied"
+        ]
+    else:
+        clip_lines = [
+            line for line in dialogue_lines
+            if line.get("target_beat_id") in shot_beat_ids
+            and line.get("line_type") != "implied"
+        ]
+
+    if not clip_lines:
+        return ""
+
+    # Collect speaking element IDs.
+    speaking_ids: set[str] = set()
+    for line in clip_lines:
+        eid = line.get("speaker_element_id")
+        if isinstance(eid, str) and eid:
+            speaking_ids.add(eid)
+
+    # Readiness gate: all speakers must be native_audio_readiness: ready.
+    not_ready = [eid for eid in sorted(speaking_ids) if readiness_map.get(eid) != "ready"]
+    if not_ready:
+        return (
+            "Audio plan suppressed: one or more speaking elements are not "
+            "native_audio_readiness: ready. Dialogue line text omitted from prompt_text."
+        )
+
+    # All ready — render in verified Omni 3 native-audio dialogue syntax.
+    # Format per kling_omni guide rule native_audio_dialogue_format:
+    # @alias (tone descriptor): "line" Immediately, @alias2 (...): "line2"
+    rendered: list[str] = []
+    for i, line in enumerate(clip_lines):
+        eid = line.get("speaker_element_id", "")
+        alias = alias_map.get(eid) or line.get("speaker_kling_alias", "")
+        if not alias:
+            continue
+        delivery = line.get("delivery_note", "") or ""
+        line_text = line.get("line_text", "") or ""
+        line_type = line.get("line_type", "spoken")
+
+        if not line_text:
+            continue
+
+        if line_type == "offscreen":
+            tone = "offscreen"
+        elif delivery:
+            tone = re.split(r"[.,]", delivery)[0].strip()
+            if len(tone) > 40:
+                tone = tone[:40]
+        else:
+            tone = ""
+
+        alias_tag = f"{alias} ({tone})" if tone else alias
+        clause = f'{alias_tag}: "{line_text}"'
+        if i > 0:
+            clause = "Immediately, " + clause
+        rendered.append(clause)
+
+    if not rendered:
+        return ""
+
+    return "Audio plan: " + " ".join(rendered)
 
 
 def _load_element_aliases(scene_id: str, repo_root: Path) -> tuple[dict[str, str], set[str]]:
@@ -315,6 +468,7 @@ class KlingOmniAdapter:
         variant_mode: str = "safe",
         render_pass: str = "visual_test",
         quality_tier: str = "test_720p",
+        shot_element_manifest_ref: str | Path | None = None,
     ) -> KlingOmniBuildResult:
         """Generate prompt/run records from a single omni_clip_manifest.yaml.
 
@@ -326,6 +480,15 @@ class KlingOmniAdapter:
             variant_mode: Prompt variant mode (safe|creative|aggressive)
             render_pass: Render pass stage
             quality_tier: Render quality tier
+            shot_element_manifest_ref: Optional path to the shot_element_manifest
+                that gates this clip's element registration. When provided, the
+                adapter enters strict element-first mode: it refuses to emit a
+                prompt unless the manifest declares
+                ``gate_status: all_elements_ready``, at least one required
+                element resolves to an active Kling alias, and the synthesized
+                ``prompt_text`` does not leak any repo-canonical element ids.
+                The reference is also embedded in ``generation_params`` so
+                downstream prompt-record validation enforces the same gate.
 
         Returns:
             KlingOmniBuildResult with prompt_record and run_record
@@ -347,6 +510,27 @@ class KlingOmniAdapter:
 
         self._validate_manifest_shape(manifest)
 
+        strict_element_first = shot_element_manifest_ref is not None
+        shot_manifest_data: dict[str, Any] | None = None
+        shot_manifest_rel: str | None = None
+        if strict_element_first:
+            shot_manifest_path = Path(shot_element_manifest_ref)
+            if not shot_manifest_path.is_absolute():
+                shot_manifest_path = self.repo_root / shot_manifest_path
+            shot_manifest_data = _read_yaml(shot_manifest_path)
+            if not isinstance(shot_manifest_data, dict):
+                raise KlingOmniAdapterError(
+                    f"Missing or unreadable shot_element_manifest: {shot_manifest_path}"
+                )
+            declared_gate = shot_manifest_data.get("gate_status")
+            if declared_gate != MANIFEST_READY_GATE_STATUS:
+                raise KlingOmniAdapterError(
+                    "shot_element_manifest gate_status is "
+                    f"{declared_gate!r}; Kling Omni 3 prompt synthesis requires "
+                    f"{MANIFEST_READY_GATE_STATUS!r}"
+                )
+            shot_manifest_rel = _relative(shot_manifest_path, self.repo_root)
+
         scene_id = manifest["scene_id"]
         clip_id = manifest["clip_id"]
         shots = manifest["shots"]
@@ -364,6 +548,15 @@ class KlingOmniAdapter:
 
         # Load active element aliases for this scene
         alias_map, char_ids = _load_element_aliases(scene_id, self.repo_root)
+
+        # Load dialogue beats lines and readiness map unconditionally so both the
+        # audio_plan component and the existing audio gate block share one load.
+        dialogue_beats_lines_data = (
+            _load_dialogue_beats_lines(dialogue_beats_ref, self.repo_root)
+            if dialogue_beats_ref
+            else []
+        )
+        readiness_map_data = _load_audio_readiness(scene_id, self.repo_root)
 
         # Collect clip-level required element IDs (union of all shot-level IDs)
         clip_elem_ids: list[str] = list(manifest.get("required_element_ids") or [])
@@ -383,6 +576,14 @@ class KlingOmniAdapter:
                 seen_aliases[alias] = None
                 required_aliases.append(alias)
 
+        if strict_element_first and not required_aliases:
+            raise KlingOmniAdapterError(
+                "shot_element_manifest_ref is set but the omni_clip_manifest "
+                "resolves to zero active Kling aliases; element-first synthesis "
+                "requires at least one element_binding with binding_status "
+                "'created' or better that matches the clip's required_element_ids"
+            )
+
         prompt_text, alias_warnings = self._build_prompt_text_with_aliases(
             shots=shots,
             total_duration=total_duration,
@@ -393,6 +594,9 @@ class KlingOmniAdapter:
             char_ids=char_ids,
             required_aliases=required_aliases,
             beat_content_lookup=beat_plan_lookup,
+            strict_element_first=strict_element_first,
+            dialogue_beats_lines=dialogue_beats_lines_data or None,
+            readiness_map=readiness_map_data,
         )
 
         # Warn about planned-only elements (in required_element_ids but not active)
@@ -438,6 +642,9 @@ class KlingOmniAdapter:
         if required_aliases:
             generation_params["required_element_aliases"] = required_aliases
 
+        if shot_manifest_rel is not None:
+            generation_params["shot_element_manifest_ref"] = shot_manifest_rel
+
         audio_enabled = bool(kling_native_audio.get("enabled"))
         gate_status = "allowed_audio_off"
         gate_reason = "audio_not_requested"
@@ -461,8 +668,7 @@ class KlingOmniAdapter:
                         eid in char_ids or bool(CHARACTER_ID_RE.match(eid))
                     ):
                         speaking_ids.add(eid)
-            readiness = _load_audio_readiness(scene_id, self.repo_root)
-            not_ready = [eid for eid in sorted(speaking_ids) if readiness.get(eid) != "ready"]
+            not_ready = [eid for eid in sorted(speaking_ids) if readiness_map_data.get(eid) != "ready"]
             if not_ready:
                 gate_status = "blocked"
                 gate_reason = "speaker_not_ready:" + ",".join(not_ready)
@@ -640,8 +846,17 @@ class KlingOmniAdapter:
         char_ids: set[str],
         required_aliases: list[str],
         beat_content_lookup: dict[str, str] | None = None,
+        strict_element_first: bool = False,
+        dialogue_beats_lines: list[dict[str, Any]] | None = None,
+        readiness_map: dict[str, str] | None = None,
     ) -> tuple[str, list[str]]:
         """Build prompt text with element alias injection and pronoun rewriting.
+
+        When ``strict_element_first`` is False (legacy callers) and there are
+        no active aliases, this falls back to plain text synthesis. When the
+        flag is True the caller has already validated that
+        ``required_aliases`` is non-empty, so the fallback path is unreachable
+        and the prompt is built with @alias injection only.
 
         Returns:
             (prompt_text, warnings)
@@ -649,7 +864,13 @@ class KlingOmniAdapter:
         all_warnings: list[str] = []
 
         if not required_aliases:
-            # No active aliases — fall back to plain text
+            if strict_element_first:
+                raise KlingOmniAdapterError(
+                    "element-first Kling Omni prompt synthesis cannot fall back "
+                    "to plain text: no active Kling aliases were resolved from "
+                    "the omni_clip_manifest's required_element_ids"
+                )
+            # No active aliases — fall back to plain text (legacy path)
             return (
                 self._build_prompt_text_from_manifest(
                     shots,
@@ -677,6 +898,11 @@ class KlingOmniAdapter:
                 full = beat_content_lookup.get(source_beat_ids[0], "")
                 if full:
                     raw_action = full
+            # Strip screenplay dialogue cues from action when audio_plan owns the speech.
+            if dialogue_beats_lines is not None and shot.get("dialogue_line_ids"):
+                raw_action = _strip_screenplay_dialogue(raw_action)
+                if not raw_action:
+                    raw_action = "Scene exchange plays out."
             shot_elem_ids: list[str] = list(shot.get("required_element_ids") or [])
 
             rewritten, warnings = _rewrite_shot_action(
@@ -689,12 +915,26 @@ class KlingOmniAdapter:
                 "Action resolves into a settled end state."
             )
 
+        # Component #8: audio_plan (omni_prompt_component_model position after camera_grammar)
+        if dialogue_beats_lines is not None:
+            audio_part = _build_audio_plan_component(
+                shots, dialogue_beats_lines, readiness_map or {}, alias_map
+            )
+            if audio_part:
+                parts.append(audio_part)
+
         parts.append(f"Continuity: {continuity_mode}.")
         parts.append(
             f"Keep clip at {total_duration} seconds. Do not add new story facts."
         )
 
-        text = _sanitize_prompt_text(" ".join(p for p in parts if p))
+        raw_joined = " ".join(p for p in parts if p)
+        if strict_element_first:
+            # Catch authoring mistakes loudly: in strict mode the sanitizer is
+            # not a silent safety net. Canonical ids must never appear in the
+            # source shot_action / beat content the operator authored.
+            _assert_no_canonical_id_leak(raw_joined)
+        text = _sanitize_prompt_text(raw_joined)
 
         # Hard limit: 2500 characters (Kling API)
         if len(text) > 2500:

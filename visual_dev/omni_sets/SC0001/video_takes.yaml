@@ -1,0 +1,48 @@
+scene_id: SC0001
+prompt_id: SC0001__omni-kling-omni3-home-morning-tilted-frame__v02
+takes:
+  - take_id: SC0001_TAKE001
+    platform_asset_ref: kling_20260516_VIDEO___Element1_3885_0
+    external_storage_ref: >-
+      external://local_manual/drmyn-studio-images/kling_20260516_VIDEO___Element1_3885_0.mp4
+    local_proxy_ref: null
+    repo_binary_committed: false
+    storage_status: stored_external
+    status: candidate
+    reason: >-
+      First Kling Omni draft take for SC0001 SH001. Prompt v02 alias-only;
+      elements attached: @Nadia, @ValeResidenceKitchenPassage, @VardovaFrame.
+      Generated 2026-05-16. QC round 1 complete: usable 80-89 range, second
+      generation pass advised. Review: VR_SC0001_TAKE001_R001.
+    quality_scores:
+      identity_consistency: 4
+      source_grounding: 4
+      style_compliance: 4
+      continuity: 4
+      production_usability: 4
+    failure_reason: null
+  - take_id: SC0001_TAKE002
+    platform_asset_ref: kling_20260516_VIDEO___Element1_4010_0
+    external_storage_ref: >-
+      external://local_manual/drmyn-studio-images/kling_20260516_VIDEO___Element1_4010_0.mp4
+    local_proxy_ref: null
+    repo_binary_committed: false
+    storage_status: stored_external
+    status: selected
+    reason: >-
+      Second Kling Omni draft take for SC0001 SH001. Same prompt v02 alias-only;
+      elements attached: @Nadia, @ValeResidenceKitchenPassage, @VardovaFrame.
+      Generated 2026-05-16. QC round 1: 4/4/4/5/5 (88 range), outperforms
+      TAKE001 on continuity and production_usability. Selected by operator.
+      Review: VR_SC0001_TAKE002_R001.
+    quality_scores:
+      identity_consistency: 4
+      source_grounding: 4
+      style_compliance: 4
+      continuity: 5
+      production_usability: 5
+    failure_reason: null
+selected_take: SC0001_TAKE002
+round_status: complete
+needs_prompt_revision: false
+storage_policy: external_video_only

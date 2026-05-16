@@ -41,6 +41,9 @@ from tools.copilot_dashboard.asset_intake_panel import (
     VIEW_ROLE_OPTIONS,
     ALLOWED_IMAGE_SUFFIXES,
 )
+from tools.copilot_dashboard.scene_readiness_panel import (
+    render_panel as render_scene_readiness_panel,
+)
 
 
 def _stringify_record(record: dict[str, Any]) -> dict[str, str]:
@@ -376,6 +379,7 @@ def main() -> None:
         st.write("No allowed commands.")
 
     _render_command_controls(recommendation)
+    render_scene_readiness_panel(st, REPO_ROOT)
     _render_review_panels()
     _render_asset_intake_panel()
     _render_pr_panel()

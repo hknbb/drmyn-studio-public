@@ -1,54 +1,46 @@
 schema_version: "0.x-draft"
 record_type: gpt_images_perspective_pack
 prompt_pack_id: GPTIMG2_C01_PERSPECTIVE_PACK_V001
-status: draft
+status: review
 source_reference_id: MJ_ELEMENT_C01_HERO_LOCKED_V001
 target_model: gpt_images_2
 target_role: multi_perspective_element_expander
 element_id: C01
 element_type: character
+source_refs:
+  model_guidance_snapshot_ref: evidence/model_guidance_snapshots/20260504T113000Z_chatgpt_image.yaml
 shared_preservation_instruction: Preserve exact identity, silhouette, wardrobe/material palette, and change only perspective.
 prompts:
   - prompt_id: GPTIMG2_C01_P01_FRONT_V001
-    perspective: front_hero
-    prompt_text: Front hero perspective of C01; preserve identity anchors and wardrobe geometry.
+    perspective: front_reference
+    prompt_text: Using the uploaded reference image as the character identity source, generate a SINGLE studio portrait of the same woman. Full body, front view, head to toe, feet visible. Early thirties, lean upright posture, short wavy dark bob hair, controlled watchful expression, looking straight ahead. Wardrobe full coverage, pale stone or warm grey tones. No jewelry, no necklace, natural minimal makeup. Pure white seamless studio backdrop, flat soft even lighting, no shadows, no reflections. No props, no furniture, no background objects. Single character only. No text, no watermark, no logo.
     constraints:
       - preserve facial topology
       - preserve muted domestic palette
       - no costume change
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
+      aspect_ratio: "2:3"
   - prompt_id: GPTIMG2_C01_P02_LEFT_V001
-    perspective: three_quarter_left
-    prompt_text: Three-quarter left perspective of C01; preserve exact identity and silhouette.
+    perspective: left_reference
+    prompt_text: Using the uploaded reference image as the character identity source, generate a SINGLE studio portrait of the same woman. Knees-up framing, left profile view (character facing left, left side visible). Early thirties, lean upright posture, short wavy dark bob hair, controlled watchful expression. Wardrobe full coverage, pale stone or warm grey tones. No jewelry, no necklace, natural minimal makeup. Pure white seamless studio backdrop, flat soft even lighting, no shadows, no reflections. No props, no furniture, no background objects. Single character only. No text, no watermark, no logo.
     constraints:
       - preserve facial topology
       - preserve muted domestic palette
       - no costume change
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
+      aspect_ratio: "2:3"
   - prompt_id: GPTIMG2_C01_P03_RIGHT_V001
-    perspective: three_quarter_right
-    prompt_text: Three-quarter right perspective of C01; preserve exact identity and silhouette.
+    perspective: right_reference
+    prompt_text: Using the uploaded reference image as the character identity source, generate a SINGLE studio portrait of the same woman. Waist-up framing, right profile view (character facing right, right side visible). Early thirties, lean upright posture, short wavy dark bob hair, controlled watchful expression. Wardrobe full coverage, pale stone or warm grey tones. No jewelry, no necklace, natural minimal makeup. Pure white seamless studio backdrop, flat soft even lighting, no shadows, no reflections. No props, no furniture, no background objects. Single character only. No text, no watermark, no logo.
     constraints:
       - preserve facial topology
       - preserve muted domestic palette
       - no costume change
     expected_output:
       asset_type: still
-      aspect_ratio: "1:1"
-  - prompt_id: GPTIMG2_C01_P04_REAR_V001
-    perspective: rear_or_side
-    prompt_text: Rear or side perspective of C01; preserve hair shape, silhouette, and wardrobe material logic.
-    constraints:
-      - preserve silhouette continuity
-      - preserve accessory continuity
-      - no costume change
-    expected_output:
-      asset_type: still
-      aspect_ratio: "1:1"
+      aspect_ratio: "2:3"
 qc_gate:
   minimum_score: 85
   all_perspectives_required: true

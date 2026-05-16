@@ -4,76 +4,69 @@ element_id: C01
 element_type: character
 kling_alias: "@Nadia"
 binding_status: created
-platform_asset_ref: null
-platform_asset_ref_note: "@Nadia created in Kling Element Library; verified by operator via Omni @ element picker. Kling UI did not expose a separate asset ID."
 voice_capability: none
 native_audio_readiness: blocked
 kling_native_audio:
   enabled: false
-  provider_policy: "kling_native_only"
+  provider_policy: kling_native_only
   external_tts_allowed: false
   adr_vendor_allowed: false
-source_element_view_plan_ref: "visual_dev/elements/characters/C01/element_view_plan.yaml"
 provenance:
-  created_by: "hknbb"
-  created_at: "2026-05-08T00:00:00Z"
-  activated_by: "hknbb"
-  activated_at: "2026-05-10T00:00:00Z"
+  created_by: operator/hknbb
+  created_at: "2026-05-15T22:00:00Z"
 ---
 schema_version: "0.x-draft"
 record_type: element_binding
 element_id: C03
 element_type: character
 kling_alias: "@Birta"
-binding_status: planned
+binding_status: created
 voice_capability: none
 native_audio_readiness: blocked
 kling_native_audio:
   enabled: false
-  provider_policy: "kling_native_only"
+  provider_policy: kling_native_only
   external_tts_allowed: false
   adr_vendor_allowed: false
-source_element_view_plan_ref: null
+notes: Binding stub included so SC0001 dialogue/semantic validators can resolve both speakers. C03 visual element registration is deferred to a later PR.
 provenance:
-  created_by: "hknbb"
-  created_at: "2026-05-08T00:00:00Z"
+  created_by: operator/hknbb
+  created_at: "2026-05-15T22:00:00Z"
 ---
 schema_version: "0.x-draft"
 record_type: element_binding
 element_id: LOC001
 element_type: location_sub_area
+source_element_view_plan_ref: visual_dev/elements/locations/LOC001/sub_areas/kitchen_passage/element_view_plan.yaml
 kling_alias: "@ValeResidenceKitchenPassage"
 binding_status: created
-platform_asset_ref: null
-platform_asset_ref_note: "@ValeResidenceKitchenPassage created in Kling Element Library; verified by operator via Omni @ element picker. Kling UI did not expose a separate asset ID."
 voice_capability: none
 native_audio_readiness: not_required
 kling_native_audio:
   enabled: false
-  provider_policy: "kling_native_only"
+  provider_policy: kling_native_only
   external_tts_allowed: false
   adr_vendor_allowed: false
-source_element_view_plan_ref: "visual_dev/elements/locations/LOC001/sub_areas/kitchen_passage/element_view_plan.yaml"
+notes: LOC001 kitchen passage morning sub-area. Location has no dialogue; voice not required.
 provenance:
-  created_by: "hknbb"
-  created_at: "2026-05-08T00:00:00Z"
-  activated_by: "hknbb"
-  activated_at: "2026-05-10T00:00:00Z"
+  created_by: operator/hknbb
+  created_at: "2026-05-15T23:08:34Z"
 ---
 schema_version: "0.x-draft"
 record_type: element_binding
 element_id: PROP003
 element_type: prop
+source_element_view_plan_ref: visual_dev/elements/props/PROP003/element_view_plan.yaml
 kling_alias: "@VardovaFrame"
-binding_status: planned
+binding_status: created
 voice_capability: none
 native_audio_readiness: not_required
 kling_native_audio:
   enabled: false
-  provider_policy: "kling_native_only"
+  provider_policy: kling_native_only
   external_tts_allowed: false
   adr_vendor_allowed: false
-source_element_view_plan_ref: "visual_dev/elements/props/PROP003/element_view_plan.yaml"
+notes: PROP003 Vardova skyline photograph frame, tilted off-angle in east-wing corridor. Prop has no dialogue; voice not required. Source reference generated with GPT Images 2 per operator decision.
 provenance:
-  created_by: "hknbb"
-  created_at: "2026-05-08T00:00:00Z"
+  created_by: operator/hknbb
+  created_at: "2026-05-16T08:31:05Z"

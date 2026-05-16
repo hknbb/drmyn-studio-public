@@ -1,0 +1,41 @@
+schema_version: "0.x-draft"
+record_type: perspective_qc_report
+perspective_qc_id: PQC_PROP003_PERSPECTIVE_PACK_V001
+status: approved
+scene_id: SC0001
+element_id: PROP003
+prompt_pack_id: GPTIMG2_PROP003_PERSPECTIVE_PACK_V001
+operator_session_ref: OP-PROD-LINE-PROP003-THREE-VIEW-2026-05-16
+perspective_scores:
+  - prompt_id: GPTIMG2_PROP003_P01_FRONT_V001
+    perspective: front_reference
+    identity_preservation: 95
+    perspective_usefulness: 95
+    material_palette_continuity: 95
+    production_reference_cleanliness: 95
+    hallucination_absence: 95
+    total_score: 95
+    decision: pass
+  - prompt_id: GPTIMG2_PROP003_P02_LEFT_V001
+    perspective: left_reference
+    identity_preservation: 90
+    perspective_usefulness: 88
+    material_palette_continuity: 92
+    production_reference_cleanliness: 92
+    hallucination_absence: 90
+    total_score: 91
+    decision: pass
+  - prompt_id: GPTIMG2_PROP003_P03_RIGHT_V001
+    perspective: right_reference
+    identity_preservation: 92
+    perspective_usefulness: 95
+    material_palette_continuity: 92
+    production_reference_cleanliness: 95
+    hallucination_absence: 95
+    total_score: 94
+    decision: pass
+gate:
+  minimum_score: 85
+  all_perspectives_required: true
+  can_advance_to_kling_reference: true
+notes: Human operator reviewed GPT Images 2 outputs from 2026-05-16 session. front_reference 95, left_reference 91, right_reference 94. All three pass 85+ gate. Source reference generated with GPT Images 2 (CHATGPTIMG_ELEMENT_PROP003_VARDOVA_FRAME_V001); schema source_midjourney_reference field used with CHATGPTIMG IDs per operator decision documented in image_selection.yaml review_notes. Frame tilt, dust-shadow mismatch, glass reflection, and Vardova skyline identity locked across all three views.

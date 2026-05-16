@@ -71,6 +71,14 @@
         "other"
       ]
     },
+    "perspective_policy": {
+      "type": "string",
+      "enum": [
+        "legacy_four_view",
+        "three_view_no_rear"
+      ],
+      "description": "Newly authored element-first records after PR-0 use three_view_no_rear: front_reference, left_reference, right_reference. legacy_four_view exists only for historical records that remain outside the clean SC0001 baseline."
+    },
     "shared_preservation_instruction": {
       "type": "string",
       "minLength": 1
@@ -94,75 +102,56 @@
         "midjourney_prompt_ref": {
           "type": "string",
           "minLength": 1
+        },
+        "model_guidance_snapshot_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to the model_guidance_snapshot YAML governing the model + version used for external generation of these perspective prompts. Mirrors generation_params.model_guidance_snapshot_ref on prompt_record."
         }
       }
     },
     "prompts": {
-      "type": "array",
-      "minItems": 4,
-      "maxItems": 4,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "prompt_id",
-          "perspective",
-          "prompt_text",
-          "constraints",
-          "expected_output"
-        ],
-        "properties": {
-          "prompt_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "perspective": {
-            "type": "string",
-            "enum": [
-              "front_hero",
-              "three_quarter_left",
-              "three_quarter_right",
-              "rear_or_side",
-              "reverse_angle",
-              "side_depth",
-              "detail_or_threshold",
-              "usage_angle",
-              "scale_or_context"
-            ]
-          },
-          "prompt_text": {
-            "type": "string",
-            "minLength": 1
-          },
-          "constraints": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "expected_output": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "asset_type"
-            ],
-            "properties": {
-              "asset_type": {
-                "type": "string",
-                "enum": [
-                  "still",
-                  "image_set"
-                ]
+      "oneOf": [
+        {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/legacyPerspectivePrompt"
+          }
+        },
+        {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "allOf": [
+            {
+              "contains": {
+                "$ref": "#/$defs/frontReferencePrompt"
               },
-              "aspect_ratio": {
-                "type": "string",
-                "minLength": 1
-              }
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "$ref": "#/$defs/leftReferencePrompt"
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "$ref": "#/$defs/rightReferencePrompt"
+              },
+              "minContains": 1,
+              "maxContains": 1
             }
+          ],
+          "items": {
+            "$ref": "#/$defs/threeViewPerspectivePrompt"
           }
         }
-      }
+      ]
     },
     "qc_gate": {
       "type": "object",
@@ -193,6 +182,136 @@
       "items": {
         "type": "string",
         "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "basePerspectivePrompt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "prompt_id",
+        "perspective",
+        "prompt_text",
+        "constraints",
+        "expected_output"
+      ],
+      "properties": {
+        "prompt_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "perspective": {
+          "type": "string"
+        },
+        "prompt_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "expected_output": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "asset_type"
+          ],
+          "properties": {
+            "asset_type": {
+              "type": "string",
+              "enum": [
+                "still",
+                "image_set"
+              ]
+            },
+            "aspect_ratio": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "legacyPerspectivePrompt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePerspectivePrompt"
+        },
+        {
+          "properties": {
+            "perspective": {
+              "enum": [
+                "front_hero",
+                "three_quarter_left",
+                "three_quarter_right",
+                "rear_or_side",
+                "reverse_angle",
+                "side_depth",
+                "detail_or_threshold",
+                "usage_angle",
+                "scale_or_context",
+                "left_profile_side",
+                "right_profile_side"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "threeViewPerspectivePrompt": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/basePerspectivePrompt"
+        },
+        {
+          "properties": {
+            "perspective": {
+              "enum": [
+                "front_reference",
+                "left_reference",
+                "right_reference"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "frontReferencePrompt": {
+      "type": "object",
+      "required": [
+        "perspective"
+      ],
+      "properties": {
+        "perspective": {
+          "const": "front_reference"
+        }
+      }
+    },
+    "leftReferencePrompt": {
+      "type": "object",
+      "required": [
+        "perspective"
+      ],
+      "properties": {
+        "perspective": {
+          "const": "left_reference"
+        }
+      }
+    },
+    "rightReferencePrompt": {
+      "type": "object",
+      "required": [
+        "perspective"
+      ],
+      "properties": {
+        "perspective": {
+          "const": "right_reference"
+        }
       }
     }
   }

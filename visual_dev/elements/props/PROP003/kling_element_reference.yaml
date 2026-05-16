@@ -1,0 +1,25 @@
+schema_version: "0.x-draft"
+record_type: kling_element_reference_record
+kling_element_reference_id: KLING_REF_PROP003_VARDOVA_FRAME_V001
+status: review
+element_id: PROP003
+element_type: prop
+source_midjourney_reference:
+  reference_id: CHATGPTIMG_ELEMENT_PROP003_VARDOVA_FRAME_V001
+  prompt_id: CHATGPTIMG_PROMPT_PROP003_VARDOVA_FRAME_V001
+gpt_images_2_perspectives:
+  front_reference: GPTIMG2_PROP003_P01_FRONT_V001
+  left_reference: GPTIMG2_PROP003_P02_LEFT_V001
+  right_reference: GPTIMG2_PROP003_P03_RIGHT_V001
+continuity_anchors:
+  - fixed frame tilt angle off horizontal
+  - fixed dust-shadow mismatch behind frame on pale stone wall
+  - fixed dark aged frame with subtle gold trim
+  - fixed Vardova skyline photograph identity through glass
+  - fixed glass reflection quality
+approval_gate:
+  all_perspectives_score_85_plus: true
+  operator_approved: true
+  operator_session_ref: OP-PROD-LINE-PROP003-THREE-VIEW-2026-05-16
+downstream_use:
+  - kling_omni_3_shot_prompt

@@ -1,0 +1,53 @@
+schema_version: "0.x-draft"
+record_type: gpt_images_perspective_pack
+prompt_pack_id: GPTIMG2_LOC001_PERSPECTIVE_PACK_V001
+status: review
+source_reference_id: MJ_ELEMENT_LOC001_KITCHEN_PASSAGE_HERO_V001
+target_model: gpt_images_2
+target_role: multi_perspective_element_expander
+element_id: LOC001
+element_type: location
+perspective_policy: three_view_no_rear
+source_refs:
+  model_guidance_snapshot_ref: evidence/model_guidance_snapshots/20260504T113000Z_chatgpt_image.yaml
+shared_preservation_instruction: Preserve exact spatial identity, pale stone corridor geometry, art photograph wall sequence on right wall, geometric window light pattern on floor, empty passage, and change only camera perspective.
+prompts:
+  - prompt_id: GPTIMG2_LOC001_P01_FRONT_V001
+    perspective: front_reference
+    prompt_text: Using the uploaded reference image as the location identity source, generate a SINGLE architectural interior still of the same pale stone corridor. Wide establishing view, camera at corridor entry looking straight inward along the long axis, full depth visible. Long receding pale stone passage, tall ceiling, high narrow windows on the left casting geometric light patterns on the stone floor, sequence of corporate-art framed photographs along the right wall, folded white linen visible on left ledge, recessed ceiling detail. Early morning filtered daylight, cool pale light, muted beige-stone palette. Empty of people, no furniture, no clutter. Photorealistic, cinematic still, clean architectural photography. No text, no watermark, no logo.
+    constraints:
+      - preserve corridor geometry
+      - preserve pale stone palette
+      - preserve art-wall and window placement
+      - no people
+    expected_output:
+      asset_type: still
+      aspect_ratio: "16:9"
+  - prompt_id: GPTIMG2_LOC001_P02_LEFT_V001
+    perspective: left_reference
+    prompt_text: Using the uploaded reference image as the location identity source, generate a SINGLE architectural interior still of the same pale stone corridor. Camera positioned inside the corridor looking toward the left wall and windows side. Emphasis on the tall narrow high windows, the geometric shadow and light pattern cast diagonally across the pale stone floor, the folded white linen on the left ledge. Same pale stone walls, muted beige tones, early morning light quality. Corridor depth visible behind. Empty of people. Photorealistic, cinematic still, clean architectural photography. No text, no watermark, no logo.
+    constraints:
+      - preserve pale stone palette
+      - preserve window geometry and shadow pattern
+      - preserve linen prop
+      - no people
+    expected_output:
+      asset_type: still
+      aspect_ratio: "16:9"
+  - prompt_id: GPTIMG2_LOC001_P03_RIGHT_V001
+    perspective: right_reference
+    prompt_text: Using the uploaded reference image as the location identity source, generate a SINGLE architectural interior still of the same pale stone corridor. Camera positioned inside the corridor looking toward the right wall. Emphasis on the sequence of corporate-art framed photographs mounted on the pale stone wall, evenly spaced, varied sizes. Same pale stone palette, muted beige tones, early morning diffused light from the left. Corridor geometry visible, ceiling detail maintained. Empty of people. Photorealistic, cinematic still, clean architectural photography. No text, no watermark, no logo.
+    constraints:
+      - preserve pale stone palette
+      - preserve art-wall photograph sequence
+      - preserve corporate-art framing style
+      - no people
+    expected_output:
+      asset_type: still
+      aspect_ratio: "16:9"
+qc_gate:
+  minimum_score: 85
+  all_perspectives_required: true
+  failed_perspective_revision_only: true
+downstream_use:
+  - kling_omni_3_shot_prompt

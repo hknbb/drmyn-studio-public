@@ -1,0 +1,18 @@
+session_id: OP-PROD-LINE-LOC001-THREE-VIEW-2026-05-15
+created_at: "2026-05-15T23:08:34Z"
+scene_id: SC0001
+current_task: Review and approve LOC001 kitchen passage three-view GPT Images 2 perspective outputs
+recommended_files:
+  - visual_dev/elements/locations/LOC001/sub_areas/kitchen_passage/gpt_images_perspective_pack.yaml
+  - evidence/local_media_indices/LOCAL_MEDIA_INDEX_LOC001_GPTIMG2_PERSPECTIVES_V001.yaml
+  - visual_dev/elements/locations/LOC001/sub_areas/kitchen_passage/gptimg2_perspectives/image_selection.yaml
+  - evidence/perspective_qc/PQC_LOC001_PERSPECTIVE_PACK_V001.yaml
+  - visual_dev/elements/locations/LOC001/sub_areas/kitchen_passage/kling_element_reference.yaml
+  - visual_dev/omni_sets/SC0001/element_bindings.yaml
+recommended_steps:
+  - Confirm three-view outputs meet spatial identity lock requirements for kitchen passage.
+  - Verify all three perspective scores reach 85+ threshold.
+  - Approve can_advance_to_kling_reference in PQC record.
+  - Add LOC001 @ValeResidenceKitchenPassage to element_bindings.yaml.
+status: complete
+notes: Human operator reviewed ChatGPT Images 2 outputs from 2026-05-15 session. front_reference 93, left_reference 86, right_reference 91. All pass 85+ gate. MJ hero reference generated from Midjourney V8.1 with --style raw --ar 16:9 --s 30 --chaos 2. Pale stone corridor identity locked across all three views. PROP003 tilted frame deferred to PR-3 scope.

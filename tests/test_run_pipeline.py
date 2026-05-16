@@ -54,6 +54,43 @@ def test_operator_next_step_mode_returns_blocked_on_empty_repo(
     assert "No production status rows" in output
 
 
+def test_operator_next_step_scene_mode_renders_scene_readiness_report(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    code = run_pipeline.main(
+        [
+            "--repo-root",
+            str(tmp_path),
+            "--mode",
+            "operator-next-step",
+            "--scene",
+            "SC0001",
+        ]
+    )
+    output = capsys.readouterr().out
+
+    assert code == 0
+    assert "# Scene Readiness Report - SC0001" in output
+    assert "No shot_element_manifests found for this scene." in output
+
+
+def test_operator_next_step_scene_mode_rejects_invalid_scene_id(tmp_path: Path) -> None:
+    with pytest.raises(SystemExit) as exc:
+        run_pipeline.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--mode",
+                "operator-next-step",
+                "--scene",
+                "scene-1",
+            ]
+        )
+
+    assert exc.value.code == 2
+
+
 def test_copilot_command_switch_dispatch_writes_handoff(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],

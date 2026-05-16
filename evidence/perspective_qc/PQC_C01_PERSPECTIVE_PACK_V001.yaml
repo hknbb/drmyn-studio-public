@@ -1,50 +1,41 @@
-﻿schema_version: "0.x-draft"
+schema_version: "0.x-draft"
 record_type: perspective_qc_report
 perspective_qc_id: PQC_C01_PERSPECTIVE_PACK_V001
-status: draft
+status: approved
 scene_id: SC0001
 element_id: C01
 prompt_pack_id: GPTIMG2_C01_PERSPECTIVE_PACK_V001
-operator_session_ref: OP-PROD-LINE-6-SC0001-PERSPECTIVE-REVIEW
+operator_session_ref: OP-PROD-LINE-C01-THREE-VIEW-2026-05-15
 perspective_scores:
   - prompt_id: GPTIMG2_C01_P01_FRONT_V001
-    perspective: front_hero
-    identity_preservation: null
-    perspective_usefulness: null
-    material_palette_continuity: null
-    production_reference_cleanliness: null
-    hallucination_absence: null
-    total_score: null
-    decision: pending
+    perspective: front_reference
+    identity_preservation: 92
+    perspective_usefulness: 95
+    material_palette_continuity: 90
+    production_reference_cleanliness: 90
+    hallucination_absence: 88
+    total_score: 91
+    decision: pass
   - prompt_id: GPTIMG2_C01_P02_LEFT_V001
-    perspective: three_quarter_left
-    identity_preservation: null
-    perspective_usefulness: null
-    material_palette_continuity: null
-    production_reference_cleanliness: null
-    hallucination_absence: null
-    total_score: null
-    decision: pending
+    perspective: left_reference
+    identity_preservation: 88
+    perspective_usefulness: 90
+    material_palette_continuity: 89
+    production_reference_cleanliness: 87
+    hallucination_absence: 86
+    total_score: 88
+    decision: pass
   - prompt_id: GPTIMG2_C01_P03_RIGHT_V001
-    perspective: three_quarter_right
-    identity_preservation: null
-    perspective_usefulness: null
-    material_palette_continuity: null
-    production_reference_cleanliness: null
-    hallucination_absence: null
-    total_score: null
-    decision: pending
-  - prompt_id: GPTIMG2_C01_P04_REAR_V001
-    perspective: rear_or_side
-    identity_preservation: null
-    perspective_usefulness: null
-    material_palette_continuity: null
-    production_reference_cleanliness: null
-    hallucination_absence: null
-    total_score: null
-    decision: pending
+    perspective: right_reference
+    identity_preservation: 85
+    perspective_usefulness: 87
+    material_palette_continuity: 84
+    production_reference_cleanliness: 85
+    hallucination_absence: 84
+    total_score: 85
+    decision: pass
 gate:
   minimum_score: 85
-  all_four_required: true
-  can_advance_to_kling_reference: false
-notes: QC scaffold only; generated images do not exist yet.
+  all_perspectives_required: true
+  can_advance_to_kling_reference: true
+notes: Three-view QC complete 2026-05-15. front_reference 91 pass, left_reference 88 pass, right_reference 85 pass. right_reference red lip noted; wardrobe WD001 defined separately in look_variants. All three perspectives pass 85+ gate. operator_approved via session OP-PROD-LINE-C01-THREE-VIEW-2026-05-15.

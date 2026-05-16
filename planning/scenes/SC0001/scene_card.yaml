@@ -62,10 +62,42 @@ canon_lock: false
 omni_set_ref: visual_dev/omni_sets/SC0001/
 element_slot_allocation:
   max_slots: 7
-  slots_used: 0
-  allocation: []
-  slots_free: 7
-  economy_notes: "Pending Stage C pilot review."
+  slots_used: 1
+  slots_planned: 3
+  allocation:
+    - slot_id: ELEM01
+      element_ref: '@C01_HOME_MORNING'
+      element_id: C01
+      element_type: character_look
+      platform_binding_ref: visual_dev/omni_sets/SC0001/element_bindings.yaml
+      platform_binding_required: true
+      readiness: draft_reference_ready
+  planned_allocation:
+    - slot_id: ELEM02
+      element_ref: '@ValeResidenceKitchenPassage'
+      element_id: LOC001_KITCHEN_PASSAGE
+      element_type: location_sub_area
+      platform_binding_ref: visual_dev/omni_sets/SC0001/element_bindings.yaml
+      platform_binding_required: true
+      readiness: pending_kling_element_reference
+      blocking_pr: PR-C
+    - slot_id: ELEM03
+      element_ref: '@VardovaFrame'
+      element_id: PROP003
+      element_type: prop
+      platform_binding_ref: visual_dev/omni_sets/SC0001/element_bindings.yaml
+      platform_binding_required: true
+      readiness: pending_binding_promotion_and_kling_element_reference
+      blocking_pr: PR-D
+  slots_free: 4
+  economy_notes: >
+    C01 Home Morning is the only currently attached character-look element.
+    LOC001 kitchen passage sub-area and PROP003 tilted photo frame must be
+    promoted to fully attached Kling elements before the v02 home-morning
+    prompt is synthesized. v01 prompt is deprecated because it referenced these
+    elements only as text-described context / prompt-described action while
+    their kling_element_reference records and (for PROP003) element_binding
+    promotion to status 'created' were still pending.
 shot_list_omni:
   - shot_id: SC0001_OMNI01
     role: establish_coverage

@@ -113,25 +113,59 @@ Do not average into a new face. Do not mix conflicting details. If one uploaded 
 Generate one single full-body front-facing character image only. Neutral clean background, natural cinematic realism, no text, no logos, no watermark, no contact sheet, no collage, no multi-panel output.
 ```
 
-## Stage 4 - GPT Images 2 Four-Perspective Pack
-### Perspective 1: Front Hero
+## Stage 4 - GPT Images 2 Four-Perspective Pack (sequential separate-call, anatomy-anchored)
+Rule: run 4 separate GPT Images 2 calls. Do not request multiple directional views in a single call.
+
+### Perspective 1: Rear View (`rear_or_side`)
 ```text
-[front perspective prompt]
+Use the registered [CXX] FRONT HERO LOCK as the strict identity anchor.
+
+Generate ONE single full-body rear view image of the same character. Full rear view, back of head and shoulders centered toward the camera, no facial features visible, hair silhouette and back-of-neck continuity preserved.
+
+Keep facial geometry continuity, age read continuity, body proportions, hair silhouette, and wardrobe-world continuity locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround. Do not add text, logos, watermark, or panel labels.
+
+Output exactly one clean full-body image for character continuity use.
 ```
 
-### Perspective 2: Three-Quarter Left
+### Perspective 2: Three-Quarter Left (`three_quarter_left`)
 ```text
-[three-quarter left prompt]
+Use the registered [CXX] FRONT HERO LOCK as the strict identity anchor.
+
+Generate ONE single full-body three-quarter-left image of the same character. Three-quarter angle where the character's left shoulder is closer to the camera and rotated slightly toward it; the character's right cheek is the dominant facial plane in the frame; the character's left ear is partially visible at the frame edge; right ear hidden behind the head.
+
+Keep facial geometry, age read, body proportions, hair silhouette, and wardrobe-world continuity locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not use ambiguous camera-frame directional wording. Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround.
+
+Output exactly one clean full-body image for character continuity use.
 ```
 
-### Perspective 3: Three-Quarter Right
+### Perspective 3: Right Profile Side (`right_profile_side`)
 ```text
-[three-quarter right prompt]
+Use the registered [CXX] FRONT HERO LOCK as the strict identity anchor.
+
+Generate ONE single full-body strict 90-degree right-profile image of the same character. The character's right ear is closest to the camera; the character's left ear is fully hidden behind the head; one full side facial plane is visible.
+
+Keep facial geometry, age read, body proportions, hair silhouette, and wardrobe-world continuity locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not use ambiguous camera-frame directional wording. Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround.
+
+Output exactly one clean full-body image for character continuity use.
 ```
 
-### Perspective 4: Rear or Side
+### Perspective 4: Left Profile Side (`left_profile_side`)
 ```text
-[rear or side prompt]
+Use the registered [CXX] FRONT HERO LOCK as the strict identity anchor.
+
+Generate ONE single full-body strict 90-degree left-profile image of the same character. The character's left ear is closest to the camera; the character's right ear is fully hidden behind the head; one full side facial plane is visible.
+
+Keep facial geometry, age read, body proportions, hair silhouette, and wardrobe-world continuity locked to the anchor. Keep lighting and lens feel consistent with the anchor.
+
+Do not use ambiguous camera-frame directional wording. Do not redesign the character. Do not stylize into illustration. Do not produce a contact sheet, collage, multi-panel layout, or turnaround.
+
+Output exactly one clean full-body image for character continuity use.
 ```
 
 ## Stage 5 - Per-Look-Variant Lock Prompts (Midjourney V8.1)
@@ -153,3 +187,4 @@ Generate one single full-body front-facing character image only. Neutral clean b
 - Same look only per perspective pack.
 - Stage sequence is mandatory (1 -> 2 -> 2.5 -> 3 -> 4 -> 5).
 - Use external-ref replacement checklist for registration stage.
+

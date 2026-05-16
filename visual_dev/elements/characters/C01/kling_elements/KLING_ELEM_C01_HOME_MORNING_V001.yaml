@@ -10,8 +10,8 @@ status: draft
 element_role: character_look_composite
 source_reference_chain:
   identity_source_ref: MJ_ELEMENT_C01_HERO_LOCKED_V001
-  front_hero_lock_ref: pending_external://C01_FRONT_HERO_LOCK_V001
-  perspective_pack_id: null
+  front_hero_lock_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 13 May 2026 15_55_45.png
+  perspective_pack_id: GPTIMG2_C01_PERSPECTIVE_PACK_V001
   wardrobe_ids:
   - WD001
 omni_usage_policy:
@@ -20,7 +20,9 @@ omni_usage_policy:
   wardrobe_is_baked_into_element: true
   separate_wardrobe_element_optional: false
 notes: Draft Omni look-specific character element alias for C01 HOME_MORNING. Wardrobe
-  is baked into the character-look composite element.
+  is baked into the character-look composite element. Selected Stage 4 GPT Images
+  2 perspective set is available for Kling reference readiness; no lifecycle promotion
+  is applied.
 provenance:
   created_by: codex
   created_at: '2026-05-12T00:00:00Z'

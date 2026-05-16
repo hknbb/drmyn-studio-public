@@ -79,31 +79,84 @@
     },
     "gpt_images_2_perspectives": {
       "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "front_hero",
-        "three_quarter_left",
-        "three_quarter_right",
-        "rear_or_side"
-      ],
-      "properties": {
-        "front_hero": {
-          "type": "string",
-          "minLength": 1
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "required": [
+            "front_reference",
+            "left_reference",
+            "right_reference"
+          ],
+          "properties": {
+            "front_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "left_reference": {
+              "type": "string",
+              "minLength": 1
+            },
+            "right_reference": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         },
-        "three_quarter_left": {
-          "type": "string",
-          "minLength": 1
+        {
+          "additionalProperties": false,
+          "required": [
+            "front_hero",
+            "three_quarter_left",
+            "three_quarter_right",
+            "rear_or_side"
+          ],
+          "properties": {
+            "front_hero": {
+              "type": "string",
+              "minLength": 1
+            },
+            "three_quarter_left": {
+              "type": "string",
+              "minLength": 1
+            },
+            "three_quarter_right": {
+              "type": "string",
+              "minLength": 1
+            },
+            "rear_or_side": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         },
-        "three_quarter_right": {
-          "type": "string",
-          "minLength": 1
-        },
-        "rear_or_side": {
-          "type": "string",
-          "minLength": 1
+        {
+          "additionalProperties": false,
+          "required": [
+            "rear_or_side",
+            "three_quarter_left",
+            "right_profile_side",
+            "left_profile_side"
+          ],
+          "properties": {
+            "rear_or_side": {
+              "type": "string",
+              "minLength": 1
+            },
+            "three_quarter_left": {
+              "type": "string",
+              "minLength": 1
+            },
+            "right_profile_side": {
+              "type": "string",
+              "minLength": 1
+            },
+            "left_profile_side": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
-      }
+      ]
     },
     "continuity_anchors": {
       "type": "array",

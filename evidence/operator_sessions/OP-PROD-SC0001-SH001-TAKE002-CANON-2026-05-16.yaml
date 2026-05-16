@@ -1,0 +1,31 @@
+session_id: OP-PROD-SC0001-SH001-TAKE002-CANON-2026-05-16
+created_at: "2026-05-16T09:30:00Z"
+scene_id: SC0001
+current_task: Archive SC0001 SH001 TAKE002 as canon selected clip (metadata-only)
+recommended_files:
+  - visual_dev/omni_sets/SC0001/selected_take.yaml
+  - visual_dev/omni_sets/SC0001/video_takes.yaml
+  - visual_dev/omni_sets/SC0001/shot_element_manifests/SH001.yaml
+  - prompts/draft/SC0001__omni-kling-omni3-home-morning-tilted-frame__v02.yaml
+  - evidence/video_reviews/VR_SC0001_TAKE001_R001.yaml
+  - evidence/video_reviews/VR_SC0001_TAKE002_R001.yaml
+  - evidence/scene_clip_map.csv
+recommended_steps:
+  - Confirm selected_take.yaml lock_status is locked_metadata_only.
+  - Verify scene_clip_map.csv contains SC0001 row with TAKE002 external_storage_ref.
+  - Confirm repo_binary_committed is false for all takes.
+  - Tag v0.16.1-sc0001-sh001-selected-take after this PR merges.
+status: complete
+notes: >-
+  SC0001 SH001 TAKE002 canon selection audit chain. Two Kling Omni takes
+  generated on 2026-05-16 using prompt
+  SC0001__omni-kling-omni3-home-morning-tilted-frame__v02 with elements
+  @Nadia, @ValeResidenceKitchenPassage, @VardovaFrame attached. Shot element
+  manifest SH001 gate all_elements_ready confirmed before prompt synthesis.
+  TAKE001 QC (VR_SC0001_TAKE001_R001): 4/4/4/4/4 (80), usable, second pass
+  advised. TAKE002 QC (VR_SC0001_TAKE002_R001): 4/4/4/5/5 (88), outperforms
+  TAKE001 on continuity and production_usability. TAKE002 selected by operator.
+  selected_take.yaml created with lock_status locked_metadata_only;
+  scene_clip_map.csv updated. External asset
+  kling_20260516_VIDEO___Element1_4010_0.mp4 stored in local drmyn-studio-images;
+  no video binary committed to repo.

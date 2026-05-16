@@ -9,8 +9,8 @@ source_reference_strategy:
   contact_sheet_layout_forbidden_as_lock: true
 source_reference_sheet_ref: MJ_ELEMENT_C01_HERO_LOCKED_V001
 front_hero_lock_ref:
-  pending: true
-  external_ref: pending_external://C01_FRONT_HERO_LOCK_V001
+  pending: false
+  external_ref: external://local_manual/drmyn-studio-images/ChatGPT Image 13 May 2026 15_55_45.png
 fixed_identity_anchors:
   - facial topology consistency
   - short wavy bob hair shape
@@ -26,7 +26,7 @@ forbidden_drift:
   - different body type silhouette
   - fashion editorial redesign detached from story continuity
   - unrelated wardrobe world replacement
-notes: Draft seed only. Reference sheet is identity source; front hero lock remains pending.
+notes: Draft seed only. Reference sheet is identity source; front hero lock external reference is registered.
 provenance:
   created_by: codex
   created_at: "2026-05-12T00:00:00Z"

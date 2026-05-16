@@ -1,0 +1,18 @@
+session_id: OP-PROD-LINE-PROP003-THREE-VIEW-2026-05-16
+created_at: "2026-05-16T08:31:05Z"
+scene_id: SC0001
+current_task: Review and approve PROP003 Vardova frame three-view GPT Images 2 perspective outputs
+recommended_files:
+  - visual_dev/elements/props/PROP003/gpt_images_perspective_pack.yaml
+  - evidence/local_media_indices/LOCAL_MEDIA_INDEX_PROP003_GPTIMG2_PERSPECTIVES_V001.yaml
+  - visual_dev/elements/props/PROP003/gptimg2_perspectives/image_selection.yaml
+  - evidence/perspective_qc/PQC_PROP003_PERSPECTIVE_PACK_V001.yaml
+  - visual_dev/elements/props/PROP003/kling_element_reference.yaml
+  - visual_dev/omni_sets/SC0001/element_bindings.yaml
+recommended_steps:
+  - Confirm three-view outputs meet prop identity lock requirements for Vardova frame.
+  - Verify all three perspective scores reach 85+ threshold.
+  - Approve can_advance_to_kling_reference in PQC record.
+  - Add PROP003 @VardovaFrame to element_bindings.yaml.
+status: complete
+notes: Human operator reviewed GPT Images 2 outputs from 2026-05-16 session. front_reference 95, left_reference 91, right_reference 94. All pass 85+ gate. Source reference (CHATGPTIMG_ELEMENT_PROP003_VARDOVA_FRAME_V001) generated with GPT Images 2 per operator decision; schema source_midjourney_reference field accommodates this with CHATGPTIMG IDs. Frame tilt, dust-shadow mismatch, glass reflection, and Vardova skyline identity locked across all three views.

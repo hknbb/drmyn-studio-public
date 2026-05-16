@@ -8,10 +8,10 @@ def test_external_ref_template_contains_four_prompt_ids() -> None:
         REPO_ROOT
         / "evidence/templates/GPTIMG2_C01_EXTERNAL_REF_REGISTRATION_TEMPLATE.yaml"
     ).read_text(encoding="utf-8")
-    assert "GPTIMG2_C01_P01_FRONT_V001" in template
-    assert "GPTIMG2_C01_P02_LEFT_V001" in template
-    assert "GPTIMG2_C01_P03_RIGHT_V001" in template
-    assert "GPTIMG2_C01_P04_REAR_V001" in template
+    assert "GPTIMG2_C01_P01_REAR_V001" in template
+    assert "GPTIMG2_C01_P02_THREE_QUARTER_LEFT_V001" in template
+    assert "GPTIMG2_C01_P03_RIGHT_PROFILE_V001" in template
+    assert "GPTIMG2_C01_P04_LEFT_PROFILE_V001" in template
 
 
 def test_external_ref_template_requires_repo_binary_false() -> None:

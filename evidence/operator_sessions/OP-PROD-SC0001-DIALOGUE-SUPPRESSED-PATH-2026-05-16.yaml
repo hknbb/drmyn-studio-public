@@ -1,0 +1,54 @@
+session_id: OP-PROD-SC0001-DIALOGUE-SUPPRESSED-PATH-2026-05-16
+created_at: "2026-05-16T00:00:00Z"
+scene_id: SC0001
+current_task: Verify audio_plan suppressed-path rendering for SC0001 dialogue clip
+recommended_files:
+  - planning/scenes/SC0001/manifests/CLIP_SC0001_04_manifest.yaml
+  - planning/scenes/SC0001/dialogue_beats.yaml
+  - visual_dev/omni_sets/SC0001/element_bindings.yaml
+  - scripts/agents/adapters/kling_omni.py
+  - docs/methodology/omni_prompt_component_model.md
+recommended_steps:
+  - Run dry-run synthesis of CLIP_SC0001_04 through KlingOmniAdapter.
+  - Confirm suppression note in prompt_text; confirm no dialogue line text.
+  - Confirm no canonical ID leak (C01, C03, SC0001) in prompt_text.
+  - Run validate_production_records and pytest to confirm all green.
+status: complete
+notes: >-
+  PR-C dry-run proof. Clip: CLIP_SC0001_04, beat DIALOGUE_FORMULA_VITAMIN,
+  lines DLG_NADIA_FORMULA_01 / DLG_BIRTA_FORMULA_01, speakers C01 @Nadia +
+  C03 @Birta (both native_audio_readiness: blocked). Synthesized via
+  KlingOmniAdapter (PR-B / #211), render_pass visual_test, variant safe.
+
+  Synthesized prompt_text (verbatim):
+    "Create one Kling Omni element-based video clip. Total duration: 10 seconds.
+    Active elements: @Nadia, @Birta. Variant SAFE: prioritize stable continuity,
+    restrained camera language, and conservative execution. Shot 1 (10s): [She
+    stops herself. Adjusts the linens.]. Use medium_close framing, rack focus,
+    filtered_daylight, directional, cool; subject motion intensity 0.2; camera
+    motion intensity 0.1. Action resolves into a settled end state. Audio plan
+    suppressed: one or more speaking elements are not native_audio_readiness:
+    ready. Dialogue line text omitted from prompt_text. Continuity: metadata_only.
+    Keep clip at 10 seconds. Do not add new story facts."
+
+  Verification:
+    suppression note present:         true
+    NADIA: cue absent:                true
+    BIRTA: cue absent:                true
+    formula line text absent:         true
+    C01 absent from prompt_text:      true
+    C03 absent from prompt_text:      true
+    SC0001 absent from prompt_text:   true
+    adapter warnings:                 []
+
+  No draft prompt committed: CLIP_SC0001_04 has no shot_element_manifest at
+  gate_status all_elements_ready (only SH001.yaml exists, covering the visual
+  shot with C01+LOC001+PROP003). Per plan, the proof when no ready manifest
+  exists is PR-B unit tests plus this dry-run log.
+
+  Future path to committed dialogue prompt:
+    1. Author shot_element_manifest for dialogue shot at gate_status
+       all_elements_ready covering C01 + C03.
+    2. Promote C01 and C03 native_audio_readiness to ready.
+    3. Synthesize with shot_element_manifest_ref to produce
+       prompts/draft/SC0001__omni-kling-omni3-...-dialogue__v01.yaml.

@@ -28,6 +28,10 @@ from scripts.agents.production_status import (
     ProductionSceneStatus,
     build_production_status,
 )
+from scripts.agents.scene_readiness import (
+    compute_scene_readiness,
+    render_report,
+)
 
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
@@ -584,7 +588,32 @@ def main(argv: list[str] | None = None) -> int:
         default="text",
         help="Output format.",
     )
+    parser.add_argument(
+        "--scene",
+        type=str,
+        default=None,
+        metavar="SC####",
+        help=(
+            "Run in scene-readiness mode: enumerate every shot_element_manifest "
+            "under visual_dev/omni_sets/<SCENE>/shot_element_manifests/ and report, "
+            "per required element, whether the Kling Omni 3 pipeline (binding + "
+            "pack_manifest + gpt_images_perspective_pack + kling_element_reference) "
+            "is satisfied. Pure observer; writes nothing."
+        ),
+    )
     args = parser.parse_args(argv)
+
+    if args.scene:
+        if not SCENE_ID_RE.fullmatch(args.scene):
+            parser.error(
+                f"--scene expects an SC#### id (e.g. SC0001); got {args.scene!r}"
+            )
+        report = compute_scene_readiness(
+            repo_root=args.repo_root.resolve(),
+            scene_id=args.scene,
+        )
+        print(render_report(report, fmt=args.format))
+        return 0
 
     step = recommend_next_step(args.repo_root.resolve())
     if args.format == "json":

@@ -1,1 +1,2 @@
 scene_id,selected_take,prompt_id,external_storage_ref,platform_asset_ref,local_proxy_ref,repo_binary_committed,lock_status
+SC0001,SC0001_TAKE002,SC0001__omni-kling-omni3-home-morning-tilted-frame__v02,external://local_manual/drmyn-studio-images/kling_20260516_VIDEO___Element1_4010_0.mp4,kling_20260516_VIDEO___Element1_4010_0,,false,locked_metadata_only
