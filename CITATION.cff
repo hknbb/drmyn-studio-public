@@ -5,8 +5,8 @@ title: "DRMYN Studio: Metadata-Only AI-Assisted Movie Development and Production
 type: software
 version: 0.18.0
 date-released: 2026-06-17
-repository-code: "https://github.com/hknbb/drmynstudio-public"
-url: "https://github.com/hknbb/drmynstudio-public/releases/tag/v0.18.0"
+repository-code: "https://github.com/hknbb/drmyn-studio-public"
+url: "https://github.com/hknbb/drmyn-studio-public/releases/tag/v0.18.0-zenodo-archive"
 abstract: >
   DRMYN Studio is a metadata-only, schema-validated, human-gated research
   software framework for AI-assisted movie development and movie production
