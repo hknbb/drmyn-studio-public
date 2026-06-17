@@ -37,8 +37,6 @@ def _copy_production_schemas(repo_root: Path) -> None:
     for name in (
         "image_selection.schema.json",
         "asset_clearance.schema.json",
-        "storyboard_option.schema.json",
-        "shot_list_omni_suggestion.schema.json",
         "batch_job.schema.json",
     ):
         (schemas_dir / name).write_text(
@@ -109,24 +107,8 @@ def test_scene_without_metadata_is_phase1_pending(tmp_path: Path) -> None:
 
     assert len(rows) == 1
     assert rows[0].scene_id == "SC0001"
-    assert rows[0].storyboard_status == "not_started"
     assert rows[0].element_packs_status == "not_started"
     assert rows[0].overall_status == "phase1_pending"
-
-
-def test_scene_with_storyboard_options_becomes_ready_for_operator(
-    tmp_path: Path,
-) -> None:
-    _write_scene(tmp_path)
-    _write_yaml(
-        tmp_path / "visual_dev" / "storyboards" / "SC0001" / "storyboard_options.yaml",
-        _valid_storyboard_options(),
-    )
-
-    rows = build_production_status(tmp_path)
-
-    assert rows[0].storyboard_status == "storyboard_pending"
-    assert rows[0].overall_status == "ready_for_operator"
 
 
 def test_write_status_csv_uses_existing_scene_ids_only(tmp_path: Path) -> None:

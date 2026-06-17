@@ -36,9 +36,7 @@ from scripts.agents.scene_readiness import compute_scene_readiness, render_repor
 from scripts.agents.pr_helper import suggest_pr
 from scripts.agents.review_outputs import ImageReviewAgent, QUALITY_SCORE_FIELDS
 from scripts.agents.scene_clip_locking import SceneClipLockingAgent
-from scripts.agents.shot_list_omni_suggestion import ShotListOmniSuggestionAgent
 from scripts.agents.source_context import SourceContextAgent
-from scripts.agents.storyboard_options import StoryboardOptionsAgent
 from scripts.agents.writer import PromptWriter
 from scripts.agents.video_take_review import VideoTakeReviewAgent
 
@@ -175,40 +173,6 @@ def run_refresh_model_guidance(args: argparse.Namespace) -> PipelineResult:
         written_files=written,
         skipped=[],
         message=message,
-    )
-
-
-def run_generate_storyboard_options(args: argparse.Namespace) -> PipelineResult:
-    repo_root = args.repo_root.resolve()
-    if not args.scene_id:
-        raise PipelineError("generate-storyboard-options requires --scene-id.")
-    result = StoryboardOptionsAgent(repo_root).build(args.scene_id)
-    selected = result.payload.get("selected_option")
-    if selected is not None:
-        raise PipelineError("StoryboardOptionsAgent returned a selected option unexpectedly.")
-    return PipelineResult(
-        mode=args.mode,
-        written_files=[_relative(result.storyboard_options_path, repo_root)],
-        skipped=[],
-        message="Storyboard options written with selected_option left null.",
-    )
-
-
-def run_generate_shot_list_omni_suggestion(args: argparse.Namespace) -> PipelineResult:
-    repo_root = args.repo_root.resolve()
-    if not args.scene_id:
-        raise PipelineError("generate-shot-list-omni-suggestion requires --scene-id.")
-    result = ShotListOmniSuggestionAgent(repo_root).build(
-        args.scene_id,
-        target_duration_seconds=getattr(args, "target_duration_seconds", None) or 10,
-    )
-    return PipelineResult(
-        mode=args.mode,
-        written_files=[_relative(result.suggestion_path, repo_root)],
-        skipped=[],
-        message=(
-            "Shot list Omni suggestion written; scene_card.yaml remains human-gated."
-        ),
     )
 
 
@@ -700,8 +664,6 @@ def build_parser() -> argparse.ArgumentParser:
             "refresh-model-guidance",
             "generate-prompts",
             "review-outputs",
-            "generate-storyboard-options",
-            "generate-shot-list-omni-suggestion",
             "generate-kling-omni-prompts",
             "review-video-takes",
             "lock-scene-clip",
@@ -778,10 +740,6 @@ def main(argv: list[str] | None = None) -> int:
             result = run_generate_prompts(args)
         elif args.mode == "review-outputs":
             result = run_review_outputs(args)
-        elif args.mode == "generate-storyboard-options":
-            result = run_generate_storyboard_options(args)
-        elif args.mode == "generate-shot-list-omni-suggestion":
-            result = run_generate_shot_list_omni_suggestion(args)
         elif args.mode == "generate-kling-omni-prompts":
             result = run_generate_kling_omni_prompts(args)
         elif args.mode == "review-video-takes":

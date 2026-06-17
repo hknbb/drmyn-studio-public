@@ -65,6 +65,7 @@ def get_valid_kling_prompt():
             "@Nadia."
         ),
         "generation_params": {
+            "language_profile": "legacy_prose",
             "required_element_aliases": ["@Nadia"],
             "repo_canonical_aliases": ["@C01_HOME_MORNING"],
             "alias_resolution": {"@C01_HOME_MORNING": "@Nadia"},
@@ -262,6 +263,63 @@ def write_ready_shot_element_manifest(repo_root, *, binding_status="created", ga
     return "visual_dev/omni_sets/SC0001/shot_element_manifests/SH001.yaml"
 
 
+def write_ready_omni_clip_manifest(repo_root):
+    scenes_dir = repo_root / "planning" / "scenes" / "SC0001"
+    manifests_dir = scenes_dir / "manifests"
+    manifests_dir.mkdir(parents=True, exist_ok=True)
+    (scenes_dir / "scene_beat_plan.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": "0.x-draft",
+                "record_type": "scene_beat_plan",
+                "scene_id": "SC0001",
+                "source_beats": [
+                    {
+                        "beat_id": "BEAT_A",
+                        "content": "Nadia crosses the room.",
+                        "semantic_duration_hint": "normal",
+                        "splittable": False,
+                    }
+                ],
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    manifest = {
+        "schema_version": "0.x-draft",
+        "record_type": "omni_clip_manifest",
+        "scene_id": "SC0001",
+        "clip_id": "CLIP_SC0001_01",
+        "source_scene_beat_plan_ref": "planning/scenes/SC0001/scene_beat_plan.yaml",
+        "source_dialogue_beats_ref": "",
+        "total_duration_seconds": 3,
+        "continuity_input_mode": "metadata_only",
+        "shots": [
+            {
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 3,
+                "source_beat_ids": ["BEAT_A"],
+                "prompt_action": "@Nadia crosses the room.",
+                "duration_reason": "normal/action 3s",
+                "required_element_ids": ["C01"],
+            }
+        ],
+        "kling_native_audio": {
+            "enabled": False,
+            "provider_policy": "kling_native_only",
+            "external_tts_allowed": False,
+            "adr_vendor_allowed": False,
+        },
+        "provenance": {"created_by": "tests", "created_at": "2026-06-13T00:00:00Z"},
+    }
+    (manifests_dir / "CLIP_SC0001_01_manifest.yaml").write_text(
+        yaml.safe_dump(manifest, sort_keys=False),
+        encoding="utf-8",
+    )
+    return "planning/scenes/SC0001/manifests/CLIP_SC0001_01_manifest.yaml"
+
+
 class DummyArgs:
     def __init__(self, repo_root, report_json):
         self.repo_root = repo_root
@@ -314,7 +372,7 @@ def test_active_kling_prompt_without_manifest_ref_fails(mock_repo):
     assert validate_prompt_records.main(DummyArgs(mock_repo, mock_repo / "report.json")) == 1
     report = json.loads((mock_repo / "report.json").read_text())
     errors = report["errors"]["prompts/draft/kling_prompt.yaml"]
-    assert any("shot_element_manifest_ref is required" in error for error in errors)
+    assert any("omni_clip_manifest_ref is required" in error for error in errors)
 
 
 def test_kling_unresolved_required_alias_fails(mock_repo):
@@ -367,6 +425,18 @@ def test_kling_prompt_with_ready_shot_manifest_passes(mock_repo, capsys):
     manifest_ref = write_ready_shot_element_manifest(mock_repo)
     payload = get_valid_kling_prompt()
     payload["generation_params"]["shot_element_manifest_ref"] = manifest_ref
+    write_prompt(mock_repo, "draft", "kling_prompt.yaml", payload)
+
+    assert validate_prompt_records.main(DummyArgs(mock_repo, mock_repo / "report.json")) == 0
+    assert "1 files validated successfully" in capsys.readouterr().out
+
+
+def test_kling_prompt_with_ready_omni_clip_manifest_passes(mock_repo, capsys):
+    write_kling_character_look_element(mock_repo)
+    write_element_bindings(mock_repo)
+    manifest_ref = write_ready_omni_clip_manifest(mock_repo)
+    payload = get_valid_kling_prompt()
+    payload["generation_params"]["omni_clip_manifest_ref"] = manifest_ref
     write_prompt(mock_repo, "draft", "kling_prompt.yaml", payload)
 
     assert validate_prompt_records.main(DummyArgs(mock_repo, mock_repo / "report.json")) == 0

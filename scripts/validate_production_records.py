@@ -45,16 +45,28 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.validators.validate_shot_element_manifest import (
     validate_shot_element_manifest_file,
 )
+from scripts.validators.validate_scene_continuity_ledger import (
+    validate_scene_continuity_ledger_file,
+)
+from scripts.validators.validate_scene_status_consistency import (
+    validate_scene_status_consistency_for_scene,
+)
+from scripts.validators.validate_figure_roster import validate_scene_figures
+from scripts.validators.validate_continuity_presence import (
+    validate_scene_continuity_presence,
+)
+from scripts.validators.validate_state_chain import (
+    validate_scene_state_chain,
+)
+from scripts.validators.validate_shot_still_coverage import (
+    validate_shot_still_coverage,
+)
 
 
 IMAGE_SELECTION_PATTERN = "visual_dev/elements/**/image_selection.yaml"
 PACK_SUGGESTION_PATTERN = "visual_dev/elements/**/pack_manifest_update_suggestion.yaml"
 ASSET_CLEARANCE_PATTERN = "evidence/asset_clearance/*.yaml"
 PROMPT_REVIEW_BRIEF_PATTERN = "evidence/prompt_reviews/*_brief.yaml"
-STORYBOARD_OPTIONS_PATTERN = "visual_dev/storyboards/SC*/storyboard_options.yaml"
-SHOT_LIST_OMNI_SUGGESTION_PATTERN = (
-    "visual_dev/storyboards/SC*/shot_list_omni_suggestion.yaml"
-)
 SHOT_ELEMENT_MANIFEST_PATTERN = (
     "visual_dev/omni_sets/SC*/shot_element_manifests/*.yaml"
 )
@@ -83,9 +95,15 @@ PERSPECTIVE_QC_REPORT_PATTERN = "evidence/perspective_qc/*.yaml"
 DIALOGUE_QC_REPORT_PATTERN = "evidence/dialogue_qc/*.yaml"
 REVIEW_DECISION_PATTERN = "evidence/review_decisions/*.yaml"
 GPT_IMAGES_PERSPECTIVE_PACK_PATTERN = (
-    "visual_dev/elements/**/gpt_images_perspective_pack.yaml"
+    "visual_dev/elements/**/gpt_images_perspective_pack*.yaml"
 )
-KLING_ELEMENT_REFERENCE_PATTERN = "visual_dev/elements/**/kling_element_reference.yaml"
+# Real packs in this repo live under per-element ``perspective_packs/`` dirs and are
+# named ``PPACK_*.yaml`` rather than ``gpt_images_perspective_pack*.yaml``. Discover
+# both so the cross-reference index (kling_element_reference / perspective_qc) sees them.
+GPT_IMAGES_PERSPECTIVE_PACK_DIR_PATTERN = (
+    "visual_dev/elements/**/perspective_packs/*.yaml"
+)
+KLING_ELEMENT_REFERENCE_PATTERN = "visual_dev/elements/**/kling_element_reference*.yaml"
 KLING_CHARACTER_LOOK_ELEMENT_PATTERN = (
     "visual_dev/elements/characters/*/kling_elements/*.yaml"
 )
@@ -100,10 +118,18 @@ CHARACTER_IDENTITY_ANCHOR_PATTERN = (
 CHARACTER_LOOK_VARIANT_PATTERN = (
     "visual_dev/elements/characters/*/look_variants/*.yaml"
 )
+CHARACTER_LOOK_SHEET_PATTERN = (
+    "visual_dev/elements/characters/*/look_sheets/*.yaml"
+)
 IDENTITY_EVIDENCE_SET_PATTERN = (
     "visual_dev/elements/characters/*/identity_evidence_sets/*.yaml"
 )
 SCENE_CHARACTER_LOOK_MAP_PATTERN = "visual_dev/omni_sets/SC*/scene_character_look_map.yaml"
+SYSTEM_CHARACTER_ELEMENT_PATTERN = (
+    "visual_dev/elements/system_characters/*/identity_plan.yaml"
+)
+GOLDEN_REFERENCE_PLAN_PATTERN = "planning/scenes/SC*/golden_reference_plan.yaml"
+SCENE_CONTINUITY_LEDGER_PATTERN = "planning/scenes/SC*/scene_continuity_ledger.yaml"
 AESTHETIC_BIBLE_PATH = "planning/aesthetic_bible.yaml"
 SCENE_CLIP_MAP_PATH = "evidence/scene_clip_map.csv"
 
@@ -221,10 +247,6 @@ def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
         "asset_clearance": sorted(repo_root.glob(ASSET_CLEARANCE_PATTERN)),
         "pack_manifest_update_suggestion": sorted(repo_root.glob(PACK_SUGGESTION_PATTERN)),
         "prompt_review_brief": sorted(repo_root.glob(PROMPT_REVIEW_BRIEF_PATTERN)),
-        "storyboard_options": sorted(repo_root.glob(STORYBOARD_OPTIONS_PATTERN)),
-        "shot_list_omni_suggestion": sorted(
-            repo_root.glob(SHOT_LIST_OMNI_SUGGESTION_PATTERN)
-        ),
         "shot_element_manifest": sorted(repo_root.glob(SHOT_ELEMENT_MANIFEST_PATTERN)),
         "batch_job": batch_job_files,
         "production_batch": production_batch_files,
@@ -255,7 +277,8 @@ def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
         "dialogue_qc_report": sorted(repo_root.glob(DIALOGUE_QC_REPORT_PATTERN)),
         "review_decision_record": sorted(repo_root.glob(REVIEW_DECISION_PATTERN)),
         "gpt_images_perspective_pack": sorted(
-            repo_root.glob(GPT_IMAGES_PERSPECTIVE_PACK_PATTERN)
+            set(repo_root.glob(GPT_IMAGES_PERSPECTIVE_PACK_PATTERN))
+            | set(repo_root.glob(GPT_IMAGES_PERSPECTIVE_PACK_DIR_PATTERN))
         ),
         "kling_element_reference_record": sorted(
             repo_root.glob(KLING_ELEMENT_REFERENCE_PATTERN)
@@ -274,8 +297,18 @@ def collect_production_files(repo_root: Path) -> dict[str, list[Path]]:
             repo_root.glob(CHARACTER_IDENTITY_ANCHOR_PATTERN)
         ),
         "character_look_variant": sorted(repo_root.glob(CHARACTER_LOOK_VARIANT_PATTERN)),
+        "character_look_sheet": sorted(repo_root.glob(CHARACTER_LOOK_SHEET_PATTERN)),
         "identity_evidence_set": sorted(repo_root.glob(IDENTITY_EVIDENCE_SET_PATTERN)),
         "scene_character_look_map": sorted(repo_root.glob(SCENE_CHARACTER_LOOK_MAP_PATTERN)),
+        "system_character_element": sorted(
+            repo_root.glob(SYSTEM_CHARACTER_ELEMENT_PATTERN)
+        ),
+        "golden_reference_plan": sorted(
+            repo_root.glob(GOLDEN_REFERENCE_PLAN_PATTERN)
+        ),
+        "scene_continuity_ledger": sorted(
+            repo_root.glob(SCENE_CONTINUITY_LEDGER_PATTERN)
+        ),
         "aesthetic_bible": (
             [repo_root / AESTHETIC_BIBLE_PATH]
             if (repo_root / AESTHETIC_BIBLE_PATH).is_file()
@@ -2280,20 +2313,10 @@ def run_validation(
     """Run production metadata validation."""
     image_selection_schema = load_schema(repo_root / "schemas" / "image_selection.schema.json")
     asset_clearance_schema = load_schema(repo_root / "schemas" / "asset_clearance.schema.json")
-    storyboard_options_schema = load_schema(
-        repo_root / "schemas" / "storyboard_option.schema.json"
-    )
     batch_job_schema = load_schema(repo_root / "schemas" / "batch_job.schema.json")
     image_selection_validator = Draft202012Validator(image_selection_schema)
     asset_clearance_validator = Draft202012Validator(asset_clearance_schema)
-    storyboard_options_validator = Draft202012Validator(storyboard_options_schema)
-    shot_list_omni_suggestion_schema = load_schema(
-        repo_root / "schemas" / "shot_list_omni_suggestion.schema.json"
-    )
     batch_job_validator = Draft202012Validator(batch_job_schema)
-    shot_list_omni_suggestion_validator = Draft202012Validator(
-        shot_list_omni_suggestion_schema
-    )
     operator_session_validator: Draft202012Validator | None = None
     agent_handoff_validator: Draft202012Validator | None = None
     local_media_index_validator: Draft202012Validator | None = None
@@ -2322,8 +2345,12 @@ def run_validation(
     native_audio_compatibility_record_validator: Draft202012Validator | None = None
     character_identity_anchor_validator: Draft202012Validator | None = None
     character_look_variant_validator: Draft202012Validator | None = None
+    character_look_sheet_validator: Draft202012Validator | None = None
     identity_evidence_set_validator: Draft202012Validator | None = None
     scene_character_look_map_validator: Draft202012Validator | None = None
+    system_character_element_validator: Draft202012Validator | None = None
+    golden_reference_plan_validator: Draft202012Validator | None = None
+    scene_continuity_ledger_validator: Draft202012Validator | None = None
     production_batch_validator: Draft202012Validator | None = None
     aesthetic_bible_validator: Draft202012Validator | None = None
 
@@ -2355,20 +2382,6 @@ def run_validation(
                 file_issues = validate_pack_suggestion_file(path, repo_root)
             elif record_type == "prompt_review_brief":
                 file_issues = validate_prompt_review_brief_file(path, repo_root)
-            elif record_type == "storyboard_options":
-                file_issues = _schema_issues(
-                    path=path,
-                    repo_root=repo_root,
-                    record_type=record_type,
-                    validator=storyboard_options_validator,
-                )
-            elif record_type == "shot_list_omni_suggestion":
-                file_issues = _schema_issues(
-                    path=path,
-                    repo_root=repo_root,
-                    record_type=record_type,
-                    validator=shot_list_omni_suggestion_validator,
-                )
             elif record_type == "shot_element_manifest":
                 file_issues = [
                     ProductionValidationIssue(
@@ -2658,6 +2671,34 @@ def run_validation(
                     record_type=record_type,
                     validator=review_decision_record_validator,
                 )
+            elif record_type == "system_character_element":
+                if system_character_element_validator is None:
+                    system_character_element_schema = load_schema(
+                        repo_root / "schemas" / "system_character_element.schema.json"
+                    )
+                    system_character_element_validator = Draft202012Validator(
+                        system_character_element_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=system_character_element_validator,
+                )
+            elif record_type == "golden_reference_plan":
+                if golden_reference_plan_validator is None:
+                    golden_reference_plan_schema = load_schema(
+                        repo_root / "schemas" / "golden_reference_plan.schema.json"
+                    )
+                    golden_reference_plan_validator = Draft202012Validator(
+                        golden_reference_plan_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=golden_reference_plan_validator,
+                )
             elif record_type == "gpt_images_perspective_pack":
                 if gpt_images_perspective_pack_validator is None:
                     gpt_images_perspective_pack_schema = load_schema(
@@ -2808,6 +2849,20 @@ def run_validation(
                     record_type=record_type,
                     validator=character_look_variant_validator,
                 )
+            elif record_type == "character_look_sheet":
+                if character_look_sheet_validator is None:
+                    character_look_sheet_schema = load_schema(
+                        repo_root / "schemas" / "character_look_sheet.schema.json"
+                    )
+                    character_look_sheet_validator = Draft202012Validator(
+                        character_look_sheet_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=character_look_sheet_validator,
+                )
             elif record_type == "identity_evidence_set":
                 if identity_evidence_set_validator is None:
                     identity_evidence_set_schema = load_schema(
@@ -2838,6 +2893,29 @@ def run_validation(
                     repo_root=repo_root,
                     record_type=record_type,
                     validator=scene_character_look_map_validator,
+                )
+            elif record_type == "scene_continuity_ledger":
+                if scene_continuity_ledger_validator is None:
+                    scene_continuity_ledger_schema = load_schema(
+                        repo_root / "schemas" / "scene_continuity_ledger.schema.json"
+                    )
+                    scene_continuity_ledger_validator = Draft202012Validator(
+                        scene_continuity_ledger_schema
+                    )
+                file_issues = _schema_issues(
+                    path=path,
+                    repo_root=repo_root,
+                    record_type=record_type,
+                    validator=scene_continuity_ledger_validator,
+                )
+                file_issues.extend(
+                    ProductionValidationIssue(
+                        file=_relative(path, repo_root),
+                        record_type=record_type,
+                        field_path="clip_chain",
+                        message=str(err),
+                    )
+                    for err in validate_scene_continuity_ledger_file(path, repo_root)
                 )
             elif record_type == "aesthetic_bible":
                 if aesthetic_bible_validator is None:
@@ -2893,6 +2971,65 @@ def run_validation(
         all_issues.extend(qc_readiness_issues)
         invalid_files.update(issue.file for issue in qc_readiness_issues)
 
+    # Per-scene cross-record gates: status consistency + figure roster (anti-clone).
+    scene_ids: set[str] = set()
+    for path in grouped_files.get("shot_element_manifest", []):
+        for part in path.parts:
+            if re.fullmatch(r"SC\d{4}", part):
+                scene_ids.add(part)
+                break
+    for scene_id in sorted(scene_ids):
+        bindings_file = _relative(
+            repo_root / "visual_dev" / "omni_sets" / scene_id / "element_bindings.yaml",
+            repo_root,
+        )
+        for err in validate_scene_status_consistency_for_scene(repo_root, scene_id):
+            all_issues.append(
+                ProductionValidationIssue(
+                    file=bindings_file,
+                    record_type="scene_status_consistency",
+                    field_path="gate_status",
+                    message=str(err),
+                )
+            )
+            invalid_files.add(bindings_file)
+        for err in validate_scene_figures(repo_root, scene_id):
+            all_issues.append(
+                ProductionValidationIssue(
+                    file=bindings_file,
+                    record_type="figure_roster",
+                    field_path="figures",
+                    message=str(err),
+                )
+            )
+            invalid_files.add(bindings_file)
+        for issue in validate_scene_continuity_presence(repo_root, scene_id):
+            src_file = issue.file
+            all_issues.append(
+                ProductionValidationIssue(
+                    file=src_file,
+                    record_type="continuity_presence",
+                    field_path=issue.field_path,
+                    message=f"{issue.error_code}: {issue.message}",
+                )
+            )
+            invalid_files.add(src_file)
+        manifests_dir = _relative(
+            repo_root / "planning" / "scenes" / scene_id / "manifests", repo_root
+        )
+        for issue in validate_scene_state_chain(repo_root, scene_id):
+            all_issues.append(
+                ProductionValidationIssue(
+                    file=manifests_dir,
+                    record_type="state_chain",
+                    field_path=f"{issue.clip_id}/{issue.shot_id}",
+                    message=f"{issue.error_code}: {issue.message}",
+                )
+            )
+            # Warnings are reported but do not invalidate the scene.
+            if issue.severity == "error":
+                invalid_files.add(manifests_dir)
+
     gptimg2_registration_issues = validate_gptimg2_registration_gates(
         repo_root=repo_root,
         grouped_files=grouped_files,
@@ -2915,6 +3052,30 @@ def run_validation(
     if character_continuity_issues:
         all_issues.extend(character_continuity_issues)
         invalid_files.update(issue.file for issue in character_continuity_issues)
+
+    # Shot-still coverage: discover scenes from clip manifests, validate anchor-animate prompts.
+    clip_manifest_scenes: set[str] = set()
+    for path in sorted(repo_root.glob("planning/scenes/SC*/manifests/CLIP_*.yaml")):
+        for part in path.parts:
+            if re.fullmatch(r"SC\d{4}", part):
+                clip_manifest_scenes.add(part)
+                break
+    for scene_id in sorted(clip_manifest_scenes):
+        manifests_dir = _relative(
+            repo_root / "planning" / "scenes" / scene_id / "manifests", repo_root
+        )
+        for issue in validate_shot_still_coverage(repo_root, scene_id):
+            field_path = "/".join(filter(None, [issue.clip_id, issue.shot_id]))
+            all_issues.append(
+                ProductionValidationIssue(
+                    file=manifests_dir,
+                    record_type="shot_still_coverage",
+                    field_path=field_path or issue.error_code,
+                    message=f"{issue.error_code}: {issue.message}",
+                )
+            )
+            if issue.severity == "error":
+                invalid_files.add(manifests_dir)
 
     report = ProductionValidationReport(
         total_files=total,

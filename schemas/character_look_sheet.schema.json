@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/character_look_sheet.schema.json",
+  "title": "Character Look Sheet",
+  "description": "Complete scene look definition for a character: full-body physical build plus head-to-toe wardrobe (top, bottom, footwear, outerwear, accessories) and palette. Feeds the four_view_scale_angle_v3 reference prompts so full-body/scale views do not crop or invent garments. Metadata-only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "look_sheet_id",
+    "character_id",
+    "physical",
+    "wardrobe",
+    "status",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.x-draft" },
+    "record_type": { "const": "character_look_sheet" },
+    "look_sheet_id": {
+      "type": "string",
+      "pattern": "^LOOKSHEET_C\\d{2}_[A-Z0-9_]+_V\\d{3}$"
+    },
+    "character_id": { "type": "string", "pattern": "^C\\d{2}$" },
+    "look_id": {
+      "type": "string",
+      "pattern": "^C\\d{2}_LOOK_[A-Z0-9_]+_V\\d{3}$",
+      "description": "Optional link to the character_look_variant this look sheet details."
+    },
+    "scene_refs": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^SC\\d{4}$" },
+      "uniqueItems": true
+    },
+    "physical": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["build", "height", "physical_features"],
+      "properties": {
+        "build": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "height": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "hair": { "type": "string", "maxLength": 200 },
+        "skin_tone": { "type": "string", "maxLength": 120 },
+        "physical_features": { "type": "string", "minLength": 1, "maxLength": 400 }
+      }
+    },
+    "wardrobe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["garment_top", "garment_bottom", "footwear"],
+      "properties": {
+        "primary_wardrobe_id": { "type": "string", "pattern": "^WD\\d{3}$" },
+        "garment_top": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "garment_bottom": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "footwear": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "outerwear": { "type": "string", "maxLength": 300 },
+        "accessories": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 160 }
+        }
+      }
+    },
+    "palette": { "type": "string", "maxLength": 300 },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "locked", "deprecated"]
+    },
+    "notes": { "type": "string", "maxLength": 2000 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by", "created_at"],
+      "properties": {
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

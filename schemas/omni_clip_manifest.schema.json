@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.org/schemas/omni_clip_manifest.schema.json",
   "title": "Omni Clip Manifest",
-  "description": "Per-clip Kling-bound metadata describing shot structure, dialogue assignment, audio readiness, and continuity frame references. Integer-only durations (3..15s). Enforces cross-field constraints via Python semantic validator. No prompt generation; no voice provisioning claims. Kling-native audio only.",
+  "description": "Per-clip Kling-bound metadata describing shot structure, dialogue assignment, audio readiness, and continuity frame references. Integer-only durations (2..15s). Enforces cross-field constraints via Python semantic validator. No prompt generation; no voice provisioning claims. Kling-native audio only.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -52,8 +52,8 @@
     },
     "total_duration_seconds": {
       "type": "integer",
-      "enum": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-      "description": "Total duration of all shots in this clip. Must be >= 3, <= 15. Semantic validator enforces sum(shots[].duration_seconds) == total_duration_seconds."
+      "enum": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      "description": "Total duration of all shots in this clip. Must be 2..15. Semantic validator enforces sum(shots[].duration_seconds) == total_duration_seconds and shot count <= 6."
     },
     "continuity_input_mode": {
       "type": "string",
@@ -63,7 +63,7 @@
     "shots": {
       "type": "array",
       "minItems": 1,
-      "description": "Array of shot definitions. Every shot has integer duration 3..15s. Semantic validator enforces no shot exceeds total clip duration.",
+      "description": "Array of shot definitions. Every shot has integer duration 2..15s. Semantic validator enforces no shot exceeds total clip duration.",
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -84,8 +84,8 @@
           },
           "duration_seconds": {
             "type": "integer",
-            "enum": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-            "description": "Duration of this shot in seconds. Must be 3..15 (integer-only, no decimals). Kling production policy: minimum 3s for stable cinematic readability."
+            "enum": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+            "description": "Duration of this shot in seconds. 2..15 (integer-only). Kling Omni multi-shot permits short 2s cutaways; single-shot clips should still prefer >=3s for stable cinematic readability."
           },
           "source_beat_ids": {
             "type": "array",
@@ -114,6 +114,21 @@
             "maxLength": 500,
             "description": "Prompt-generation action description (e.g., 'Nadia fills glass, drinks, sets down'). No generation happens here; this is metadata for later prompt authoring."
           },
+          "render_action": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Model-facing LITERAL shot action under language_profile=kling_literal_alias_locked. Alias-only, concrete, camera-led; no raw names, no role nouns (infant/child/mother/man/woman/baby/enforcer), no metaphor/abstraction, no bare position labels (center/centered). Emotion via physical performance only. When present and the active language_profile is literal, the renderer prints THIS instead of prompt_action/performance_note. prompt_action stays as the human-readable field."
+          },
+          "render_camera": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Model-facing LITERAL camera sentence for the literal profile (e.g. 'Medium two-shot, static.' or 'Slow dolly-in to close.'). One move per shot. Replaces the poetic camera.lens_bias in the rendered prompt; lens_bias stays human-readable."
+          },
+          "render_diegetic_audio": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Model-facing LITERAL diegetic audio cue for the literal profile (e.g. 'low room tone; faint white-noise hum; soft slow breathing from @C08_JIN'). Alias-only; no role nouns. Replaces the poetic diegetic_audio in the rendered prompt; diegetic_audio stays human-readable."
+          },
           "duration_reason": {
             "type": "string",
             "minLength": 1,
@@ -128,6 +143,47 @@
               "pattern": "^[A-Z][A-Z0-9]*\\d+$",
               "minLength": 2,
               "maxLength": 20
+            }
+          },
+          "figures": {
+            "type": "array",
+            "description": "Distinct on-screen figures present in this shot. Each figure gets its own Kling @alias so two physically distinct figures sharing a base character identity are never collapsed into one (anti-clone). Operator-authored.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["figure_id", "base_element_id", "kling_alias", "role"],
+              "properties": {
+                "figure_id": { "type": "string", "pattern": "^FIG_[A-Z0-9_]+$" },
+                "base_element_id": { "type": "string", "pattern": "^C\\d{2}$" },
+                "kling_alias": { "type": "string", "pattern": "^@[A-Z0-9_]+$" },
+                "role": { "type": "string", "minLength": 1, "maxLength": 160 },
+                "distinguishing_detail": { "type": "string", "maxLength": 200 },
+                "render_label": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "Model-facing NEUTRAL distinguishing label for the literal profile (e.g. 'pale blue band on wrist', 'heavier build, buzzed hair, goatee'). Must NOT contain role nouns (infant/child/mother/man/woman/baby/enforcer) or raw names. Replaces distinguishing_detail in the rendered anti-clone roster line; distinguishing_detail stays human-readable."
+                },
+                "render_action": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "Model-facing LITERAL per-figure action for the literal profile. Alias-only, concrete physical performance; no role nouns, no metaphor, no bare position labels. Replaces the poetic per-figure action in the rendered prompt; action stays human-readable."
+                },
+                "action": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "Optional per-figure action for this shot (e.g. 'enters and stops two steps inside the door'). The renderer emits one distinct clause per figure so the model never confuses who does what in a multi-figure shot (Kling/FAL.ai: bind action to a unique character). Performance/blocking only - never new story facts. Validator requires it for on-frame figures in multi-figure or dialogue shots."
+                },
+                "exit_state_note": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Optional short note on where this figure ends the shot (e.g. 'standing two steps inside the doorway'). Feeds the chain: the next shot's entry_state should be consistent with the prior shot's exit."
+                },
+                "visibility": {
+                  "type": "string",
+                  "enum": ["on_frame", "partial_frame", "off_frame", "occluded", "heard_offscreen"],
+                  "description": "Optional on-frame status for this figure in this shot (default on_frame). FIGURE_ACTION_MISSING applies only to on_frame/partial_frame/occluded; off_frame/heard_offscreen are exempt (e.g. an offscreen speaker)."
+                }
+              }
             }
           },
           "camera": {
@@ -247,6 +303,43 @@
             "type": "string",
             "maxLength": 300,
             "description": "Optional note on visual pacing, action density, or rhythm relative to neighbouring shots."
+          },
+          "coverage_role": {
+            "type": "string",
+            "enum": [
+              "establish",
+              "reaction",
+              "insert",
+              "reverse",
+              "resolve",
+              "push_in",
+              "detail",
+              "hold"
+            ],
+            "description": "Optional coverage grammar role for this shot within the clip's edit. Lets one source beat be covered by several distinct shots (e.g. establish -> reaction cutaway -> insert -> resolve) instead of repeating the same framing. Used by the renderer to pick a natural framing label (Insert, Cutaway, etc.)."
+          },
+          "focus_alias": {
+            "type": "string",
+            "pattern": "^@[A-Z0-9_]+$",
+            "description": "Optional: the figure/element @alias this shot is ON (its visual subject). Enables reverse/reaction/insert coverage where the focus differs from the speaking or acting figure. Must be a @alias bound for the scene."
+          },
+          "performance_note": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Optional acting/emotion direction for the focus subject (e.g. 'eyes soften, thumb tracing slow circles'). Woven into the shot's action prose by the renderer. Performance/emotion only - never new story facts."
+          },
+          "diegetic_audio": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Optional in-world (diegetic) sound-design cue for this shot, rendered as an 'Audio:' line (e.g. 'low warm room tone; faint fabric rustle'). Non-speech only; spoken dialogue stays gated by dialogue_beats native_audio_readiness."
+          },
+          "entry_state": {
+            "$ref": "#/$defs/shot_world_state",
+            "description": "Optional carried-state anchor at the START of this shot: where each on-frame subject/prop is as the shot opens (= the prior shot's exit). The renderer opens the shot block by restating this BEFORE the new action so positions chain instead of resetting between cuts. Subjects are @alias only (canonical IDs stay in figures.base_element_id). Required by validator on every shot after the first in a clip."
+          },
+          "exit_state": {
+            "$ref": "#/$defs/shot_world_state",
+            "description": "Optional settled state at the END of this shot. Pairs with the next shot's entry_state so the chain has explicit before/after evidence (CARRIED_SUBJECT_DROPPED / RELATION_BROKEN_WITHOUT_ACTION). The clip's last shot exit_state must be consistent with the scene_continuity_ledger exit_state for the clip."
           }
         }
       }
@@ -292,6 +385,21 @@
           "type": "string",
           "maxLength": 300,
           "description": "Continuity requirement or observation (e.g., 'Must maintain Nadia's left-to-right movement')."
+        },
+        "designed_still_archive_filename": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Archive filename of the designed start-frame still (pass-1 frame-chain candidate), e.g. SC0014_03_clip-sc0014-03_shot-sc0014-03-a.png. Generated by shot_still_resolver."
+        },
+        "designed_still_local_media_index_ref": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Relative path to the local_media_index YAML entry for the designed start-frame still."
+        },
+        "extracted_frame_reference_ref": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Optional: relative path to the extracted_frame_reference record for this clip's start frame (pass-2 real last frame from the prior clip's selected take). Supersedes designed_still_archive_filename when present."
         }
       }
     },
@@ -313,6 +421,16 @@
           "type": "string",
           "maxLength": 300,
           "description": "Continuity requirement or observation."
+        },
+        "designed_still_archive_filename": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Archive filename of the designed last-shot still (pass-1 frame-chain candidate for the next clip), e.g. SC0014_03_clip-sc0014-03_shot-sc0014-03-c.png."
+        },
+        "designed_still_local_media_index_ref": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Relative path to the local_media_index YAML entry for the designed last-shot still."
         }
       }
     },
@@ -366,6 +484,57 @@
           "type": "string",
           "format": "date-time",
           "description": "ISO 8601 creation timestamp."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "shot_world_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Per-shot carried/settled world state for intra-clip continuity chaining. Same shape as scene_continuity_ledger world_state but shot-scoped and prompt-facing: subjects/gaze are @alias only (no canonical IDs leak into prompt text).",
+      "properties": {
+        "summary": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "key_positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["subject", "screen_position"],
+            "properties": {
+              "subject": { "type": "string", "pattern": "^@[A-Z0-9_]+$" },
+              "screen_position": { "type": "string", "minLength": 1, "maxLength": 60 },
+              "posture": { "type": "string", "maxLength": 80 },
+              "relation": { "type": "string", "maxLength": 120 },
+              "gaze_target": { "type": "string", "pattern": "^@[A-Z0-9_]+$" },
+              "visibility": {
+                "type": "string",
+                "enum": ["on_frame", "partial_frame", "off_frame", "occluded", "heard_offscreen"]
+              }
+            }
+          }
+        },
+        "props_state": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["prop", "state"],
+            "properties": {
+              "prop": {
+                "anyOf": [
+                  { "type": "string", "pattern": "^@[A-Z0-9_]+$" },
+                  { "type": "string", "pattern": "^[a-zA-Z][a-zA-Z0-9 _'-]{0,79}$" }
+                ],
+                "description": "Prop @alias (preferred, e.g. @DOOR_NURSERY) or a controlled non-element prop string (not every object is a bound element)."
+              },
+              "state": { "type": "string", "minLength": 1, "maxLength": 200 }
+            }
+          }
+        },
+        "screen_direction": {
+          "type": "string",
+          "enum": ["left_to_right", "right_to_left", "toward_camera", "away_from_camera", "neutral"]
         }
       }
     }

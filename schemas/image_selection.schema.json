@@ -18,11 +18,11 @@
   "properties": {
     "element_id": {
       "type": "string",
-      "pattern": "^(C\\d{2}|LOC\\d{3}|PROP\\d{3}|WD\\d{3}|STYLE_[A-Z0-9_]+)$"
+      "pattern": "^(C\\d{2}|LOC\\d{3}|PROP\\d{3}|WD\\d{3}|STYLE_[A-Z0-9_]+|HERALD_HALO_V\\d{3})$"
     },
     "element_type": {
       "type": "string",
-      "enum": ["character", "location", "prop", "wardrobe", "style_ref"]
+      "enum": ["character", "location", "prop", "wardrobe", "style_ref", "other"]
     },
     "selection_round": {
       "type": "integer",

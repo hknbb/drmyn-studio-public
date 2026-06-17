@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/scene_continuity_ledger.schema.json",
+  "title": "Scene Continuity Ledger",
+  "description": "Scene-level inter-clip continuity record. Chains the scene's omni clips in order and declares the physical/camera/action hand-off (exit_state -> entry_state) between consecutive clips so each Kling Omni generation inherits the previous clip's settled world state. Multi-shot continuity WITHIN a clip lives in omni_clip_manifest.shots[]; this record governs continuity BETWEEN clips (package to package).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "scene_continuity_ledger_id",
+    "scene_id",
+    "source_omni_clip_plan_ref",
+    "clip_chain",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": { "const": "0.x-draft" },
+    "record_type": { "const": "scene_continuity_ledger" },
+    "scene_continuity_ledger_id": {
+      "type": "string",
+      "pattern": "^SCL_SC\\d{4}_V\\d{3}$"
+    },
+    "scene_id": { "type": "string", "pattern": "^SC\\d{4}$" },
+    "source_omni_clip_plan_ref": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "clip_chain": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["clip_id", "order", "entry_state", "exit_state"],
+        "properties": {
+          "clip_id": { "type": "string", "pattern": "^CLIP_[A-Z0-9_]+$" },
+          "order": { "type": "integer", "minimum": 1 },
+          "entry_state": { "$ref": "#/$defs/world_state" },
+          "exit_state": { "$ref": "#/$defs/world_state" },
+          "render_start_state": {
+            "type": "string",
+            "maxLength": 400,
+            "description": "Model-facing LITERAL clip-seam start state for language_profile=kling_literal_alias_locked. Alias-only literal blocking; no raw names, no role nouns, no metaphor, no bare position labels (center/centered). The renderer prints at most a short 'Start state:' line from this; entry_state.summary/key_positions stay human-readable bookkeeping and are never printed under the literal profile."
+          },
+          "render_end_state": {
+            "type": "string",
+            "maxLength": 400,
+            "description": "Model-facing LITERAL clip-seam end state for the literal profile. Same constraints as render_start_state. Optional; the literal renderer favours self-contained shots over seam reliance."
+          },
+          "frame_continuity": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "from_clip_id": { "type": "string", "pattern": "^CLIP_[A-Z0-9_]+$" },
+              "to_clip_id": { "type": "string", "pattern": "^CLIP_[A-Z0-9_]+$" },
+              "continuity_input_mode": {
+                "type": "string",
+                "enum": ["metadata_only", "frame_input_eligible", "frame_input_active"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "notes": { "type": "string", "maxLength": 2000 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["created_by", "created_at"],
+      "properties": {
+        "created_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "$defs": {
+    "world_state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary", "camera_state", "screen_direction"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "key_positions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["subject", "screen_position"],
+            "properties": {
+              "subject": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "screen_position": { "type": "string", "minLength": 1, "maxLength": 60 },
+              "posture": { "type": "string", "maxLength": 80 },
+              "relation": { "type": "string", "maxLength": 120 },
+              "gaze_target": { "type": "string", "maxLength": 80 },
+              "visibility": {
+                "type": "string",
+                "enum": ["on_frame", "partial_frame", "off_frame", "occluded", "heard_offscreen"]
+              }
+            }
+          }
+        },
+        "props_state": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["prop", "state"],
+            "properties": {
+              "prop": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "state": { "type": "string", "minLength": 1, "maxLength": 200 }
+            }
+          }
+        },
+        "action_state": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["subject", "doing"],
+            "properties": {
+              "subject": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "doing": { "type": "string", "minLength": 1, "maxLength": 200 }
+            }
+          }
+        },
+        "camera_state": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["shot_size", "subject_screen_position"],
+          "properties": {
+            "shot_size": {
+              "type": "string",
+              "enum": ["wide", "medium_wide", "medium", "medium_close", "close", "extreme_close", "insert"]
+            },
+            "angle": {
+              "type": "string",
+              "enum": ["eye_level", "low_angle", "high_angle", "over_shoulder", "insert", "dutch", "top_down"]
+            },
+            "movement": {
+              "type": "string",
+              "enum": ["static", "pan", "tilt", "dolly_in", "dolly_out", "tracking", "crane", "handheld", "whip_pan", "rack_focus"]
+            },
+            "subject_screen_position": { "type": "string", "minLength": 1, "maxLength": 60 }
+          }
+        },
+        "screen_direction": {
+          "type": "string",
+          "enum": ["left_to_right", "right_to_left", "toward_camera", "away_from_camera", "neutral"]
+        },
+        "offscreen": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1, "maxLength": 80 }
+        }
+      }
+    }
+  }
+}

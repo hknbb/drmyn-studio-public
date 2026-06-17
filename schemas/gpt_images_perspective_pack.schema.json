@@ -76,9 +76,10 @@
       "enum": [
         "legacy_four_view",
         "three_view_no_rear",
-        "three_view_scale_angle_v2"
+        "three_view_scale_angle_v2",
+        "four_view_scale_angle_v3"
       ],
-      "description": "Records authored before the element-reference-policy-v2 CHANGELOG entry use legacy_four_view or three_view_no_rear (legacy directional: front_reference, left_reference, right_reference). Newly authored records use three_view_scale_angle_v2: front_reference, three_quarter_medium_reference, three_quarter_close_reference. legacy_four_view and three_view_no_rear remain only for grandfathered historical records outside the v2 baseline."
+      "description": "Legacy records: legacy_four_view / three_view_no_rear (directional front/left/right). v2: three_view_scale_angle_v2 (front_reference, three_quarter_medium_reference, three_quarter_close_reference). v3 (Production System v2, characters): four_view_scale_angle_v3 = full_body_front, three_quarter_waist, close_portrait_front, profile_full — scale ladder (full body -> waist -> chest portrait) plus a profile/back wrap for a 3D identity lock that does not crop."
     },
     "full_body_visible": {
       "type": "boolean",
@@ -185,6 +186,36 @@
           ],
           "items": {
             "$ref": "#/$defs/scaleAngleThreeViewPrompt"
+          }
+        },
+        {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "allOf": [
+            {
+              "contains": { "$ref": "#/$defs/fullBodyFrontPrompt" },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": { "$ref": "#/$defs/threeQuarterWaistPrompt" },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": { "$ref": "#/$defs/closePortraitFrontPrompt" },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": { "$ref": "#/$defs/profileFullPrompt" },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ],
+          "items": {
+            "$ref": "#/$defs/fourViewScaleAnglePrompt"
           }
         }
       ]
@@ -334,6 +365,43 @@
           }
         }
       ]
+    },
+    "fourViewScaleAnglePrompt": {
+      "allOf": [
+        { "$ref": "#/$defs/basePerspectivePrompt" },
+        {
+          "properties": {
+            "perspective": {
+              "enum": [
+                "full_body_front",
+                "three_quarter_waist",
+                "close_portrait_front",
+                "profile_full"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "fullBodyFrontPrompt": {
+      "type": "object",
+      "required": ["perspective"],
+      "properties": { "perspective": { "const": "full_body_front" } }
+    },
+    "threeQuarterWaistPrompt": {
+      "type": "object",
+      "required": ["perspective"],
+      "properties": { "perspective": { "const": "three_quarter_waist" } }
+    },
+    "closePortraitFrontPrompt": {
+      "type": "object",
+      "required": ["perspective"],
+      "properties": { "perspective": { "const": "close_portrait_front" } }
+    },
+    "profileFullPrompt": {
+      "type": "object",
+      "required": ["perspective"],
+      "properties": { "perspective": { "const": "profile_full" } }
     },
     "threeQuarterMediumReferencePrompt": {
       "type": "object",

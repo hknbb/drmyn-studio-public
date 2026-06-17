@@ -40,8 +40,6 @@ def _copy_schema(tmp_path: Path) -> None:
         "aesthetic_bible.schema.json",
         "image_selection.schema.json",
         "asset_clearance.schema.json",
-        "storyboard_option.schema.json",
-        "shot_list_omni_suggestion.schema.json",
         "batch_job.schema.json",
     ):
         (schemas_dir / name).write_text(

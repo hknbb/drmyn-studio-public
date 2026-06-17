@@ -4,6 +4,54 @@ This repository is a metadata-only film production management system. Agents
 help draft records, review metadata, and hand work between tools, but human PR
 review remains the approval boundary.
 
+## Session Memory — First Action (mandatory)
+
+**Read `PROJECT_STATE.md` at the repo root before anything else.** It is the
+single source of "where we are": active milestone, per-character pipeline
+status, active scene work, next steps, and blockers. Do NOT re-explore the repo
+from scratch to reconstruct the current state — the dashboard already holds it.
+This applies to every agent/CLI that opens this repo (Claude Code reads this
+file via the `CLAUDE.md` stub; Codex and Antigravity read it natively).
+
+### Update Contract (the heart of cross-session memory)
+
+After **every** promotion, lock, stage completion, or significant decision:
+
+1. **Update `PROJECT_STATE.md`**: the relevant pipeline-table row, the
+   `Last updated` line, the Türkçe summary if the headline changed, and one new
+   line at the top of the Session Log (keep the log to ~10 lines, drop the
+   oldest).
+2. **Keep the existing conventions**: write an operator session record
+   (`evidence/operator_sessions/OP-YYYY-MM-DD-<topic>.yaml`) and use the commit
+   pattern `feat(M5): <action> + promote @CHAR_ID to created (SC####, QC>=85)`.
+3. A session that changed pipeline state but did not update `PROJECT_STATE.md`
+   is an incomplete session — fix it before ending.
+
+`PROJECT_STATE.md` is an allowed metadata-only **status mirror**: it never
+holds lifecycle authority (manifests/YAML records stay canonical) and updating
+it does not count as a lifecycle promotion under the invariants below.
+
+### Key Locations
+
+| Path | What it holds |
+|---|---|
+| `PROJECT_STATE.md` | Living status dashboard (read first, keep updated) |
+| `planning/manifests/` | `character_index.csv`, `scene_index.csv` rosters + status flags |
+| `planning/characters/C##.yaml` | Per-character canonical metadata |
+| `planning/scenes/SC####/` | Scene cards, beat plans, dialogue beats, golden reference plans |
+| `visual_dev/elements/characters/C##/` | Identity anchors, look sheets, perspective packs, Kling refs |
+| `evidence/operator_sessions/OP-*.yaml` | Per-session operator decision records |
+| `evidence/perspective_qc/PQC_*.yaml` | QC reports for generated perspective packs |
+| `evidence/local_media_indices/` | Index of locally archived binaries (`archive/` is git-ignored) |
+| `schemas/` | JSON Schemas validating all record types |
+| `source/` | Canonical screenplay, dossiers, bibles |
+
+### Working Language
+
+The human operator works in Turkish. End substantive responses with a brief
+Türkçe özet. Repo artifacts (YAML, commits, dashboards) stay in English;
+`PROJECT_STATE.md` carries a Turkish summary block at the top.
+
 ## Roles
 
 The canonical role contract lives in

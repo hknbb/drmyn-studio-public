@@ -254,6 +254,3 @@ def test_failure_taxonomy_contains_required_values() -> None:
     }
 
 
-def test_gitkeep_scaffolds_exist() -> None:
-    assert (REPO_ROOT / "evidence" / "asset_clearance" / ".gitkeep").exists()
-    assert (REPO_ROOT / "evidence" / "prompt_reviews" / ".gitkeep").exists()

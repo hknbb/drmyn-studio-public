@@ -22,8 +22,6 @@ def _copy_schemas(repo_root: Path) -> None:
     for name in (
         "image_selection.schema.json",
         "asset_clearance.schema.json",
-        "storyboard_option.schema.json",
-        "shot_list_omni_suggestion.schema.json",
         "video_take.schema.json",
         "video_review.schema.json",
         "selected_take.schema.json",

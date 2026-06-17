@@ -108,9 +108,9 @@ def test_omni_clip_plan_clip_summary_clip_id_pattern(validator):
 
 
 def test_omni_clip_plan_clip_summary_total_duration_range(validator):
-    """clip_summary total_duration_seconds must be 3..15."""
+    """clip_summary total_duration_seconds must be 2..15."""
     record = _minimal_omni_clip_plan()
-    record["clip_summaries"][0]["total_duration_seconds"] = 2
+    record["clip_summaries"][0]["total_duration_seconds"] = 1
     with pytest.raises(jsonschema.ValidationError):
         validator.validate(record)
 

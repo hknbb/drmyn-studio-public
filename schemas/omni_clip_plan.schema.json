@@ -63,7 +63,7 @@
           },
           "total_duration_seconds": {
             "type": "integer",
-            "minimum": 3,
+            "minimum": 2,
             "maximum": 15,
             "description": "Total duration of all shots in this clip (cached summary; authoritative value in manifest)."
           },

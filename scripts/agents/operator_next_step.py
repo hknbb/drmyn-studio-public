@@ -3,8 +3,7 @@ Operator guidance layer for Batch 5.85.
 
 Reads repository metadata and recommends the next safe human production task.
 It does not generate prompts, run external tools, copy binaries, or mutate
-scene cards, pack manifests, lifecycle fields, storyboard selections, or
-production status records.
+scene cards, pack manifests, lifecycle fields, or production status records.
 """
 
 from __future__ import annotations
@@ -37,7 +36,6 @@ from scripts.agents.scene_readiness import (
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
 SCENE_ID_RE = re.compile(r"SC\d{4}")
 RECOMMENDED_ROUTE_BY_TASK = {
-    "storyboard_selection": ("gemini_code_assist", "second_opinion"),
     "model_guidance_snapshot_refresh": ("gemini_code_assist", "drafting_assist"),
     "image_review_preparation": ("claude_code", "drafting_assist"),
     "image_review": ("claude_code", "review_requested"),
@@ -345,50 +343,6 @@ def _placeholder_snapshot_refresh_step(
     )
 
 
-def _storyboard_selection_step(repo_root: Path) -> OperatorNextStep | None:
-    storyboards_root = repo_root / "visual_dev" / "storyboards"
-    if not storyboards_root.is_dir():
-        return None
-
-    for path in sorted(storyboards_root.glob("SC*/storyboard_options.yaml")):
-        try:
-            data = _read_yaml(path)
-        except Exception:
-            continue
-        if not isinstance(data, dict) or data.get("selected_option") is not None:
-            continue
-
-        scene_id = str(data.get("scene_id") or path.parent.name)
-        source_refs = data.get("source_refs") if isinstance(data.get("source_refs"), dict) else {}
-        source_paths = [
-            repo_root / str(source_refs[key])
-            for key in ("scene_card", "scene_excerpt")
-            if source_refs.get(key)
-        ]
-        open_files = _existing_rels([path, *source_paths], repo_root)
-        current_task = "storyboard_selection"
-        recommended_next_agent, recommended_reason = _recommended_route(current_task)
-        return OperatorNextStep(
-            current_task=current_task,
-            scene_id=scene_id,
-            recommended_next_agent=recommended_next_agent,
-            recommended_reason=recommended_reason,
-            open_files=open_files,
-            do_steps=[
-                "Read each option and compare purpose, camera_angle, framing, movement, lighting, and status.",
-                "Reject options marked blocked unless the source issue has been resolved in a separate PR.",
-                "Choose the strongest human preference, but leave selected_option unchanged in this Batch 5.85 guidance pass.",
-            ],
-            expected_outputs=[
-                "A human decision ready to be recorded later through the approved storyboard selection workflow.",
-                "No storyboard frames, videos, prompt records, or lifecycle state changes from this helper.",
-            ],
-            next_command_or_manual_step=(
-                "Manual step: open the listed storyboard_options.yaml and decide which option should be selected."
-            ),
-            safety_warnings=_safe_warnings(),
-        )
-
     return None
 
 
@@ -526,7 +480,7 @@ def _blocked_step(
         repo_root,
     )
     reason = (
-        "No prompt drafts, unselected storyboard options, or review-ready candidate images were found."
+        "No prompt drafts or review-ready candidate images were found."
     )
     if not statuses and not csv_rows:
         reason = "No production status rows or actionable production metadata were found."
@@ -560,10 +514,6 @@ def recommend_next_step(repo_root: str | Path = ".") -> OperatorNextStep:
     root = Path(repo_root)
     statuses = build_production_status(root)
     csv_rows = load_status_csv(root)
-
-    storyboard_step = _storyboard_selection_step(root)
-    if storyboard_step is not None:
-        return storyboard_step
 
     prompt_step = _prompt_review_or_generation_step(root)
     if prompt_step is not None:

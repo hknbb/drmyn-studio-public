@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/extracted_frame_reference.schema.json",
+  "title": "Extracted Frame Reference",
+  "description": "Metadata record for a real last frame extracted from a selected Kling take. Used as the authoritative start-frame seed (pass-2) for the next clip in the frame chain, superseding the designed still candidate (pass-1) when available.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "scene_id",
+    "clip_id",
+    "take_id",
+    "extracted_asset_ref",
+    "local_media_index_ref",
+    "source"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "extracted_frame_reference"
+    },
+    "scene_id": {
+      "type": "string",
+      "pattern": "^SC\\d{4}$",
+      "description": "Scene this frame belongs to (e.g., SC0014)."
+    },
+    "clip_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Clip this frame was extracted from (e.g., CLIP_SC0014_01)."
+    },
+    "take_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Kling take this frame was extracted from (references a video_take record)."
+    },
+    "extracted_asset_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "local:// or external:// ref to the extracted last-frame image file (PNG/JPG)."
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[A-Fa-f0-9]{64}$",
+      "description": "Optional SHA-256 hash of the extracted image file for integrity verification."
+    },
+    "local_media_index_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Relative path to the local_media_index YAML that contains the entry for this extracted frame."
+    },
+    "source": {
+      "const": "kling_take",
+      "description": "Always 'kling_take' — distinguishes this from designed stills."
+    }
+  }
+}

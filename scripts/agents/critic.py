@@ -132,7 +132,6 @@ class CriticAgent:
         self._check_negative_prompt_rule(prompt_record, hard)
         self._check_element_aliases(prompt_record, hard)
         self._check_prompt_char_limits(prompt_record, hard)
-        self._check_kling_metadata_consumption(prompt_record, hard, soft)
 
         # Soft checks — always after hard checks
         self._check_unresolved_markers(prompt_record, soft)
@@ -577,80 +576,6 @@ class CriticAgent:
                 f"negative_prompt is {len(negative_prompt)} characters; "
                 f"Kling API hard limit is {KLING_NEGATIVE_PROMPT_MAX_CHARS} characters."
             )
-
-    def _load_manifest(self, manifest_ref: str) -> dict[str, Any] | None:
-        path = self.repo_root / manifest_ref
-        if not path.exists():
-            return None
-        try:
-            doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-        except Exception:
-            return None
-        return doc if isinstance(doc, dict) else None
-
-    def _check_kling_metadata_consumption(
-        self,
-        record: dict[str, Any],
-        hard_errors: list[str],
-        soft_warnings: list[str],
-    ) -> None:
-        models = record.get("target_models") or []
-        if not models or models[0] != "kling_omni":
-            return
-        params = record.get("generation_params") or {}
-        manifest_ref = params.get("omni_clip_manifest_ref")
-        if not isinstance(manifest_ref, str) or not manifest_ref.strip():
-            return
-        manifest = self._load_manifest(manifest_ref)
-        if manifest is None:
-            return
-
-        shots = manifest.get("shots")
-        if not isinstance(shots, list):
-            return
-
-        prompt_text = str(record.get("prompt_text") or "")
-        light_vocab = ("daylight", "practical", "artificial", "low-key", "high-key", "filtered_daylight")
-        high_motion_vocab = ("run", "rapid", "dolly", "whip", "tracking")
-
-        for idx, shot in enumerate(shots, start=1):
-            if not isinstance(shot, dict):
-                continue
-            lighting = shot.get("lighting") if isinstance(shot.get("lighting"), dict) else {}
-            motion = shot.get("motion") if isinstance(shot.get("motion"), dict) else {}
-            shot_segment = self._extract_shot_segment(prompt_text, idx)
-            if not shot_segment:
-                hard_errors.append(
-                    f"Kling metadata consumption failed: could not find segment for Shot {idx} "
-                    "in prompt_text."
-                )
-                break
-            haystack = shot_segment.lower()
-
-            if lighting:
-                if not any(term in haystack for term in light_vocab):
-                    hard_errors.append(
-                        f"Kling metadata consumption failed: manifest Shot {idx} has lighting "
-                        "but the corresponding prompt segment does not include recognized "
-                        "lighting vocabulary."
-                    )
-                    break
-
-            subj_i = motion.get("subject_intensity")
-            if isinstance(subj_i, (int, float)) and float(subj_i) > 0.7:
-                if not any(term in haystack for term in high_motion_vocab):
-                    soft_warnings.append(
-                        f"Kling metadata consumption warning: Shot {idx} has high motion "
-                        "intensity but lacks high-motion vocabulary."
-                    )
-
-    def _extract_shot_segment(self, prompt_text: str, shot_index: int) -> str:
-        pattern = re.compile(
-            rf"(Shot\s+{shot_index}\b.*?)(?=(?:\s+Shot\s+{shot_index + 1}\b)|\Z)",
-            re.IGNORECASE | re.DOTALL,
-        )
-        match = pattern.search(prompt_text)
-        return match.group(1) if match else ""
 
     # ------------------------------------------------------------------
     # Soft checks

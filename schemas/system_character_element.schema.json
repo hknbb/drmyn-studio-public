@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/system_character_element.schema.json",
+  "title": "System Character Element",
+  "description": "Identity-plan record for a non-human, character-like system embodiment (e.g., service-robot bodies operated by a broadcast intelligence). Carries narrative persona linkage, physical anchors, and do-not-invent constraints. Distinct from character_identity_anchor because it has no facial topology or expression band; distinct from a generic prop because it carries persona-bound continuity logic across scenes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "system_character_element_id",
+    "display_name",
+    "status",
+    "embodiment_kind",
+    "persona_source",
+    "physical_anchors",
+    "do_not_invent",
+    "downstream_use",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "system_character_element"
+    },
+    "system_character_element_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "display_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "review",
+        "approved",
+        "locked",
+        "materialized",
+        "blocked",
+        "rejected"
+      ]
+    },
+    "embodiment_kind": {
+      "type": "string",
+      "enum": [
+        "robotic_broadcast_unit",
+        "robotic_service_unit",
+        "hologram_projection",
+        "voice_only",
+        "other"
+      ]
+    },
+    "persona_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_character_id",
+        "source_name"
+      ],
+      "properties": {
+        "source_character_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_files": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "physical_anchors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "behavior_anchors": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "do_not_invent": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "downstream_use": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "gpt_images_2_perspective_pack",
+          "kling_omni_3_shot_prompt"
+        ]
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_by",
+        "created_at"
+      ],
+      "properties": {
+        "created_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}

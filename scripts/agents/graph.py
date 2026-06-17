@@ -17,8 +17,6 @@ from scripts.agents.run_pipeline import (
     PipelineError,
     run_generate_kling_omni_prompts,
     run_generate_prompts,
-    run_generate_shot_list_omni_suggestion,
-    run_generate_storyboard_options,
     run_lock_scene_clip,
     run_refresh_model_guidance,
     run_review_outputs,
@@ -31,8 +29,6 @@ SUPPORTED_GRAPH_MODES = {
     "refresh-model-guidance",
     "generate-prompts",
     "review-outputs",
-    "generate-storyboard-options",
-    "generate-shot-list-omni-suggestion",
     "generate-kling-omni-prompts",
     "review-video-takes",
     "lock-scene-clip",
@@ -122,10 +118,6 @@ def run_graph_state(state: PipelineState) -> PipelineState:
             return _run_pipeline_result(state, run_generate_prompts)
         if state.mode == "review-outputs":
             return _run_pipeline_result(state, run_review_outputs)
-        if state.mode == "generate-storyboard-options":
-            return _run_pipeline_result(state, run_generate_storyboard_options)
-        if state.mode == "generate-shot-list-omni-suggestion":
-            return _run_pipeline_result(state, run_generate_shot_list_omni_suggestion)
         if state.mode == "generate-kling-omni-prompts":
             return _run_pipeline_result(state, run_generate_kling_omni_prompts)
         if state.mode == "review-video-takes":

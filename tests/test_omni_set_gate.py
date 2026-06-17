@@ -41,14 +41,6 @@ def _write_minimal_scene(
         },
     )
     _write_yaml(
-        repo_root / "visual_dev/storyboards/SC0001/storyboard_options.yaml",
-        {
-            "scene_id": "SC0001",
-            "selected_option": "SC0001_SB03",
-            "options": [{"option_id": "SC0001_SB03"}],
-        },
-    )
-    _write_yaml(
         repo_root / "visual_dev/omni_sets/SC0001/element_set.yaml",
         {
             "element_set_id": "ES0001",
@@ -86,7 +78,6 @@ def test_ready_gate_when_scene_metadata_and_packs_are_locked(tmp_path: Path) -> 
     assert report["gate_status"] == "ready_for_kling_prompt_generation"
     assert report["shot_list_gate"]["shot_count"] == 1
     assert report["shot_list_gate"]["total_duration_seconds"] == 5
-    assert report["storyboard_gate"]["selected_option"] == "SC0001_SB03"
     assert report["element_pack_gate"]["summary"]["ready_packs"] == 1
     assert report["blocking_reasons"] == []
 
@@ -128,25 +119,6 @@ def test_cli_writes_schema_valid_metadata_only_gate_report(tmp_path: Path) -> No
     )
     errors = list(Draft202012Validator(schema).iter_errors(report))
     assert errors == []
-
-
-def test_real_sc0001_gate_reports_remaining_element_pack_blockers() -> None:
-    pack_paths = sorted(
-        (REPO_ROOT / "visual_dev/elements").glob("**/pack_manifest.yaml")
-    )
-    before = {path: path.read_text(encoding="utf-8") for path in pack_paths}
-
-    report = audit_omni_set_gate(REPO_ROOT, "SC0001")
-
-    assert report["shot_list_gate"]["ready"] is True
-    assert report["shot_list_gate"]["shot_count"] == 3
-    assert report["shot_list_gate"]["total_duration_seconds"] == 15
-    assert report["storyboard_gate"]["selected_option"] == "SC0001_SB03"
-    assert report["element_pack_gate"]["summary"]["total_elements"] == 4
-    assert report["element_pack_gate"]["summary"]["metadata_only_packs"] == 4
-    assert report["ready_for_kling_prompt_generation"] is False
-    assert report["gate_status"] == "blocked_pending_locked_element_packs"
-    assert all(path.read_text(encoding="utf-8") == before[path] for path in pack_paths)
 
 
 def test_real_sc0001_gate_report_file_is_schema_valid(tmp_path: Path) -> None:

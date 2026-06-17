@@ -38,7 +38,9 @@ class CanonHydrationReviewInfraTests(unittest.TestCase):
             shutil.rmtree(self.temp_dir)
 
         for name in ["source", "planning", "visual_dev", "prompts", "docs", "schemas"]:
-            shutil.copytree(REPO_ROOT / name, self.temp_dir / name)
+            src = REPO_ROOT / name
+            if src.exists():
+                shutil.copytree(src, self.temp_dir / name)
         (self.temp_dir / "evidence" / "validation_reports").mkdir(parents=True, exist_ok=True)
         (self.temp_dir / "evidence" / "article3").mkdir(parents=True, exist_ok=True)
 
@@ -91,8 +93,17 @@ class CanonHydrationReviewInfraTests(unittest.TestCase):
 
         queue_payload = json.loads(queue_json.read_text(encoding="utf-8"))
         self.assertEqual(5, len(queue_payload["queue"]["A"]))
-        # Deterministic count updated after PROD-LINE-14D added WD005/WD006 planning wardrobe records.
-        self.assertEqual(20, len(queue_payload["queue"]["B"]))
+        # Deterministic count updated after PROD-LINE-14D added WD005/WD006 planning wardrobe records,
+        # then incremented when PR-ZARA-1 added planning/characters/C06.yaml (Zara Okonkwo intake),
+        # then again when PR-JIN-1 added planning/characters/C08.yaml (Jin Vale protected-subject intake),
+        # then again when PR-SERA-1 added planning/characters/C07.yaml (Sera / Seraphina Mast intake),
+        # then again when M5 FAZ A added planning/characters/C09.yaml (Otto intake for SC0047),
+        # then again when the M5 four-scene rebuild (SC0014/0047/0089/0111) added its planning
+        # intake records (C10 enforcer + per-scene wardrobe/location/prop planning records).
+        # Bumped 23 -> 26 -> 27 -> 36 to match the current planning intake set (count grows as
+        # new character/wardrobe/location/prop planning records are added; deterministic for
+        # fixed inputs).
+        self.assertEqual(36, len(queue_payload["queue"]["B"]))
         self.assertEqual(5, len(queue_payload["queue"]["C"]))
         self.assertEqual(115, len(queue_payload["queue"]["D"]))
         self.assertTrue((packet_root / "SC0001.md").exists())

@@ -62,7 +62,11 @@
               "left_reference",
               "right_reference",
               "three_quarter_medium_reference",
-              "three_quarter_close_reference"
+              "three_quarter_close_reference",
+              "full_body_front",
+              "three_quarter_waist",
+              "close_portrait_front",
+              "profile_full"
             ]
           },
           "identity_preservation": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},

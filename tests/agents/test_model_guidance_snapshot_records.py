@@ -87,7 +87,7 @@ class TestSnapshotResolver:
 			REPO_ROOT,
 			internal_model_target="kling_omni_video_best_available",
 		)
-		assert result["resolved_model_name"] == "Kling 3.0 Omni"
+		assert result["resolved_model_name"] == "Kling VIDEO 3.0 Omni"
 		assert result["provider"] == "kling"
 		assert result["provider_surface"] in {"api", "web_ui", "manual_external"}
 
@@ -174,7 +174,7 @@ class TestSnapshotProviderNames:
 	"""Verify provider model names appear ONLY in model_guidance_snapshots/**, not elsewhere."""
 
 	PROVIDER_MODEL_NAMES = {
-		"Kling 3.0 Omni",
+		"Kling VIDEO 3.0 Omni",
 		"V8.1",
 		"V7",
 		"gpt-image-2",

@@ -47,8 +47,6 @@ def _copy_schemas(repo_root: Path) -> None:
     for name in (
         "image_selection.schema.json",
         "asset_clearance.schema.json",
-        "storyboard_option.schema.json",
-        "shot_list_omni_suggestion.schema.json",
         "video_take.schema.json",
         "video_review.schema.json",
         "selected_take.schema.json",
@@ -140,7 +138,7 @@ def test_yes_auto_handoff_default_writes_op_and_ho(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("CP_AGENT_NAME", raising=False)
-    _seed_storyboard_repo(tmp_path)  # storyboard_selection → gemini_code_assist/second_opinion
+    _seed_prompt_repo(tmp_path)  # t2i_image_generation → claude_code/manual_pickup
 
     result = apply_command(
         tmp_path,
@@ -160,8 +158,8 @@ def test_yes_auto_handoff_default_writes_op_and_ho(
     ho_data = yaml.safe_load(ho_path.read_text(encoding="utf-8"))
 
     assert op_data["status"] == "in_progress"
-    assert ho_data["to_agent"] == "gemini_code_assist"
-    assert ho_data["reason"] == "second_opinion"
+    assert ho_data["to_agent"] == "claude_code"
+    assert ho_data["reason"] == "manual_pickup"
     assert ho_data["status"] == "open"
     assert ho_data["from_agent"] != ho_data["to_agent"]
 
@@ -247,9 +245,9 @@ def test_yes_auto_handoff_skipped_when_from_eq_to(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # storyboard_selection routes to gemini_code_assist; if we ARE gemini, from==to → skip HO
-    monkeypatch.setenv("CP_AGENT_NAME", "gemini_code_assist")
-    _seed_storyboard_repo(tmp_path)
+    # t2i_image_generation routes to claude_code; if we ARE claude_code, from==to → skip HO
+    monkeypatch.setenv("CP_AGENT_NAME", "claude_code")
+    _seed_prompt_repo(tmp_path)
 
     result = apply_command(
         tmp_path,

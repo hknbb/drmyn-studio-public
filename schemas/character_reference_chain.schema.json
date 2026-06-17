@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://drmyn-studio/schemas/character_reference_chain.schema.json",
   "title": "Character Reference Chain",
-  "description": "Two-stage Midjourney reference chain for a character under Element Reference Generation Policy v2: stage_1 (narrative identity reference) -> stage_2 (omni-reference identity refinement) -> handoff to ChatGPT Images 2 for the scale-angle three-view pack. Stage versions are recorded in stage_1.version / stage_2.version; the active Midjourney version policy lives in docs/model_guides/midjourney.yaml. Metadata-only: stores prompt template references and external reference IDs, never image binaries. This record must never contain or modify pack_status, canon_lock, approved, locked, or selected lifecycle fields.",
+  "description": "Reference chain for a character under Element Reference Generation Policy v2. Two pipelines supported: (1) standard adult performance character — two-stage Midjourney chain stage_1 (narrative identity) -> stage_2 (omni-reference refinement) -> handoff to ChatGPT Images 2 for the scale-angle three-view pack; (2) protected-subject infant pipeline (additive Phase 6 branch) — identity_pipeline set to gpt_images_2_direct_protected_subject, MJ stages explicitly skipped via stage_1_skipped, and stage_3 records the GPT Images 2 first-reference + perspective pack handoff. Active branch is determined by presence of identity_pipeline; default (omitted) is the standard MJ pipeline. Metadata-only: stores prompt template references and external reference IDs, never image binaries. This record must never contain or modify pack_status, canon_lock, approved, locked, or selected lifecycle fields.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -10,10 +10,26 @@
     "record_type",
     "character_id",
     "status",
-    "stage_1",
-    "stage_2",
     "handoff",
     "provenance"
+  ],
+  "oneOf": [
+    {
+      "description": "Standard adult performance-character Midjourney narrative-identity then omni-reference pipeline. Active when identity_pipeline is omitted.",
+      "not": {
+        "required": ["identity_pipeline"]
+      },
+      "required": ["stage_1", "stage_2"]
+    },
+    {
+      "description": "Protected-subject infant GPT Images 2 direct pipeline (Phase 6 additive branch).",
+      "required": ["identity_pipeline", "stage_1_skipped", "stage_3"],
+      "properties": {
+        "identity_pipeline": {
+          "const": "gpt_images_2_direct_protected_subject"
+        }
+      }
+    }
   ],
   "properties": {
     "schema_version": {
@@ -137,12 +153,74 @@
       "properties": {
         "to_model": {
           "type": "string",
-          "enum": ["gpt_images_2", "chatgpt_images_2"]
+          "enum": ["gpt_images_2", "chatgpt_images_2", "kling_omni_3"]
         },
         "source_reference_id": {
           "type": "string",
           "minLength": 1,
-          "description": "The reference ID the ChatGPT Images 2 scale-angle pack consumes as source_reference_id. Mirrors stage_2.output_ref identity."
+          "description": "The reference ID the downstream model consumes as source_reference_id. For standard MJ pipeline this mirrors stage_2.output_ref identity; for protected-subject GPT Images 2 direct pipeline this mirrors stage_3.first_reference_output_ref."
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 2000
+        }
+      }
+    },
+    "identity_pipeline": {
+      "type": "string",
+      "enum": ["gpt_images_2_direct_protected_subject"],
+      "description": "Optional. Marks an additive non-MJ pipeline branch. Currently only gpt_images_2_direct_protected_subject is supported (Phase 6 infant / protected-subject branch). When present, stage_1 and stage_2 are not required; stage_1_skipped + stage_3 are required instead (enforced via oneOf at top level)."
+    },
+    "stage_1_skipped": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason"],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000,
+          "description": "Explicit explanation for why the standard MJ Stage 1 + Stage 2 pipeline is skipped. Required to avoid silent skips."
+        }
+      }
+    },
+    "stage_3": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "role", "first_reference_output_ref", "perspective_pack_id"],
+      "properties": {
+        "model": {
+          "const": "gpt_images_2"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_template_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_guidance_snapshot_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "first_reference_output_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "External reference for the GPT Images 2 first-reference output that serves as identity source for the perspective pack. external://... once generated; pending_external://... while scaffolded."
+        },
+        "perspective_pack_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ID of the linked gpt_images_perspective_pack record that consumes first_reference_output_ref as source_reference_id."
+        },
+        "care_context_required": {
+          "type": "boolean",
+          "description": "Protected-subject ethics flag. When true, perspective pack prompts must include explicit care context (safe support, infant blanket, or identity-neutral support hand)."
+        },
+        "qc_focus": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
         }
       }
     },

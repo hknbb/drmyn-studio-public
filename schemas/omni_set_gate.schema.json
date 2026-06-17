@@ -13,7 +13,6 @@
     "scene_card_ref",
     "omni_set_ref",
     "element_set_ref",
-    "storyboard_gate",
     "shot_list_gate",
     "element_pack_gate",
     "blocking_reasons",
@@ -51,27 +50,6 @@
     },
     "element_set_ref": {
       "type": ["string", "null"]
-    },
-    "storyboard_gate": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "storyboard_options_ref",
-        "selected_option",
-        "ready"
-      ],
-      "properties": {
-        "storyboard_options_ref": {
-          "type": "string",
-          "minLength": 1
-        },
-        "selected_option": {
-          "type": ["string", "null"]
-        },
-        "ready": {
-          "type": "boolean"
-        }
-      }
     },
     "shot_list_gate": {
       "type": "object",

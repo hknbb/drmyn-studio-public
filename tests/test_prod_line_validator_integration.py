@@ -25,8 +25,6 @@ def _copy_schemas(repo_root: Path) -> None:
         "image_selection.schema.json",
         "local_media_index.schema.json",
         "asset_clearance.schema.json",
-        "storyboard_option.schema.json",
-        "shot_list_omni_suggestion.schema.json",
         "batch_job.schema.json",
         "operator_session.schema.json",
         "pre_b8a_clean_reset.schema.json",
@@ -193,7 +191,9 @@ def _write_model_guidance_snapshot(
     human_verified: bool = True,
     expires_days: int = 7,
 ) -> None:
-    observed_at = datetime(2026, 5, 11, 0, 0, tzinfo=timezone.utc)
+    # Anchor to "now" so default snapshots are always fresh and the expires_days=-1
+    # case is always expired, regardless of the wall-clock date the suite runs on.
+    observed_at = datetime.now(timezone.utc)
     expires_at = observed_at + timedelta(days=expires_days)
     provider_dir = repo_root / "model_guidance_snapshots" / provider
     filename = f"20260511T000000Z_{target}.yaml"

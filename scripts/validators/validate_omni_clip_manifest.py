@@ -147,6 +147,16 @@ def validate_omni_clip_manifest(
     total_duration = record.get("total_duration_seconds", 0)
     shot_durations_sum = sum(shot.get("duration_seconds", 0) for shot in shots)
 
+    # Rule 1b: Kling Omni multi-shot caps at 6 shots (cuts) per single generation.
+    if len(shots) > 6:
+        errors.append(
+            OmniClipManifestValidationError(
+                clip_id=clip_id,
+                error_code="TOO_MANY_SHOTS",
+                message=f"clip has {len(shots)} shots; Kling Omni allows at most 6 shots per generation.",
+            )
+        )
+
     if shot_durations_sum != total_duration:
         errors.append(
             OmniClipManifestValidationError(

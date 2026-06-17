@@ -125,7 +125,7 @@ def _find_latest_snapshot(snapshots_dir: Path, internal_model_target: str) -> Pa
             continue
     if not candidates:
         return None
-    return max(candidates, key=lambda p: p.stat().st_mtime)
+    return max(candidates, key=lambda p: p.name)
 
 
 def _load_schema(repo_root: Path) -> dict | None:

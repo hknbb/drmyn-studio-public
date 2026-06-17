@@ -11,8 +11,9 @@ This is an operator guide. It does not perform runtime API calls. It follows the
 ## 2. Omni baseline realities
 
 - Shot-first design: one shot = one primary action.
-- Duration band: keep each clip in the 3-15 second range.
-- Native Audio is a separate pass and must not be mixed with visual validation.
+- Duration band: keep each clip at 15 seconds or less, with no more than 6 shots.
+- Repo-authored shots may be 2-15 seconds. Use 2-4 second cutaways/close-ups for reaction, reveal, prop, or pressure beats; use a single long static shot only when the scene explicitly needs a long take.
+- Native audio is written inline in prompt text when used, but visual-test prompts should keep audio disabled until identity/camera/continuity pass.
 
 ## 3. Repo-aligned working method
 
@@ -31,7 +32,34 @@ Do not introduce binary output folders like `renders/tests` or `renders/finals` 
 Core rule set:
 
 - Every clip is defined by an `omni_clip_manifest`.
-- `shots[]` must keep camera/lighting/motion explicit and reviewable.
+- `shots[]` keep camera/lighting/motion explicit and reviewable **in the manifest** (for QC);
+  the prompt itself reads as director's prose, not telemetry.
+- Render shot blocks **Goro-style, timecode-first**:
+  `[MM:SS - MM:SS] <Framing label>: <action + @Element + performance>. <camera sentence>. Audio: <diegetic cue>. — @Alias (tone): "line"`.
+  No `Shot N (Xs):` prefix; no added "Cut to" (the timecode block is the cut). Framing label
+  is chosen from `coverage_role` (Insert / Cutaway / Reverse angle) then `camera.framing`.
+- **Coverage over duplication:** cover a long beat with *distinct* shots (establish → reaction/insert
+  → reverse → resolve), each with its own `framing`/`focus_alias`/`performance_note`/`diegetic_audio`.
+  Never split one hold into two identical same-framing shots.
+- **Dialogue:** put the speaker's verbatim `line_text` inline in the speaking shot as
+  `— @Alias (tone): "…"` (tone from `delivery_note`; sequence with "Immediately,"). It always
+  appears as on-screen text; the audio gate (`render_pass`, `native_audio_readiness`) only controls
+  whether spoken **voice** is generated. `validate_dialogue_coverage` fails the build if a required
+  line is never assigned to a shot.
+- **Carried-state anchor (continuity chain):** open every shot by restating where each
+  subject/prop is as it begins — the prior shot's settled end — **before** the new action, so
+  positions don't reset at the cut. Author `shots[].entry_state` / `exit_state` (rich
+  `world_state` with `@alias` subjects + `posture`/`relation`/`visibility` + `props_state`),
+  chained `exit_state(N) == entry_state(N+1)` and matched to the `scene_continuity_ledger` at the
+  clip seam. The renderer prints it as the shot's opening clause.
+- **One action per character:** in any shot with ≥2 on-frame figures (or dialogue), give each
+  figure its own `figures[].action` clause (bind to the `@alias`, avoid pronouns); keep
+  `prompt_action` environment-only. State non-contact explicitly around a protected subject.
+- **Budget:** the 2500-char API cap is render_pass-aware — a warning on `visual_test`, **fatal**
+  on `final_candidate`/`final_locked`. `validate_state_chain` (incl. render-aware checks) guards
+  the chain and per-figure action.
+- Keep ordinary `short_insert` beats merged, but mark load-bearing cutaways with
+  `standalone_insert: true` so they render as explicit 2 second shots.
 - Preserve `required_element_ids -> element_bindings -> @Alias` consistency.
 
 ## 5. Master cinematic template (repo language)
@@ -82,7 +110,7 @@ Change only one variable per retry.
 ## 9. Fast execution recipe
 
 1. Finalize scene beat plan.
-2. Build clip manifest (3-15s).
+2. Build clip manifest (<=15s, <=6 shots).
 3. Generate Safe/Creative/Aggressive draft prompts.
 4. Do not proceed to performance pass before visual test passes.
 5. Record retry rules in QC metadata.

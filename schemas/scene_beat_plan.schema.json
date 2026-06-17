@@ -91,6 +91,32 @@
               "maxLength": 20
             }
           },
+          "figures": {
+            "type": "array",
+            "description": "Distinct on-screen figures present in this beat. Each figure carries its own Kling @alias so multiple figures sharing a base character identity are never collapsed (anti-clone). Propagated to omni_clip_manifest shots by the packer; operator-authored.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["figure_id", "base_element_id", "kling_alias", "role"],
+              "properties": {
+                "figure_id": { "type": "string", "pattern": "^FIG_[A-Z0-9_]+$" },
+                "base_element_id": { "type": "string", "pattern": "^C\\d{2}$" },
+                "kling_alias": { "type": "string", "pattern": "^@[A-Z0-9_]+$" },
+                "role": { "type": "string", "minLength": 1, "maxLength": 160 },
+                "distinguishing_detail": { "type": "string", "maxLength": 200 }
+              }
+            }
+          },
+          "subjects_off_frame": {
+            "type": "array",
+            "description": "Element IDs (C01, PROP001, etc.) that are physically in the scene but intentionally out of frame for this beat. Operator-authored acknowledgement; suppresses CONTINUITY_PRESENCE_GAP errors from validate_continuity_presence for the listed subjects. Required when a subject is present in surrounding beats but excluded here for genuine framing reasons (e.g. a tight insert that excludes a background figure).",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9]*\\d+$",
+              "minLength": 2,
+              "maxLength": 20
+            }
+          },
           "camera": {
             "type": "object",
             "additionalProperties": false,
@@ -203,6 +229,35 @@
                 "maxLength": 300
               }
             }
+          },
+          "coverage_role": {
+            "type": "string",
+            "enum": [
+              "establish",
+              "reaction",
+              "insert",
+              "reverse",
+              "resolve",
+              "push_in",
+              "detail",
+              "hold"
+            ],
+            "description": "Optional coverage grammar role hint for the director pass, propagated to the manifest shot. Lets a beat be covered by several distinct shots rather than one repeated framing."
+          },
+          "focus_alias": {
+            "type": "string",
+            "pattern": "^@[A-Z0-9_]+$",
+            "description": "Optional: the figure/element @alias this beat's coverage is ON (its visual subject). Enables reverse/reaction/insert coverage."
+          },
+          "performance_note": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Optional acting/emotion direction for the focus subject. Performance/emotion only - never new story facts. Woven into the shot's action prose by the renderer."
+          },
+          "diegetic_audio": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Optional in-world sound-design cue, rendered as an 'Audio:' line. Non-speech only; spoken dialogue stays gated by native_audio_readiness."
           },
           "notes": {
             "type": "string",

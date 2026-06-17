@@ -8,13 +8,13 @@
 
 model_id: chatgpt_image
 schema_version: "1.0"
-guide_version: "0.2.0"
+guide_version: "0.3.0"
 status: active
-last_updated: "2026-05-04"
+last_updated: "2026-06-15"
 maintained_by: "human PR only"
 phase: 1
 actual_model_id: "gpt-image-2"
-snapshot_ref: "evidence/model_guidance_snapshots/20260504T113000Z_chatgpt_image.yaml"
+snapshot_ref: "model_guidance_snapshots/openai/20260615T000000Z_chatgpt_image_best_available.yaml"
 
 capability:
   output_type: image
@@ -25,6 +25,10 @@ capability:
   supports_seed: false
   supports_multi_panel: true        # New in gpt-image-2: 8 panels from 1 prompt
   supports_reasoning_mode: true     # Built-in thinking mode in gpt-image-2
+  supports_multi_image_reference: true  # Up to 16 input images per call
+  max_input_images: 16
+  max_output_images: 10
+  max_image_size_mb: 50
   current_version: "gpt-image-2"
 
 prompt_rules:

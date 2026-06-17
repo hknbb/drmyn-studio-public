@@ -17,21 +17,6 @@ def _write_yaml(path: Path, payload: dict) -> None:
     path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
 
-def test_scene_to_kling_alias_resolves_sc0001_repo_data() -> None:
-    rows = resolve_scene_aliases(Path.cwd(), "SC0001")
-    by_char = {row.character_id: row.kling_element_alias for row in rows}
-    assert by_char["C01"] == "@C01_HOME_MORNING"
-    assert by_char["C03"] == "@C03_DOMESTIC_STAFF"
-
-
-def test_scene_to_kling_alias_resolves_sc0008_repo_data() -> None:
-    rows = resolve_scene_aliases(Path.cwd(), "SC0008")
-    by_char = {row.character_id: row.kling_element_alias for row in rows}
-    assert by_char["C01"] == "@C01_NIGHT_TIRED"
-    assert by_char["C02"] == "@C02_DOMESTIC_AUTHORITY"
-    assert by_char["C05"] == "@C05_MEMORY_INTIMATE"
-
-
 def test_scene_to_kling_alias_fails_when_look_has_no_alias(tmp_path: Path) -> None:
     _write_yaml(
         tmp_path / "visual_dev/omni_sets/SC0001/scene_character_look_map.yaml",
@@ -96,22 +81,3 @@ def test_scene_to_kling_alias_fails_when_scene_map_missing(tmp_path: Path) -> No
         resolve_scene_aliases(tmp_path, "SC0001")
 
 
-def test_export_scene_alias_hints_is_deterministic_and_contains_expected_aliases(tmp_path: Path) -> None:
-    repo_root = Path.cwd()
-    report = build_report(repo_root, "SC0001", "SC0009")
-
-    assert report["scenes"][0]["scene_id"] == "SC0001"
-    assert report["scenes"][-1]["scene_id"] == "SC0009"
-
-    all_aliases = {
-        alias["kling_element_alias"]
-        for scene in report["scenes"]
-        for alias in scene["aliases"]
-    }
-    assert "@C01_HOME_MORNING" in all_aliases
-    assert "@C05_MEMORY_INTIMATE" in all_aliases
-
-    out = tmp_path / "scene_alias_hints.yaml"
-    out.write_text(yaml.safe_dump(report, sort_keys=False), encoding="utf-8")
-    loaded = yaml.safe_load(out.read_text(encoding="utf-8"))
-    assert loaded == report

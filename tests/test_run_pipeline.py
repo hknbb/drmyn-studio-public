@@ -198,29 +198,6 @@ def test_suggest_pr_dispatch_prints_command_without_writing(
     assert not list(tmp_path.rglob("*"))
 
 
-def test_generate_storyboard_options_writes_null_selected_option(
-    tmp_path: Path,
-) -> None:
-    _write_scene(tmp_path)
-
-    code = run_pipeline.main(
-        [
-            "--repo-root",
-            str(tmp_path),
-            "--mode",
-            "generate-storyboard-options",
-            "--scene-id",
-            "SC0001",
-        ]
-    )
-
-    path = tmp_path / "visual_dev" / "storyboards" / "SC0001" / "storyboard_options.yaml"
-    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
-    assert code == 0
-    assert payload["selected_option"] is None
-    assert len(payload["options"]) == 5
-
-
 def test_refresh_model_guidance_writes_placeholder_snapshot(tmp_path: Path) -> None:
     code = run_pipeline.main(
         [

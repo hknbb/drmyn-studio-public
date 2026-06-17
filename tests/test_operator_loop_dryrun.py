@@ -54,8 +54,6 @@ def _copy_schemas(repo_root: Path) -> None:
     for name in (
         "image_selection.schema.json",
         "asset_clearance.schema.json",
-        "storyboard_option.schema.json",
-        "shot_list_omni_suggestion.schema.json",
         "video_take.schema.json",
         "video_review.schema.json",
         "selected_take.schema.json",
@@ -164,9 +162,9 @@ def test_full_operator_loop_dryrun(tmp_path: Path, monkeypatch: "pytest.MonkeyPa
     monkeypatch.delenv("CP_AGENT_NAME", raising=False)
     _seed_repo(tmp_path)
 
-    # Step 1: operator asks for next recommendation → storyboard_selection
+    # Step 1: operator asks for next recommendation → t2i_image_generation
     step1 = recommend_next_step(tmp_path)
-    assert step1.current_task == "storyboard_selection"
+    assert step1.current_task == "t2i_image_generation"
     assert step1.scene_id == SCENE_ID
     assert "yes" in step1.allowed_commands
     assert "switch" in step1.allowed_commands
@@ -190,7 +188,7 @@ def test_full_operator_loop_dryrun(tmp_path: Path, monkeypatch: "pytest.MonkeyPa
 
     # Step 3: handoff alone does not advance the task
     step3 = recommend_next_step(tmp_path)
-    assert step3.current_task == "storyboard_selection"
+    assert step3.current_task == "t2i_image_generation"
 
     # Step 4: yes — writes operator session + auto-handoff (B8-4: default auto_handoff=True)
     result_yes = apply_command(
@@ -206,16 +204,9 @@ def test_full_operator_loop_dryrun(tmp_path: Path, monkeypatch: "pytest.MonkeyPa
     assert session_path.exists()
     session_data = yaml.safe_load(session_path.read_text(encoding="utf-8"))
     assert session_data["status"] == "in_progress"
-    assert session_data["current_task"] == "storyboard_selection"
+    assert session_data["current_task"] == "t2i_image_generation"
 
-    # Step 5: simulate human storyboard selection —
-    # remove the storyboard file so the operator loop advances past it
-    storyboard_file = (
-        tmp_path / "visual_dev" / "storyboards" / SCENE_ID / "storyboard_options.yaml"
-    )
-    storyboard_file.unlink()
-
-    # Step 6: recommendation advances to the prompt task
+    # Step 6: recommendation remains the prompt task
     step6 = recommend_next_step(tmp_path)
     assert step6.current_task == "t2i_image_generation"
     assert step6.scene_id == SCENE_ID

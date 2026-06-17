@@ -180,23 +180,6 @@ def test_candidate_images_with_review_notes_recommends_image_review(
     assert any("ImageReviewAgent" in item for item in step.do_steps)
 
 
-def test_storyboard_options_with_null_selection_recommends_human_selection(
-    tmp_path: Path,
-) -> None:
-    _write_scene(tmp_path)
-    path = tmp_path / "visual_dev" / "storyboards" / "SC0001" / "storyboard_options.yaml"
-    _write_yaml(path, _valid_storyboard_options())
-
-    step = recommend_next_step(tmp_path)
-
-    assert step.current_task == "storyboard_selection"
-    assert step.scene_id == "SC0001"
-    _assert_recommended_route(step, "gemini_code_assist", "second_opinion")
-    _assert_allowed_commands(step)
-    assert path.relative_to(tmp_path).as_posix() in step.open_files
-    assert "selected_option unchanged" in " ".join(step.do_steps)
-
-
 def test_no_binaries_or_lifecycle_files_are_created(tmp_path: Path) -> None:
     _write_scene(tmp_path)
     _write_prompt_draft(tmp_path)

@@ -177,6 +177,33 @@
               "minLength": 1
             }
           }
+        },
+        {
+          "additionalProperties": false,
+          "required": [
+            "full_body_front",
+            "three_quarter_waist",
+            "close_portrait_front",
+            "profile_full"
+          ],
+          "properties": {
+            "full_body_front": {
+              "type": "string",
+              "minLength": 1
+            },
+            "three_quarter_waist": {
+              "type": "string",
+              "minLength": 1
+            },
+            "close_portrait_front": {
+              "type": "string",
+              "minLength": 1
+            },
+            "profile_full": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
         }
       ]
     },

@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://drmyn-studio/schemas/golden_reference_plan.schema.json",
+  "title": "Golden Reference Plan",
+  "description": "Production plan record for the selected golden reference scene. Documents the authoritative selection decision, all required elements and look bindings, wardrobe continuity policy, dialogue/native-audio gate status, shot coverage scaffold, and external generation policy. One record per golden scene. Serves as the master gate document for PR-GOLDEN-2 through PR-GOLDEN-7.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "record_type",
+    "golden_reference_plan_id",
+    "scene_id",
+    "status",
+    "selected_scene_reason",
+    "required_elements",
+    "character_look_requirements",
+    "wardrobe_continuity_policy",
+    "dialogue_native_audio_needs",
+    "shot_coverage",
+    "qc_policy",
+    "external_generation_policy",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.x-draft"
+    },
+    "record_type": {
+      "const": "golden_reference_plan"
+    },
+    "golden_reference_plan_id": {
+      "type": "string",
+      "pattern": "^GOLDEN_PLAN_SC[0-9]{4}_V[0-9]{3}$"
+    },
+    "scene_id": {
+      "type": "string",
+      "pattern": "^SC[0-9]{4}$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "locked", "blocked", "rejected"]
+    },
+    "selected_scene_reason": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "required_elements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "element_id",
+          "element_type",
+          "role",
+          "on_camera_status"
+        ],
+        "properties": {
+          "element_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "element_type": {
+            "type": "string",
+            "enum": [
+              "character",
+              "system_character",
+              "location",
+              "location_sub_area",
+              "prop",
+              "wardrobe",
+              "anonymous_silhouette",
+              "other"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "on_camera_status": {
+            "type": "string",
+            "enum": [
+              "on_camera",
+              "voice_only",
+              "silhouette_only",
+              "off_camera",
+              "not_required_this_scene"
+            ]
+          },
+          "kling_reference_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "character_look_requirements": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "element_id",
+          "kling_reference_id",
+          "prompt_level_continuity_policy"
+        ],
+        "properties": {
+          "element_id": {
+            "type": "string",
+            "pattern": "^C[0-9]{2}$"
+          },
+          "kling_reference_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kling_element_alias": {
+            "type": "string",
+            "pattern": "^@C[0-9]{2}_[A-Z0-9_]+$"
+          },
+          "prompt_level_continuity_policy": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "wardrobe_continuity_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policy_type",
+        "directive_text"
+      ],
+      "properties": {
+        "policy_type": {
+          "type": "string",
+          "enum": ["prompt_level_continuity", "asset_lookvariant"]
+        },
+        "directive_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "escalation_trigger": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "dialogue_native_audio_needs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "readiness_state",
+        "rendering_rule"
+      ],
+      "properties": {
+        "readiness_state": {
+          "type": "string",
+          "enum": ["ready", "suppressed", "partial"]
+        },
+        "rendering_rule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dialogue_sources": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "shot_coverage": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "shot_id",
+          "intent",
+          "camera_role",
+          "framing_notes",
+          "dialogue_present"
+        ],
+        "properties": {
+          "shot_id": {
+            "type": "string",
+            "pattern": "^SH[0-9]{3}$"
+          },
+          "intent": {
+            "type": "string",
+            "minLength": 1
+          },
+          "camera_role": {
+            "type": "string",
+            "enum": [
+              "establishing",
+              "character_coverage",
+              "insert",
+              "reaction",
+              "movement",
+              "final_hold",
+              "other"
+            ]
+          },
+          "framing_notes": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dialogue_present": {
+            "type": "boolean"
+          },
+          "manifest_status": {
+            "type": "string",
+            "enum": ["pending", "open", "complete"]
+          }
+        }
+      }
+    },
+    "camera_grammar_ref": {
+      "type": "string",
+      "minLength": 1
+    },
+    "qc_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_score",
+        "all_shots_required"
+      ],
+      "properties": {
+        "minimum_score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "all_shots_required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "external_generation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "target_model",
+        "no_binary_commits",
+        "external_storage_only"
+      ],
+      "properties": {
+        "target_model": {
+          "type": "string",
+          "enum": ["kling_omni_3"]
+        },
+        "no_binary_commits": {
+          "const": true
+        },
+        "external_storage_only": {
+          "const": true
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "created_by",
+        "created_at"
+      ],
+      "properties": {
+        "created_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

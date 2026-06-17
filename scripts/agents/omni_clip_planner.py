@@ -4,9 +4,10 @@ Deterministic rhythm-aware omni clip planner for Kling production.
 Entry point: plan_omni_clips()
 
 Hard constraints enforced (v2 plan §13 / §6 B6):
-1. Every shot duration is an integer in {3..15}.
+1. Every shot duration is an integer in {2..15}.
 2. Every clip total duration <= 15s.
-3. short_insert beats merge into neighboring shots; never standalone Kling shots.
+3. short_insert beats merge into neighboring shots unless explicitly marked
+   standalone_insert: true for load-bearing cutaways.
 4. Dialogue lines are not split across clips (guaranteed: beats are not split).
 5. Beats with splittable: false appear in exactly one shot.
 6. Dialogue-heavy clips default to continuity_input_mode: metadata_only.
@@ -33,9 +34,10 @@ import yaml
 PACKER_VERSION: str = "rhythm_aware_v1"
 SCHEMA_VERSION: str = "0.x-draft"
 
-VALID_SHOT_DURATIONS: frozenset[int] = frozenset(range(3, 16))
+VALID_SHOT_DURATIONS: frozenset[int] = frozenset(range(2, 16))
 MAX_CLIP_DURATION: int = 15
-MIN_SHOT_DURATION: int = 3
+MIN_SHOT_DURATION: int = 2
+MIN_STABLE_SHOT_DURATION: int = 3
 
 # Base durations by semantic_duration_hint
 _HINT_BASE: dict[str, int] = {
@@ -111,10 +113,10 @@ def _build_dialogue_map(record: dict) -> dict[str, list[dict]]:
 def _dialogue_duration(lines: list[dict]) -> int:
     """Compute shot duration for a dialogue beat from word counts across lines."""
     if not lines:
-        return MIN_SHOT_DURATION
+        return MIN_STABLE_SHOT_DURATION
     total_words = sum(len(ln.get("line_text", "").split()) for ln in lines)
     secs = total_words / _DIALOGUE_WPS + len(lines) * _PAUSE_PER_TURN
-    return max(MIN_SHOT_DURATION, min(MAX_CLIP_DURATION, round(secs)))
+    return max(MIN_STABLE_SHOT_DURATION, min(MAX_CLIP_DURATION, round(secs)))
 
 
 def _beat_duration(beat: dict, lines: list[dict]) -> int:
@@ -131,7 +133,7 @@ def _beat_duration(beat: dict, lines: list[dict]) -> int:
         return _dialogue_duration(lines)
 
     delta = _ROLE_DELTA.get(role, 0)
-    return max(MIN_SHOT_DURATION, min(MAX_CLIP_DURATION, base + delta))
+    return max(MIN_STABLE_SHOT_DURATION, min(MAX_CLIP_DURATION, base + delta))
 
 
 # ---------------------------------------------------------------------------
@@ -146,13 +148,14 @@ def _resolve_shots(
     Convert beats into _Shot candidates, merging short_insert beats into neighbors.
 
     Merge rules (deterministic):
-    1. A short_insert following a beat with may_merge_with_next: true merges BACKWARD
+    1. A short_insert marked standalone_insert: true remains a 2s shot.
+    2. A short_insert following a beat with may_merge_with_next: true merges BACKWARD
        into that preceding beat's shot (adding its 2s contribution).
-    2. If the preceding beat has may_merge_with_next: false, the insert merges FORWARD
+    3. If the preceding beat has may_merge_with_next: false, the insert merges FORWARD
        into the next non-insert beat's shot.
-    3. Trailing short_inserts (no following non-insert beat) merge BACKWARD into the
+    4. Trailing short_inserts (no following non-insert beat) merge BACKWARD into the
        last accumulated shot, regardless of may_merge_with_next.
-    4. Multiple consecutive short_inserts are accumulated and merged together.
+    5. Multiple consecutive non-standalone short_inserts are accumulated and merged together.
     """
     def _as_mapping(value: Any) -> dict[str, Any]:
         return dict(value) if isinstance(value, dict) else {}
@@ -173,6 +176,12 @@ def _resolve_shots(
             merged["blocking_notes"] = anchor_blocking.strip()
         return merged
 
+    def _is_standalone_insert(beat: dict[str, Any]) -> bool:
+        return (
+            beat.get("semantic_duration_hint") == "short_insert"
+            and beat.get("standalone_insert") is True
+        )
+
     # Build raw candidates with per-beat durations
     raw: list[tuple[dict, _Shot]] = []
     for beat in beats:
@@ -186,7 +195,7 @@ def _resolve_shots(
         if len(content) > 120:
             content = content[:117] + "..."
         elem_ids: list[str] = list(beat.get("required_element_ids") or [])
-        raw.append((beat, _Shot(
+        shot = _Shot(
             beat_ids=[bid],
             duration=dur,
             prompt_action=content,
@@ -198,7 +207,13 @@ def _resolve_shots(
             camera=_as_mapping(beat.get("camera")),
             lighting=_as_mapping(beat.get("lighting")),
             motion=_as_mapping(beat.get("motion")),
-        )))
+        )
+        # One beat -> one shot. The old "split a long_hold into 3s + remainder"
+        # path produced two IDENTICAL same-framing shots (wide -> wide), which
+        # reads as a static hold cut in half, not cinematic coverage. True
+        # coverage (varied framing, reaction cutaways, inserts) is authored at the
+        # manifest level by the director pass, not fabricated here.
+        raw.append((beat, shot))
 
     def _union_elements(shots: list[_Shot]) -> list[str]:
         seen: dict[str, None] = {}
@@ -225,6 +240,8 @@ def _resolve_shots(
                     nxt_beat, nxt_shot = raw[j]
                     if nxt_beat.get("semantic_duration_hint") != "short_insert":
                         break
+                    if _is_standalone_insert(nxt_beat):
+                        break
                     # Absorb nxt_shot into current shot
                     new_dur = min(MAX_CLIP_DURATION, shot.duration + nxt_shot.duration)
                     shot = _Shot(
@@ -249,6 +266,11 @@ def _resolve_shots(
             i = j
 
         else:
+            if _is_standalone_insert(beat):
+                result.append(shot)
+                i += 1
+                continue
+
             # Insert beat encountered without a backward-merge host:
             # may_merge_with_next=false on the preceding beat, or at list start.
             # Collect consecutive inserts and merge FORWARD into next regular beat.
@@ -257,6 +279,8 @@ def _resolve_shots(
             while j < n:
                 nxt_beat, nxt_shot = raw[j]
                 if nxt_beat.get("semantic_duration_hint") != "short_insert":
+                    break
+                if _is_standalone_insert(nxt_beat):
                     break
                 pending.append(nxt_shot)
                 j += 1
@@ -481,8 +505,8 @@ def _build_output(
         "notes": (
             f"Computed by omni_clip_planner packer_version={PACKER_VERSION}. "
             f"Clip count is derived, not authored. "
-            f"Hard constraints: shot [3..15]s integer-only, clip total <=15s, "
-            f"no short_insert as standalone shot, no unsplittable beat split."
+            f"Hard constraints: shot [2..15]s integer-only, clip total <=15s, "
+            f"standalone short_insert only when explicitly flagged, no unsplittable beat split."
         ),
         "provenance": {
             "created_by": created_by,

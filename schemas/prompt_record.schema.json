@@ -152,6 +152,21 @@
           "enum": ["dynamic_snapshot", "locked_guide"],
           "description": "Mode for model guidance: dynamic_snapshot resolves from snapshots; locked_guide uses static guidance."
         },
+        "language_profile": {
+          "type": "string",
+          "enum": ["kling_literal_alias_locked", "legacy_prose"],
+          "description": "Model-facing prompt grammar profile for Kling records. kling_literal_alias_locked: alias-only literal blocking, validator-enforced banlist (raw names, role nouns, metaphor, bare position labels). legacy_prose: pre-v07 metaphor-bearing prose, grandfathered until migrated. Every active Kling (kling_omni) record must declare one (enforced by the semantic validator)."
+        },
+        "input_mode": {
+          "type": "string",
+          "enum": ["text_only", "anchored_i2v"],
+          "description": "text_only: prompt-only generation (the v07 default); identity rests on Kling Element Library bindings. anchored_i2v: legacy image-anchored route using start_frame_ref/contact_sheet_ref/visual_input_budget."
+        },
+        "continuity_seed_ref": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Optional, text_only-only: relative path to an EXTRACTED last-frame used purely as a continuity seed. Deliberately distinct from the anchored_i2v triplet (start_frame_ref/contact_sheet_ref/visual_input_budget) so the retired contact-sheet logic cannot leak back in via name overload. Carries no element budget. The validator forbids the anchored_i2v triplet under input_mode=text_only."
+        },
         "model_guidance_snapshot_ref": {
           "type": "string",
           "description": "Relative path to the model guidance snapshot file used during generation (e.g., model_guidance_snapshots/kling/20260508T140000Z_kling_omni_video_best_available.yaml)."

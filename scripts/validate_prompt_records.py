@@ -14,9 +14,120 @@ if str(REPO_ROOT) not in sys.path:
 from scripts.validators.validate_shot_element_manifest import (
     validate_shot_element_manifest_file,
 )
+from scripts.validators.validate_omni_clip_manifest import validate_omni_clip_manifest
 
 
 CANONICAL_ID_RE = re.compile(r"(?<!@)\b(?:C\d{2}|LOC\d{3}(?:_[A-Z0-9_]+)?|PROP\d{3}|WD\d{3})\b")
+
+LITERAL_PROFILE = "kling_literal_alias_locked"
+
+# Subject role nouns that must never stand in for an @alias under the literal
+# profile (Kling reads them as new/extra subjects -> clones, identity drift).
+_ROLE_NOUN_RE = re.compile(
+    r"(?<!@)\b("
+    r"infant|infants|child|children|baby|babies|toddler|kid|kids|"
+    r"mother|mothers|father|fathers|mom|mum|dad|"
+    r"woman|women|man|men|boy|boys|girl|girls|"
+    r"enforcer|enforcers|medic|medics|guard|guards|nurse|nurses"
+    r")\b",
+    re.IGNORECASE,
+)
+
+# Abstract / author-facing metaphor the model cannot render literally.
+_METAPHOR_BANLIST = (
+    "protected center",
+    "means something",
+    "about to lose",
+    "already elsewhere",
+    "already somewhere",
+    "held stillness",
+    "intruding geometry",
+    "turn of the beat",
+    "unbearable",
+    "deliberate warmth",
+    "measure of the cost",
+    "measure the coming loss",
+    "reclaims its quiet",
+    "the warmth is about",
+    "means nothing",
+)
+
+# Bare positional label: Kling reads "center" as a literal framing command.
+_BARE_CENTER_RE = re.compile(r"(?<![\w@-])(?:centered|center|centre|centred)\b", re.IGNORECASE)
+
+# Mask @aliases and quoted dialogue before scanning control prose, so neither an
+# alias substring nor legitimate in-world speech trips the banlists.
+_ALIAS_MASK_RE = re.compile(r"@[A-Z0-9_]+")
+_QUOTED_MASK_RE = re.compile(r'"[^"]*"')
+
+# Loose physical-performance lexicon: a literal acting/blocking cue.
+_PERFORMANCE_CUE_RE = re.compile(
+    r"\b("
+    r"eyes?|face|jaw|hands?|arms?|shoulders?|fingers?|grip|"
+    r"breath|breathing|still|holds?|held|holding|lowered|lifts?|lifted|"
+    r"turns?|turned|closes?|closed|looks?|looking|watches?|watching|"
+    r"stands?|standing|sits?|seated|steps?|reaches?|reaching|nods?|"
+    r"resists?|resisting|shields?|shielding|cradled|supported"
+    r")\b",
+    re.IGNORECASE,
+)
+
+_CHAR_ALIAS_RE = re.compile(r"@C\d{2}_[A-Z0-9_]+")
+
+
+def _mask_for_banlist_scan(text):
+    masked = _QUOTED_MASK_RE.sub(" ", text)
+    masked = _ALIAS_MASK_RE.sub(" ", masked)
+    return masked
+
+
+def _literal_profile_errors(instance, params):
+    """Strict bans for active kling_literal_alias_locked prompt records."""
+    errors = []
+    prompt_text = instance.get("prompt_text")
+    if not isinstance(prompt_text, str):
+        return errors
+
+    scan = _mask_for_banlist_scan(prompt_text)
+
+    role_hits = sorted({m.group(0).lower() for m in _ROLE_NOUN_RE.finditer(scan)})
+    if role_hits:
+        errors.append(
+            "prompt_text uses role nouns instead of @alias under "
+            f"language_profile={LITERAL_PROFILE}: {', '.join(role_hits)}"
+        )
+
+    low = scan.lower()
+    metaphor_hits = sorted({p for p in _METAPHOR_BANLIST if p in low})
+    if metaphor_hits:
+        errors.append(
+            "prompt_text uses banned abstract/metaphor language under "
+            f"language_profile={LITERAL_PROFILE}: {', '.join(metaphor_hits)}"
+        )
+
+    center_hits = sorted({m.group(0).lower() for m in _BARE_CENTER_RE.finditer(scan)})
+    if center_hits:
+        errors.append(
+            "prompt_text uses a bare position label (Kling reads it as a framing "
+            f"command) under language_profile={LITERAL_PROFILE}: {', '.join(center_hits)}"
+        )
+
+    # Every declared active alias must appear in the prompt text.
+    for alias in _string_items(params.get("required_element_aliases")):
+        if alias.startswith("@") and alias not in prompt_text:
+            errors.append(
+                f"prompt_text is missing required active alias {alias!r} under "
+                f"language_profile={LITERAL_PROFILE}"
+            )
+
+    # A clip with a character alias must carry at least one physical performance cue.
+    if _CHAR_ALIAS_RE.search(prompt_text) and not _PERFORMANCE_CUE_RE.search(scan):
+        errors.append(
+            "prompt_text contains a character alias but no literal physical "
+            f"performance cue under language_profile={LITERAL_PROFILE}"
+        )
+
+    return errors
 
 
 def _load_yaml_mapping(path):
@@ -151,10 +262,14 @@ def _prompt_semantic_errors(instance, repo_root):
     errors = []
 
     manifest_ref = params.get("shot_element_manifest_ref")
+    clip_manifest_ref = params.get("omni_clip_manifest_ref")
     manifest_data = None
-    if not is_deprecated and not (isinstance(manifest_ref, str) and manifest_ref.strip()):
+    has_shot_manifest = isinstance(manifest_ref, str) and manifest_ref.strip()
+    has_clip_manifest = isinstance(clip_manifest_ref, str) and clip_manifest_ref.strip()
+    if not is_deprecated and not (has_shot_manifest or has_clip_manifest):
         errors.append(
-            "generation_params.shot_element_manifest_ref is required for active "
+            "generation_params.shot_element_manifest_ref or "
+            "generation_params.omni_clip_manifest_ref is required for active "
             "Kling Omni prompts"
         )
 
@@ -193,6 +308,30 @@ def _prompt_semantic_errors(instance, repo_root):
                 "shot_element_manifest_ref is present; use environmental_only_allowed_ids "
                 "in the manifest instead"
             )
+
+    if isinstance(clip_manifest_ref, str) and clip_manifest_ref.strip():
+        clip_manifest_path = repo_root / clip_manifest_ref
+        if not clip_manifest_path.exists():
+            errors.append(
+                f"generation_params.omni_clip_manifest_ref not found: {clip_manifest_ref}"
+            )
+        else:
+            clip_manifest_data = _load_yaml_mapping(clip_manifest_path)
+            if clip_manifest_data.get("record_type") != "omni_clip_manifest":
+                errors.append(
+                    "generation_params.omni_clip_manifest_ref must point to an "
+                    "omni_clip_manifest record"
+                )
+            if clip_manifest_data.get("scene_id") != scene_id:
+                errors.append(
+                    "generation_params.omni_clip_manifest_ref scene_id does not "
+                    f"match prompt scene_id {scene_id!r}"
+                )
+            for issue in validate_omni_clip_manifest(clip_manifest_data, repo_root):
+                errors.append(
+                    "omni_clip_manifest_ref "
+                    f"{issue.error_code}: {issue.message}"
+                )
 
     not_attached = set(_string_items(params.get("not_attached_as_kling_elements")))
 
@@ -297,6 +436,26 @@ def _prompt_semantic_errors(instance, repo_root):
                 f"{', '.join(leaked_names)}"
             )
 
+    # ---- v07 language-profile + text_only seed-lock enforcement (active only) ----
+    language_profile = params.get("language_profile")
+    input_mode = params.get("input_mode")
+    if not is_deprecated:
+        if not language_profile:
+            errors.append(
+                "generation_params.language_profile is required for active Kling "
+                "Omni prompts (kling_literal_alias_locked or legacy_prose)"
+            )
+        if input_mode == "text_only":
+            for forbidden in ("start_frame_ref", "contact_sheet_ref", "visual_input_budget"):
+                if params.get(forbidden) is not None:
+                    errors.append(
+                        f"generation_params.{forbidden} is not allowed under "
+                        "input_mode=text_only; only continuity_seed_ref (an extracted "
+                        "last-frame) may seed continuity, and it carries no element budget"
+                    )
+        if language_profile == LITERAL_PROFILE:
+            errors.extend(_literal_profile_errors(instance, params))
+
     return errors
 
 
@@ -339,7 +498,10 @@ def main(args=None):
     for d in prompt_dirs:
         dir_path = repo_root / "prompts" / d
         if dir_path.exists():
-            yaml_files.extend(list(dir_path.glob("*.yaml")))
+            yaml_files.extend(
+                path for path in dir_path.glob("*.yaml")
+                if not path.name.endswith("_run.yaml")
+            )
 
     report = {
         "total_files_scanned": len(yaml_files),

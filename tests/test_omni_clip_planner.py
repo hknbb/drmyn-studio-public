@@ -2,9 +2,9 @@
 Tests for scripts/agents/omni_clip_planner.py.
 
 Covers:
-- short_insert merge directions (backward / forward)
+- short_insert merge directions (backward / forward) and explicit standalone cutaways
 - clip duration hard constraint (<= 15s)
-- shot duration valid integer enum (3..15)
+- shot duration valid integer enum (2..15)
 - dialogue-heavy clips → metadata_only continuity mode
 - determinism: same input produces identical output
 - every shot has duration_reason
@@ -42,9 +42,10 @@ def _make_beat(
     role: str = "action",
     may_merge: bool = True,
     splittable: bool = False,
+    standalone_insert: bool = False,
     content: str = "Placeholder content.",
 ) -> dict:
-    return {
+    beat = {
         "beat_id": beat_id,
         "content": content,
         "semantic_duration_hint": hint,
@@ -52,6 +53,9 @@ def _make_beat(
         "may_merge_with_next": may_merge,
         "splittable": splittable,
     }
+    if standalone_insert:
+        beat["standalone_insert"] = True
+    return beat
 
 
 def _all_shot_beat_ids(clips: list[dict]) -> list[list[str]]:
@@ -144,6 +148,26 @@ def test_short_insert_merges_forward_when_prev_forbids():
     assert "BEAT_B" in shots[1].beat_ids
 
 
+def test_standalone_short_insert_remains_cutaway_shot():
+    """Load-bearing inserts may remain explicit 2s cutaway shots."""
+    beats = [
+        _make_beat("BEAT_A", hint="normal", role="action", may_merge=True),
+        _make_beat(
+            "BEAT_INS",
+            hint="short_insert",
+            role="insert",
+            standalone_insert=True,
+        ),
+        _make_beat("BEAT_B", hint="normal", role="action"),
+    ]
+    shots = _resolve_shots(beats, {})
+    assert len(shots) == 3
+    assert shots[0].beat_ids == ["BEAT_A"]
+    assert shots[1].beat_ids == ["BEAT_INS"]
+    assert shots[1].duration == 2
+    assert shots[2].beat_ids == ["BEAT_B"]
+
+
 def test_consecutive_inserts_all_merge_backward():
     """Multiple consecutive inserts all merge backward into preceding beat."""
     beats = [
@@ -172,6 +196,25 @@ def test_trailing_inserts_merge_backward_into_last_shot():
     assert len(shots) == 1
     assert "MAIN" in shots[0].beat_ids
     assert "TRAIL_INS" in shots[0].beat_ids
+
+
+def test_splittable_long_hold_is_not_fabricated_into_same_frame_shots():
+    """A long_hold beat becomes ONE shot, not two identical same-framing shots.
+
+    The old packer split a splittable long_hold into 3s + remainder, but both
+    sub-shots inherited the same camera/framing/action — a static hold cut in
+    half, not coverage. Cinematic coverage (varied framing, reaction cutaways,
+    inserts) is authored at the manifest level by the director pass, never
+    fabricated by the deterministic packer.
+    """
+    beats = [
+        _make_beat("LONG", hint="long_hold", role="hold", splittable=True),
+    ]
+    shots = _resolve_shots(beats, {})
+    assert len(shots) == 1
+    assert shots[0].beat_ids == ["LONG"]
+    assert shots[0].duration == 11  # long_hold base 10 + hold role delta 1
+    assert "split" not in shots[0].duration_reason
 
 
 def test_merge_caps_duration_at_max():
@@ -431,8 +474,8 @@ def test_sc0001_total_duration_matches_sum_of_shots(sc0001_result):
         )
 
 
-def test_sc0001_all_beats_covered_exactly_once(sc0001_result):
-    """Every SC0001 source beat appears in exactly one shot across all clips."""
+def test_sc0001_all_beats_covered_in_one_clip(sc0001_result):
+    """Every SC0001 source beat appears in one clip; splittable beats may use multiple shots."""
     _, manifests = sc0001_result
     beat_clip_map: dict[str, list[str]] = {}
     for m in manifests:
@@ -442,7 +485,7 @@ def test_sc0001_all_beats_covered_exactly_once(sc0001_result):
 
     for bid in SC0001_ALL_BEAT_IDS:
         clips_containing = beat_clip_map.get(bid, [])
-        assert len(clips_containing) == 1, (
+        assert len(set(clips_containing)) == 1, (
             f"Beat {bid!r} appears in {len(clips_containing)} clips: {clips_containing}"
         )
 

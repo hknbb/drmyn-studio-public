@@ -2,8 +2,8 @@
 Production Status Agent for Batch 5.8.
 
 Reads existing repo metadata and writes a conservative production status CSV.
-It does not generate prompts, run external tools, select storyboard options, or
-mutate lifecycle fields such as pack_status, canon_lock, approved, or locked.
+It does not generate prompts, run external tools, or mutate lifecycle fields
+such as pack_status, canon_lock, approved, or locked.
 """
 
 from __future__ import annotations
@@ -22,7 +22,6 @@ from jsonschema import Draft202012Validator
 STATUS_FIELDS = (
     "scene_id",
     "element_packs_status",
-    "storyboard_status",
     "still_prompt_status",
     "omni_prompt_status",
     "takes_status",
@@ -37,7 +36,6 @@ SCENE_DIR_RE = re.compile(r"^SC\d{4}$")
 class ProductionSceneStatus:
     scene_id: str
     element_packs_status: str
-    storyboard_status: str
     still_prompt_status: str
     omni_prompt_status: str
     takes_status: str
@@ -72,27 +70,6 @@ def _scene_ids(repo_root: Path) -> list[str]:
 
 def _has_any(root: Path, pattern: str) -> bool:
     return root.is_dir() and any(root.glob(pattern))
-
-
-def _storyboard_status(repo_root: Path, scene_id: str) -> str:
-    path = repo_root / "visual_dev" / "storyboards" / scene_id / "storyboard_options.yaml"
-    if not path.exists():
-        return "not_started"
-    data = _read_yaml(path)
-    if not isinstance(data, dict):
-        return "blocked"
-    if data.get("selected_option") is not None:
-        return "selected"
-    statuses = [
-        option.get("status")
-        for option in data.get("options", [])
-        if isinstance(option, dict)
-    ]
-    if "blocked" in statuses:
-        return "blocked"
-    if statuses and all(status == "evidence_thin" for status in statuses):
-        return "blocked"
-    return "storyboard_pending"
 
 
 def _element_packs_status(repo_root: Path) -> str:
@@ -140,21 +117,19 @@ def _selected_clip_status(repo_root: Path, scene_id: str) -> str:
 
 def _overall_status(
     *,
-    storyboard_status: str,
     element_packs_status: str,
     still_prompt_status: str,
     takes_status: str,
     selected_clip_status: str,
 ) -> str:
     if "blocked" in {
-        storyboard_status,
         element_packs_status,
         still_prompt_status,
         takes_status,
         selected_clip_status,
     }:
         return "blocked"
-    if storyboard_status == "storyboard_pending" or element_packs_status == "image_review_pending":
+    if element_packs_status == "image_review_pending":
         return "ready_for_operator"
     if still_prompt_status == "pending":
         return "image_review_pending"
@@ -165,7 +140,6 @@ def summarize_scene(repo_root: str | Path, scene_id: str) -> ProductionSceneStat
     """Summarize one scene from existing metadata only."""
     root = Path(repo_root)
     element_packs_status = _element_packs_status(root)
-    storyboard_status = _storyboard_status(root, scene_id)
     still_prompt_status = _still_prompt_status(root, scene_id)
     omni_prompt_status = _omni_prompt_status(root, scene_id)
     takes_status = _takes_status(root, scene_id)
@@ -174,13 +148,11 @@ def summarize_scene(repo_root: str | Path, scene_id: str) -> ProductionSceneStat
     return ProductionSceneStatus(
         scene_id=scene_id,
         element_packs_status=element_packs_status,
-        storyboard_status=storyboard_status,
         still_prompt_status=still_prompt_status,
         omni_prompt_status=omni_prompt_status,
         takes_status=takes_status,
         selected_clip_status=selected_clip_status,
         overall_status=_overall_status(
-            storyboard_status=storyboard_status,
             element_packs_status=element_packs_status,
             still_prompt_status=still_prompt_status,
             takes_status=takes_status,

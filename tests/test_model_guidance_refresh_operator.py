@@ -35,7 +35,7 @@ from scripts.operators.model_guidance_refresh_operator import (
 
 REPO_ROOT = Path(__file__).parent.parent
 REFERENCE_TIME = datetime(2026, 5, 10, 12, 0, 0, tzinfo=timezone.utc)
-FUTURE = (REFERENCE_TIME + timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ")
+FUTURE = "2099-12-31T23:59:59Z"
 PAST = (REFERENCE_TIME - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 

@@ -430,35 +430,6 @@ def test_prompt_record_with_aesthetic_refs_passes_schema(tmp_path: Path) -> None
 # ---------------------------------------------------------------------------
 
 
-def test_storyboard_options_propagate_aesthetic_pack_refs(tmp_path: Path) -> None:
-    from scripts.agents.storyboard_options import StoryboardOptionsAgent
-    _minimal_scene(tmp_path, pack_refs=["VALE_DOMESTIC_RESTRAINT"])
-    result = StoryboardOptionsAgent(tmp_path).build("SC0001")
-    for option in result.payload["options"]:
-        assert "aesthetic_pack_refs" in option
-        assert option["aesthetic_pack_refs"] == ["VALE_DOMESTIC_RESTRAINT"]
-
-
-def test_storyboard_options_no_pack_refs_when_scene_has_none(tmp_path: Path) -> None:
-    from scripts.agents.storyboard_options import StoryboardOptionsAgent
-    _minimal_scene(tmp_path)
-    result = StoryboardOptionsAgent(tmp_path).build("SC0001")
-    for option in result.payload["options"]:
-        assert "aesthetic_pack_refs" not in option
-
-
-def test_storyboard_option_with_aesthetic_pack_refs_passes_schema(tmp_path: Path) -> None:
-    from jsonschema import Draft202012Validator
-    from scripts.agents.storyboard_options import StoryboardOptionsAgent
-    schema = json.loads(
-        (REPO_ROOT / "schemas" / "storyboard_option.schema.json").read_text(encoding="utf-8")
-    )
-    _minimal_scene(tmp_path, pack_refs=["VALE_DOMESTIC_RESTRAINT"])
-    result = StoryboardOptionsAgent(tmp_path).build("SC0001")
-    errors = [e.message for e in Draft202012Validator(schema).iter_errors(result.payload)]
-    assert errors == [], errors
-
-
 # ---------------------------------------------------------------------------
 # Backward compatibility — existing records without aesthetic fields stay valid
 # ---------------------------------------------------------------------------

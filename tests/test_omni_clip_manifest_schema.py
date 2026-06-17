@@ -69,13 +69,14 @@ def test_minimal_omni_clip_manifest_valid(validator):
 
 
 def test_omni_clip_manifest_duration_seconds_enum(validator):
-    """duration_seconds must be integer enum 3..15."""
-    for valid in [3, 5, 10, 15]:
+    """duration_seconds must be integer enum 2..15 (2s multi-shot cutaways allowed)."""
+    for valid in [2, 3, 5, 10, 15]:
         record = _minimal_omni_clip_manifest()
         record["shots"][0]["duration_seconds"] = valid
+        record["total_duration_seconds"] = valid  # keep sum==total schema-consistent
         validator.validate(record)  # should not raise
 
-    for invalid in [1, 2, 2.5, 3.5, 16, 20]:
+    for invalid in [1, 2.5, 3.5, 16, 20]:
         record = _minimal_omni_clip_manifest()
         record["shots"][0]["duration_seconds"] = invalid
         with pytest.raises(jsonschema.ValidationError):
@@ -83,13 +84,13 @@ def test_omni_clip_manifest_duration_seconds_enum(validator):
 
 
 def test_omni_clip_manifest_total_duration_seconds_enum(validator):
-    """total_duration_seconds must be integer enum 3..15."""
-    for valid in [3, 5, 10, 15]:
+    """total_duration_seconds must be integer enum 2..15."""
+    for valid in [2, 3, 5, 10, 15]:
         record = _minimal_omni_clip_manifest(total_duration_seconds=valid)
         record["shots"][0]["duration_seconds"] = valid  # match shot duration
         validator.validate(record)  # should not raise
 
-    for invalid in [1, 2, 16, 20]:
+    for invalid in [1, 16, 20]:
         record = _minimal_omni_clip_manifest(total_duration_seconds=invalid)
         with pytest.raises(jsonschema.ValidationError):
             validator.validate(record)

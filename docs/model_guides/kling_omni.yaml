@@ -1,31 +1,31 @@
 # docs/model_guides/kling_omni.yaml
 # Locked versioned guide for Kling Omni video generation.
-# Kling 3.0 Omni (released 2026-02-05) — flagship as of May 2026.
+# Kling 3.0 Omni (released 2026-02-05) - flagship as of June 2026.
 # Maintained by: human PR only.
 # Freshness policy: max_age_days: 7 (faster release cadence).
-# Phase 3 Prerequisites: shot_list_omni non-empty + storyboard selected + fresh snapshot.
-# Source evidence: model_guidance_snapshots/kling/20260516T000000Z_kling_omni_video_best_available.yaml
+# Generation prerequisite: valid omni_clip_manifest + fresh snapshot.
+# Source evidence: model_guidance_snapshots/kling/20260615T000000Z_kling_omni_video_best_available.yaml
 
 model_id: kling_omni
 schema_version: "1.0"
-guide_version: "0.3.0"
+guide_version: "0.7.0"
 status: active
-last_updated: "2026-05-16"
+last_updated: "2026-06-15"
 maintained_by: "human PR only"
 phase: 3
 actual_model_id: "kling-3.0-omni"
-snapshot_ref: "model_guidance_snapshots/kling/20260516T000000Z_kling_omni_video_best_available.yaml"
+snapshot_ref: "model_guidance_snapshots/kling/20260615T000000Z_kling_omni_video_best_available.yaml"
 
 capability:
   output_type: video
   supports_negative_prompt: true      # Corrected: Kling 3.0 Omni DOES support negative_prompt
-  supports_elements: true             # Up to 3 element references per prompt
+  supports_elements: true             # Official guide: up to 7 images/elements without video input; up to 4 with video input
   supports_camera_motion: true        # Full cinematography control
   supports_multi_shot: true           # Up to 6 shots per generation
   supports_audio: true                # Native audio synthesis in 3.0 Omni
   supports_image_to_video: true
   supports_text_to_video: true
-  max_duration_seconds: 15            # Corrected: 3-15s (was 10)
+  max_duration_seconds: 15            # Official guide: up to 15s
   native_fps: 30
   native_resolution: "4K"
   current_version: "Kling 3.0 Omni"
@@ -62,11 +62,67 @@ prompt_rules:
       human_verified: true
     - id: multi_shot_structure
       rule: >
-        For multi-shot content, label each shot explicitly:
-        "Shot 1: Wide establishing shot of ... Shot 2: Close-up tracking of ..."
-        Up to 6 shots per generation. Specify framing, subject movement,
-        and transitions per shot.
-      source: "https://www.veed.io/learn/kling-ai-prompting-guide"
+        For multi-shot content, label each shot explicitly with duration and
+        timecode: "Shot 1 (3s): [00:00 - 00:03] Medium shot: ...".
+        Up to 6 shots per generation. Specify framing, camera angle, subject
+        movement, audio cue/dialogue when used, and the cut/transition per shot.
+        Shot-count cap: the omni_clip_manifest path allows up to 6 shots within
+        the 15s budget (model maximum). The legacy deterministic generate() gate
+        (_allowed_shot_count) is intentionally CONSERVATIVE — it caps at 2 shots
+        for <=5s and 5 shots for <=10s — to avoid over-cutting short clips; this
+        is a repo policy, not a model limit.
+      source: "https://kling.ai/quickstart/klingai-video-3-omni-model-user-guide"
+      confidence: high
+      human_verified: true
+    - id: timecoded_shot_directions
+      rule: >
+        Scene prompts preserve emotional meaning through shot rhythm and
+        coverage: cover a beat with DISTINCT shots (establish -> reaction/insert
+        -> reverse -> resolve), use 2-4s cutaways/close-ups for reaction, reveal,
+        prop, or pressure, and reserve a single long take only when the scene
+        needs continuous performance. Render each shot Goro-style, timecode-first,
+        with camera/movement/performance woven into prose (NOT Camera:/Lighting:/
+        Motion: telemetry): "[MM:SS - MM:SS] <Framing label>: <action + @Element +
+        performance>. <natural camera sentence>. Audio: <diegetic cue>." No
+        "Shot N (Xs):" prefix and no added "Cut to" — the timecode block is the
+        cut. The framing label comes from coverage_role (Insert/Cutaway/Reverse
+        angle) then camera.framing (Wide shot/Medium shot/Close-up). Structured
+        camera/lighting/motion stay in the manifest for QC only.
+      source: "https://kling.ai/quickstart/klingai-video-3-omni-model-user-guide"
+      confidence: high
+      human_verified: true
+    - id: intra_shot_state_chaining
+      rule: >
+        Continuity is a chain, not a reset. Open every shot by restating the
+        carried world state — where each on-screen subject/prop is as the shot
+        begins (the prior shot's settled end) — BEFORE the new action, so Kling
+        keeps positions instead of re-randomising them at each cut. In this repo
+        the data lives in omni_clip_manifest shots[].entry_state / exit_state
+        (summary + key_positions{subject @alias, screen_position, posture,
+        relation, gaze_target, visibility} + props_state), authored to chain
+        exit_state(N) == entry_state(N+1) within a clip and to match the
+        scene_continuity_ledger entry/exit at the clip seam. The renderer prints
+        the carried state as the shot's opening clause. "The more explicit the
+        transitions, the cleaner the result." Enforced by validate_state_chain
+        (ENTRY_STATE_MISSING_AFTER_FIRST_SHOT, SHOT_EXIT_STATE_MISSING,
+        CARRIED_SUBJECT_DROPPED, CARRIED_PROP_DROPPED, RELATION_BROKEN_WITHOUT_ACTION,
+        CLIP_SEAM_MISMATCH).
+      source: "https://blog.fal.ai/kling-3-0-prompting-guide/"
+      confidence: high
+      human_verified: true
+    - id: per_character_action_binding
+      rule: >
+        In a shot with two or more on-screen figures (or any dialogue), give EACH
+        figure its own distinct action clause — never lump several actions into one
+        sentence, which makes the model "not know who slammed the table". Bind the
+        action to a unique, consistent character label (the figure's @alias; avoid
+        pronouns/synonyms), and for dialogue render the action first, then the
+        quoted line. In this repo the per-figure action lives in
+        omni_clip_manifest shots[].figures[].action; the shot's prompt_action stays
+        environment-only. Enforced by validate_state_chain (FIGURE_ACTION_MISSING
+        for on-frame figures in multi-figure/dialogue shots;
+        CHARACTER_ACTION_DUPLICATED_IN_PROMPT_ACTION is an advisory warning).
+      source: "https://blog.fal.ai/kling-3-0-prompting-guide/"
       confidence: high
       human_verified: true
     - id: camera_motion_terminology
@@ -117,14 +173,15 @@ prompt_rules:
       source: "https://filmora.wondershare.com/ai-prompt/kling-ai-negative-prompt.html"
       confidence: high
       human_verified: true
-    - id: phase_3_gate
+    - id: clip_manifest_gate
       rule: >
-        Kling Omni adapter is blocked until Phase 3 conditions are met:
-        1. selected_option non-null (storyboard direction chosen)
-        2. shot_list_omni non-empty in scene_card.yaml
-        3. This guide status: active (done)
-        4. Fresh snapshot < 7 days old in evidence/model_guidance_snapshots/
-      source: "plan Phase 3 gate conditions"
+        Kling Omni prompt generation is blocked until clip-manifest conditions
+        are met:
+        1. omni_clip_manifest.shots is non-empty
+        2. total_duration_seconds <= 15 and shot count <= 6
+        3. every required figure/element has an attached @alias
+        4. prompt cites this locked guide or a run-specific guidance snapshot
+      source: "repo clip-manifest gate"
       confidence: high
       human_verified: true
     - id: no_canonical_ids_in_prompt
@@ -147,10 +204,14 @@ prompt_rules:
         speaker with a bare pronoun. Place a temporal connector (Immediately,
         Then, After a pause) between consecutive speakers so speech is not
         merged. Keep lines short and source-grounded; never invent dialogue.
-        Example: 'She sets the glass down. @Nadia (controlled, low voice):
+        The verbatim line is rendered in the SPEAKING shot and is ALWAYS present
+        as on-screen dialogue text — decoupled from voice: render_pass and
+        native_audio_readiness only gate whether Kling also generates spoken
+        VOICE (audio_gate_status), never whether the text appears.
+        Example: 'She sets the glass down. — @Nadia (controlled, low voice):
         "I slept." Immediately, @Birta (warm, knowing tone): "You slept the
         way you fold laundry."'
-      source: "model_guidance_snapshots/kling/20260516T000000Z_kling_omni_video_best_available.yaml"
+      source: "model_guidance_snapshots/kling/20260613T000000Z_kling_omni_video_best_available.yaml"
       confidence: high
       human_verified: true
 
@@ -160,6 +221,10 @@ prompt_rules:
     - "Exact cfg_scale range — confirmed 0-1.0 but verify edge behavior"
 
 source_refs:
+  - url: "https://kling.ai/quickstart/klingai-video-3-omni-model-user-guide"
+    source_class: official_docs
+    human_verified: true
+    notes: "Official Kling AI VIDEO 3.0 Omni user guide. Multi-shot, native audio, shot-level duration/framing/angle/camera movement/transitions, up to 15s, element limits. Retrieved 2026-06-13."
   - url: "https://docs.magnific.com/api-reference/video/kling-v3-omni/generate-std-video-reference"
     source_class: official_docs
     human_verified: true
@@ -186,9 +251,8 @@ source_refs:
     notes: "Kling 3.0 Omni release date (2026-02-05), flagship status, 4K/30fps/16-bit HDR, up to 6 shots. Retrieved 2026-05-04."
 
 notes: >
-  Updated 2026-05-04 from web research (stub → active). Key corrections:
-  supports_negative_prompt: false → true; max_duration: 10 → 15s; guide_version 0.1.0 → 0.2.0.
-  Kling 3.0 Omni (Feb 2026) is the flagship — unified multimodal with native audio.
-  Official Kling API docs returned 446 (restricted); content verified via 5 platform sources.
-  Freshness: max_age_days 7 — refresh snapshot before Phase 3 prompt generation.
-  Phase 3 adapter (KlingOmniAdapter) scheduled for Batch 8 — this guide is ready for it.
+  Updated 2026-06-13 from the official Kling AI VIDEO 3.0 Omni user guide.
+  The repo now treats omni_clip_manifest as the generation contract and renders
+  multi-shot prompts with explicit duration and timecode blocks. Use a fresh
+  guidance snapshot before prompt generation; adapter behavior should change
+  from the snapshot/guide, not unlogged live internet.

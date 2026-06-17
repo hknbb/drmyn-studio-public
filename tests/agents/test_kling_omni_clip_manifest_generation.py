@@ -246,6 +246,23 @@ class TestGenerateFromClipManifest:
         assert result.run_record is not None
         assert result.warnings == []
 
+    def test_manifest_empty_dialogue_ref_no_dialogue_scene(self, tmp_path):
+        """A no-dialogue scene carries an empty source_dialogue_beats_ref and still builds.
+
+        Empty (present-but-blank) ref means 'this scene has no dialogue' (e.g. a silent
+        fight). The shape validator must accept it rather than forcing every scene to
+        author a dialogue_beats file.
+        """
+        manifest_path = _create_manifest(tmp_path, source_dialogue_beats_ref="")
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+
+        adapter = KlingOmniAdapter(tmp_path)
+        result = adapter.generate_from_clip_manifest(str(manifest_path))
+
+        assert result.prompt_record is not None
+        assert result.prompt_record["prompt_text"]
+
     def test_manifest_prompt_id_includes_clip_id(self, tmp_path):
         """Prompt ID should include clip_id in a deterministic way."""
         manifest_path = _create_manifest(tmp_path, clip_id="CLIP_SC0001_03")
@@ -488,10 +505,11 @@ class TestGenerateFromClipManifest:
         prompt_text = result.prompt_record["prompt_text"]
         # Should include shot actions from manifest
         assert "KITCHEN PASSAGE" in prompt_text or "kitchen" in prompt_text.lower()
-        assert "Shot 1" in prompt_text
-        assert "Shot 2" in prompt_text
-        assert "Shot 3" in prompt_text
-        assert "(5s)" in prompt_text
+        # Goro-style timecode-first headings, one per shot (no "Shot N (Xs):" prefix).
+        assert "[00:00 - 00:05]" in prompt_text
+        assert "[00:05 - 00:10]" in prompt_text
+        assert "[00:10 - 00:15]" in prompt_text
+        assert "Shot 1 (5s):" not in prompt_text
 
     @pytest.mark.parametrize("mode", ["safe", "creative", "aggressive"])
     def test_variant_modes_keep_source_actions(self, tmp_path, mode):
@@ -1343,16 +1361,22 @@ class TestCameraLightingMotionConsumption:
         assert "dolly forward" in prompt_text
         assert "move forward" not in prompt_text
 
-    def test_motion_intensity_lighting_and_end_state_present(self):
+    def test_camera_prose_and_end_state_present_no_telemetry(self):
         repo_root = Path(__file__).parent.parent.parent
         manifest_ref = repo_root / "planning" / "scenes" / "SC0001" / "manifests" / "CLIP_SC0001_01_manifest.yaml"
         if not manifest_ref.exists():
             pytest.skip("SC0001 manifest not found")
         adapter = KlingOmniAdapter(repo_root)
         prompt_text = adapter.generate_from_clip_manifest(str(manifest_ref)).prompt_record["prompt_text"]
-        assert "motion intensity" in prompt_text
-        assert "filtered_daylight" in prompt_text
-        assert "settled end state" in prompt_text
+        # Timecode-first headings, no structured telemetry suffix.
+        assert "[00:00 - " in prompt_text
+        assert "Motion:" not in prompt_text
+        assert "subject 0." not in prompt_text
+        assert (
+            "end settled" in prompt_text
+            or "settled end state" in prompt_text
+            or "clear settled state" in prompt_text
+        )
 
     def test_prompt_text_collapses_repeated_periods(self, tmp_path):
         manifest_path = _create_manifest(
@@ -1638,9 +1662,12 @@ def _dialogue_shots(beat_id: str = "BEAT_DIALOGUE") -> list[dict]:
 class TestAudioPlanComponent:
     """Tests for audio_plan component rendering in generate_from_clip_manifest."""
 
-    def test_blocked_speakers_emit_suppression_note(self, tmp_path):
-        """When speakers are native_audio_readiness: blocked, prompt_text must contain
-        the exact suppression note and zero raw dialogue line text."""
+    def test_blocked_speakers_still_render_dialogue_text(self, tmp_path):
+        """Decoupled: native_audio_readiness: blocked no longer deletes the line.
+
+        The verbatim dialogue is rendered as alias-tagged on-screen text in the
+        speaking shot regardless of readiness; the gate only signals that spoken
+        VOICE is off (audio_gate_status), never that the text is omitted."""
         _create_dialogue_beats(tmp_path)
         manifest_path = _create_manifest(
             tmp_path,
@@ -1673,16 +1700,19 @@ class TestAudioPlanComponent:
         result = adapter.generate_from_clip_manifest(str(manifest_path))
         prompt_text = result.prompt_record["prompt_text"]
 
-        assert (
-            "Audio plan suppressed: one or more speaking elements are not "
-            "native_audio_readiness: ready. Dialogue line text omitted from prompt_text."
-        ) in prompt_text
-        assert "I slept" not in prompt_text
-        assert "fold laundry" not in prompt_text
+        assert "suppressed" not in prompt_text
+        assert "omitted" not in prompt_text
+        # Verbatim, alias-tagged, inline in the speaking shot.
+        assert '@Nadia (controlled): "I slept."' in prompt_text
+        assert "fold laundry" in prompt_text
+        assert "Immediately," in prompt_text
+        # Audio-off is signalled via the gate param, not by deleting the text.
+        params = result.prompt_record["generation_params"]
+        assert params["audio_gate_status"] == "allowed_audio_off"
 
-    def test_ready_speakers_render_dialogue_in_omni3_syntax(self, tmp_path):
-        """When all speakers are native_audio_readiness: ready, prompt_text must
-        contain the verified Omni 3 @alias-keyed dialogue in the correct order."""
+    def test_ready_speakers_render_dialogue_inline(self, tmp_path):
+        """Dialogue is rendered inline in the speaking shot (no trailing 'Audio plan:'
+        block), alias-tagged with delivery tone and sequenced by 'Immediately,'."""
         _create_dialogue_beats(tmp_path)
         manifest_path = _create_manifest(
             tmp_path,
@@ -1715,17 +1745,15 @@ class TestAudioPlanComponent:
         result = adapter.generate_from_clip_manifest(str(manifest_path))
         prompt_text = result.prompt_record["prompt_text"]
 
-        assert "Audio plan:" in prompt_text
-        assert "@Nadia" in prompt_text
-        assert "@Birta" in prompt_text
-        assert '"I slept."' in prompt_text
-        assert '"You slept the way you fold laundry."' in prompt_text
+        assert "Audio plan:" not in prompt_text   # dialogue is inline, no trailing block
+        assert '— @Nadia (controlled): "I slept."' in prompt_text
+        assert '@Birta (warm): "You slept the way you fold laundry."' in prompt_text
         assert "Immediately," in prompt_text
         assert "suppressed" not in prompt_text
 
-    def test_mixed_readiness_emits_suppression_not_partial_dialogue(self, tmp_path):
-        """If one speaker is blocked and another is ready, the suppression note must
-        fire — no partial dialogue must appear."""
+    def test_mixed_readiness_still_renders_full_dialogue_text(self, tmp_path):
+        """Text presence is decoupled from voice: even with one speaker blocked,
+        both verbatim lines are rendered as on-screen dialogue text."""
         _create_dialogue_beats(tmp_path)
         manifest_path = _create_manifest(
             tmp_path,
@@ -1758,9 +1786,9 @@ class TestAudioPlanComponent:
         result = adapter.generate_from_clip_manifest(str(manifest_path))
         prompt_text = result.prompt_record["prompt_text"]
 
-        assert "suppressed" in prompt_text
-        assert "I slept" not in prompt_text
-        assert "fold laundry" not in prompt_text
+        assert "suppressed" not in prompt_text
+        assert "I slept" in prompt_text
+        assert "fold laundry" in prompt_text
 
     def test_screenplay_cues_stripped_from_action_when_audio_plan_active(self, tmp_path):
         """Raw SPEAKER: \"...\" cues must be removed from the shot action text when the
@@ -1995,3 +2023,90 @@ class TestAudioPlanComponent:
         # Only DL001 must appear; DL002 belongs to another clip.
         assert "I slept" in prompt_text
         assert "fold laundry" not in prompt_text
+
+
+class TestStateAnchorAndFigureActions:
+    """v05: per-shot carried-state anchor + per-figure action rendering."""
+
+    def _two_figure_shots(self) -> list[dict]:
+        return [
+            {
+                "shot_id": "SHOT_SC0001_01_A",
+                "duration_seconds": 7,
+                "source_beat_ids": ["ESTABLISH_KITCHEN"],
+                "required_element_ids": ["C01", "LOC001"],
+                "prompt_action": "The kitchen holds still as the door opens.",
+                "duration_reason": "establish 7s",
+                "figures": [
+                    {"figure_id": "FIG_NADIA", "base_element_id": "C01",
+                     "kling_alias": "@Nadia", "role": "protagonist",
+                     "action": "stays at the counter, hands flat on the stone"},
+                ],
+                "exit_state": {
+                    "summary": "Nadia at the counter; the door open",
+                    "key_positions": [
+                        {"subject": "@Nadia", "screen_position": "center",
+                         "posture": "standing", "relation": "hands on the counter"}
+                    ],
+                },
+            },
+            {
+                "shot_id": "SHOT_SC0001_01_B",
+                "duration_seconds": 8,
+                "source_beat_ids": ["NADIA_PASSAGE_MOVEMENT"],
+                "required_element_ids": ["C01", "LOC001"],
+                "prompt_action": "The passage light shifts.",
+                "duration_reason": "action 8s",
+                "entry_state": {
+                    "summary": "Nadia remains at the counter, the door still open",
+                    "key_positions": [
+                        {"subject": "@Nadia", "screen_position": "center",
+                         "posture": "standing", "relation": "hands on the counter"}
+                    ],
+                },
+                "figures": [
+                    {"figure_id": "FIG_NADIA", "base_element_id": "C01",
+                     "kling_alias": "@Nadia", "role": "protagonist",
+                     "action": "turns toward the passage"},
+                ],
+                "exit_state": {
+                    "key_positions": [
+                        {"subject": "@Nadia", "screen_position": "center"}
+                    ],
+                },
+            },
+        ]
+
+    def test_entry_anchor_and_figure_action_in_prompt(self, tmp_path):
+        _create_element_bindings(tmp_path)
+        manifest_path = _create_manifest(
+            tmp_path, shots=self._two_figure_shots(),
+            required_element_ids=["C01", "LOC001"], total_duration=15,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+
+        adapter = KlingOmniAdapter(tmp_path)
+        text = adapter.generate_from_clip_manifest(str(manifest_path)).prompt_record["prompt_text"]
+
+        # Carried-state anchor for shot B restates the prior position before the new action.
+        assert "Nadia remains at the counter" in text, text
+        # Per-figure action clause is present.
+        assert "@Nadia turns toward the passage" in text, text
+
+    def test_render_prompt_text_only_matches_generate(self, tmp_path):
+        _create_element_bindings(tmp_path)
+        manifest_path = _create_manifest(
+            tmp_path, shots=self._two_figure_shots(),
+            required_element_ids=["C01", "LOC001"], total_duration=15,
+        )
+        _create_scene_card(tmp_path)
+        _create_scene_excerpt(tmp_path)
+
+        adapter = KlingOmniAdapter(tmp_path)
+        full = adapter.generate_from_clip_manifest(str(manifest_path)).prompt_record["prompt_text"]
+        dry = adapter.render_prompt_text_only("SC0001", "CLIP_SC0001_01")
+        assert dry == full
+        # render_prompt_text_only must not write any prompt/run records.
+        assert not list((tmp_path / "prompts").rglob("*.yaml"))
+        assert not list((tmp_path / "evidence").rglob("*run*.yaml"))

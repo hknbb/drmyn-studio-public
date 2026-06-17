@@ -204,9 +204,9 @@ def test_no_total_duration_seconds(dialogue_beats_record):
 
 
 def test_kling_native_audio_disabled(dialogue_beats_record):
-    """kling_native_audio is properly configured."""
+    """kling_native_audio is properly configured (enabled after AUDIO-1a promotion)."""
     kna = dialogue_beats_record.get("kling_native_audio", {})
-    assert kna.get("enabled") is False, "kling_native_audio.enabled must be false"
+    assert kna.get("enabled") is True, "kling_native_audio.enabled must be true after AUDIO-1a"
     assert (
         kna.get("provider_policy") == "kling_native_only"
     ), "provider_policy must be kling_native_only"
@@ -228,12 +228,12 @@ def test_all_dialogue_required_true(dialogue_beats_record):
 
 
 def test_all_dialogue_blocked_readiness(dialogue_beats_record):
-    """All dialogue_lines have native_audio_readiness: blocked."""
+    """All dialogue_lines have native_audio_readiness: ready (after AUDIO-1a promotion)."""
     lines = dialogue_beats_record.get("dialogue_lines", [])
     for line in lines:
         assert (
-            line.get("native_audio_readiness") == "blocked"
-        ), f"Line {line.get('line_id')} has readiness != blocked"
+            line.get("native_audio_readiness") == "ready"
+        ), f"Line {line.get('line_id')} has readiness != ready"
 
 
 def test_semantic_validation_no_hard_errors(
@@ -252,26 +252,15 @@ def test_semantic_validation_no_hard_errors(
 def test_semantic_validation_readiness_blockers(
     dialogue_beats_record, repo_root
 ):
-    """Semantic validator returns readiness blockers for blocked required lines."""
+    """After AUDIO-1a promotion all lines are ready; semantic validator returns zero blockers."""
     bindings_path = repo_root / "visual_dev" / "omni_sets" / "SC0001" / "element_bindings.yaml"
     if not bindings_path.exists():
         pytest.skip("element_bindings.yaml not yet authored (clean baseline; re-created in PR-1)")
     errors, blockers = validate_dialogue_beats(dialogue_beats_record, repo_root)
 
-    assert len(blockers) > 0, "Expected readiness blockers for blocked required dialogue"
-
-    blocked_required_count = 0
-    lines = dialogue_beats_record.get("dialogue_lines", [])
-    for line in lines:
-        if (
-            line.get("dialogue_required") is True
-            and line.get("native_audio_readiness") == "blocked"
-        ):
-            blocked_required_count += 1
-
-    assert (
-        len(blockers) == blocked_required_count
-    ), f"Expected {blocked_required_count} blockers, got {len(blockers)}"
+    assert len(blockers) == 0, (
+        f"Expected zero readiness blockers after AUDIO-1a promotion, got {len(blockers)}: {blockers}"
+    )
 
 
 def test_dialogue_beats_references(dialogue_beats_record):

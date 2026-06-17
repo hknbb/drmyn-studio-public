@@ -287,8 +287,8 @@ def test_duration_overflow_blocks_without_clamping(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     ("shot_list", "expected_error"),
     [
-        (_multi_shot_list(shot_count=6, duration_seconds=2), "max allowed is 5"),
-        (_multi_shot_list(shot_count=4, duration_seconds=2), "max allowed is 3"),
+        (_multi_shot_list(shot_count=6, duration_seconds=1), "max allowed is 5"),
+        (_multi_shot_list(shot_count=7, duration_seconds=2), "max allowed is 6"),
         (_multi_shot_list(shot_count=3, duration_seconds=1), "max allowed is 2"),
     ],
 )

@@ -1,9 +1,9 @@
 """
 Audit the metadata-only Omni set production gate for a scene.
 
-This module reads scene cards, storyboard selection, Omni element sets, element
-descriptors, and pack manifests. It does not mutate lifecycle fields, run
-external tools, or create media binaries.
+This module reads scene cards, Omni element sets, element descriptors, and pack
+manifests. It does not mutate lifecycle fields, run external tools, or create
+media binaries.
 """
 
 from __future__ import annotations
@@ -65,17 +65,6 @@ def _shot_list_summary(scene_card: dict[str, Any]) -> dict[str, Any]:
         "ready": len(valid_durations) == len(shot_list),
         "shot_count": len(shot_list),
         "total_duration_seconds": sum(valid_durations),
-    }
-
-
-def _storyboard_summary(repo_root: Path, scene_id: str) -> dict[str, Any]:
-    path = repo_root / "visual_dev" / "storyboards" / scene_id / "storyboard_options.yaml"
-    data = _read_yaml(path)
-    selected_option = data.get("selected_option") if isinstance(data, dict) else None
-    return {
-        "storyboard_options_ref": _relative(path, repo_root),
-        "selected_option": selected_option,
-        "ready": bool(selected_option),
     }
 
 
@@ -160,10 +149,6 @@ def audit_omni_set_gate(
     if not shot_list["ready"] or shot_list["shot_count"] == 0:
         blocking_reasons.append("scene_card.shot_list_omni is missing or invalid")
 
-    storyboard = _storyboard_summary(root, scene_id)
-    if not storyboard["ready"]:
-        blocking_reasons.append("storyboard_options.selected_option is missing")
-
     omni_set_ref = _text(scene_card.get("omni_set_ref"))
     element_set_ref = f"{omni_set_ref.rstrip('/')}/element_set.yaml" if omni_set_ref else None
     element_set = _read_yaml(root / element_set_ref) if element_set_ref else None
@@ -200,7 +185,6 @@ def audit_omni_set_gate(
         "scene_card_ref": _relative(scene_card_path, root),
         "omni_set_ref": omni_set_ref or None,
         "element_set_ref": element_set_ref,
-        "storyboard_gate": storyboard,
         "shot_list_gate": shot_list,
         "element_pack_gate": {
             "required_pack_status": REQUIRED_PACK_STATUS,
