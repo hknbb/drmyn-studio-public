@@ -2,7 +2,7 @@
 
 **Release date:** 2026-06-17
 **Tag:** `v0.18.0-kling-literal-multishot-pipeline`
-**Zenodo DOI:** _pending mint_
+**Zenodo DOI:** 10.5281/zenodo.20735582
 
 ---
 
