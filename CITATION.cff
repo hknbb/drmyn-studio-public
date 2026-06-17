@@ -1,10 +1,10 @@
 cff-version: 1.2.0
-message: "This is a private development repository. For citation, use the public archived release DOI 10.5281/zenodo.20241807."
-doi: 10.5281/zenodo.20534124
+message: "For citation, use the public archived release DOI 10.5281/zenodo.20735582."
+doi: 10.5281/zenodo.20735582
 title: "DRMYN Studio: Metadata-Only AI-Assisted Movie Development and Production Workflow"
 type: software
 version: 0.18.0
-date-released: 2026-06-04
+date-released: 2026-06-17
 repository-code: "https://github.com/hknbb/drmynstudio-public"
 url: "https://github.com/hknbb/drmynstudio-public/releases/tag/v0.18.0"
 abstract: >
