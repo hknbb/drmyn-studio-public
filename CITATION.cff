@@ -46,7 +46,7 @@ keywords:
   - software validation
   - multi-agent coordination
   - human-gated workflow
-license: "MIT"
+license: "GPL-3.0-or-later"
 authors:
   - family-names: "Babacan"
     given-names: "Hakan"
