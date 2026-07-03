@@ -7,7 +7,7 @@
   "description": "Metadata-only research software for AI-assisted movie development and movie production process design, validation, and reproducibility.",
   "codeRepository": "https://github.com/hknbb/drmyn-studio-public",
   "identifier": "https://doi.org/10.5281/zenodo.20121045",
-  "license": "https://spdx.org/licenses/MIT",
+  "license": "https://spdx.org/licenses/GPL-3.0-or-later",
 
   "applicationCategory": "Research software",
   "keywords": [
